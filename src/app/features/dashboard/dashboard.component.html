@@ -1,0 +1,78 @@
+<!-- La clase [class.sidebar-open] es clave para la lógica responsiva -->
+<div class="dashboard-layout" [class.sidebar-open]="isSidebarOpen()">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <i class="bi bi-award"></i>
+      <span>FNE Elección</span>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <!-- INICIO GENERAL (Para todos los usuarios) -->
+      <a routerLink="/dashboard/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="isSidebarOpen.set(false)">
+        <i class="bi bi-house-door"></i>
+        <span>Inicio</span>
+      </a>
+
+      <!-- VISTA PARA JURADOS O ALUMNOS (VOTACIÓN) -->
+      @if (isJurado() || isAlumno()) {
+        <a routerLink="/dashboard/votacion" routerLinkActive="active" (click)="isSidebarOpen.set(false)">
+          <i class="bi bi-award-fill"></i>
+          <span>{{ isJurado() ? 'Planilla de Evaluación' : 'Centro de Votación' }}</span>
+        </a>
+      }
+
+      <!-- MI PERFIL -->
+      <a routerLink="/dashboard/profile" routerLinkActive="active" (click)="isSidebarOpen.set(false)">
+        <i class="bi bi-person-circle"></i>
+        <span>Mi Perfil</span>
+      </a>
+
+      <!-- SECCIÓN EXCLUSIVA DE ADMINISTRACIÓN FNE -->
+      @if (isAdmin()) {
+        <hr class="nav-divider">
+
+        <a routerLink="/dashboard/admin/elections" routerLinkActive="active" (click)="isSidebarOpen.set(false)">
+          <i class="bi bi-trophy"></i>
+          <span>Gestión de Elecciones</span>
+        </a>
+
+        <a routerLink="/dashboard/admin/users" routerLinkActive="active" (click)="isSidebarOpen.set(false)">
+          <i class="bi bi-people"></i>
+          <span>Padrón de Jurados</span>
+        </a>
+      }
+    </nav>
+
+    @if (currentUser()) {
+      <div class="user-profile">
+        <img [src]="currentUser()?.fotoURL || 'assets/user-default.jpg'" alt="Foto de perfil">
+        <div class="user-info">
+          <strong>{{ currentUser()?.nombre }} {{ currentUser()?.apellido }}</strong>
+          <small>{{ currentUser()?.rol }}</small>
+        </div>
+        <button class="btn-logout" (click)="logout()" title="Cerrar Sesión">
+          <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
+    }
+  </aside>
+
+  <!-- Overlay que aparece en móvil para cerrar el sidebar al hacer clic fuera -->
+  <div class="sidebar-overlay" (click)="isSidebarOpen.set(false)"></div>
+
+  <main class="main-content">
+    <!-- Cabecera para la vista móvil con el botón "hamburguesa" -->
+    <header class="mobile-header">
+      <button class="btn-menu" (click)="toggleSidebar()">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="mobile-header-logo">
+        <i class="bi bi-award"></i>
+        <span>FNE Elección</span>
+      </div>
+    </header>
+
+    <router-outlet></router-outlet>
+  </main>
+</div>

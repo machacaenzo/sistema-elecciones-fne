@@ -1,0 +1,83 @@
+@if (eleccion) {
+  <div class="modal-content neumorphic-panel-outset" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="header-text">
+        <h2 class="modal-title">{{ eleccion.nombre }}</h2>
+        <p class="modal-subtitle">Explora las candidatas y participa.</p>
+      </div>
+      <button type="button" mat-icon-button class="modal-close-button" (click)="closeModal.emit()" matTooltip="Cerrar">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      @if (isLoading()) {
+        <div class="loading-container">
+          <mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner>
+        </div>
+      } @else {
+        <div class="candidates-grid">
+          @for (candidata of candidatas(); track candidata.id) {
+            <div class="candidate-card neumorphic-panel-outset" (click)="openGallery(candidata)">
+              <div class="candidate-photo" [style.background-image]="'url(' + (candidata.fotosURL?.[0] || 'assets/user-default.jpg') + ')'"></div>
+              <div class="candidate-info">
+                <span class="candidate-name">{{ candidata.nombre }} {{ candidata.apellido }}</span>
+              </div>
+            </div>
+          } @empty {
+            <div class="no-results-message">
+              <mat-icon>group_off</mat-icon>
+              <h3>Aún no hay candidatas</h3>
+              <p>Las candidatas para esta elección se publicarán pronto.</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      @if (eleccion.estado === 'Activa' && eleccion.fechaFin.toDate() > today && !haVotado) {
+        <button class="neumorphic-button-outset primary vote-button" (click)="onVotarClick()">
+          <mat-icon>how_to_vote</mat-icon>
+          <span>Votar Ahora</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (isGalleryOpen() && selectedCandidata(); as candidata) {
+    <div class="gallery-overlay" (click)="closeGallery()">
+      <div class="gallery-content neumorphic-panel-outset" (click)="$event.stopPropagation()">
+        <div class="gallery-header">
+          <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'" alt="Foto" class="gallery-avatar">
+          <div class="gallery-header-text">
+            <h3 class="gallery-name">{{ candidata.nombre }} {{ candidata.apellido }}</h3>
+            <p class="gallery-dni">DNI: {{ candidata.dni }}</p>
+          </div>
+          <button mat-icon-button class="modal-close-button" (click)="closeGallery()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <div class="gallery-body">
+          <div class="gallery-photos">
+            @for (foto of candidata.fotosURL; track $index) {
+              <img [src]="foto" alt="Foto {{ $index + 1 }}" class="gallery-image neumorphic-panel-inset">
+            } @empty {
+              <p class="no-photos-message">Esta candidata no tiene fotos en su galería.</p>
+            }
+          </div>
+          @if (eleccion.camposCandidata && eleccion.camposCandidata.length > 0) {
+            <div class="custom-fields-section">
+              @for (campo of eleccion.camposCandidata; track campo) {
+                <div class="field-item">
+                  <span class="field-label">{{ campo }}</span>
+                  <span class="field-value">{{ candidata.camposPersonalizados?.[campo] || 'No especificado' }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+}

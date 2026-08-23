@@ -1,0 +1,170 @@
+<div class="page-container">
+  <div class="view-list">
+    @for (eleccion of todasLasElecciones(); track eleccion.id) {
+      <div class="election-card neumorphic-panel-outset">
+        <div class="election-info">
+          <h3 class="election-name" [matTooltip]="eleccion.nombre">{{ eleccion.nombre }}</h3>
+          <span class="election-dates">Del {{ eleccion.fechaInicio.toDate() | date:'dd/MM' }} al {{ eleccion.fechaFin.toDate() | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="election-status">
+          @if (haVotado(eleccion.id!)) {
+            <div class="status-badge voted"><mat-icon>verified</mat-icon><span>Ya Votaste</span></div>
+            <button class="neumorphic-button-outset" (click)="openDetalleMode(eleccion)"><mat-icon>groups</mat-icon><span>Explorar</span></button>
+            @if(eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada'){<button class="neumorphic-button-outset results" (click)="openResultadosMode(eleccion)"><mat-icon>emoji_events</mat-icon><span>Resultados</span></button>}
+          } @else if (eleccion.estado === 'Activa' && eleccion.fechaFin.toDate() > today) {
+            <button class="neumorphic-button-outset" (click)="openDetalleMode(eleccion)"><mat-icon>groups</mat-icon><span>Explorar</span></button>
+            <button class="neumorphic-button-outset primary" (click)="openVotingMode(eleccion)"><mat-icon>how_to_vote</mat-icon><span>Votar Ahora</span></button>
+          } @else if (eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada') {
+            <button class="neumorphic-button-outset" (click)="openDetalleMode(eleccion)"><mat-icon>groups</mat-icon><span>Explorar</span></button>
+            <button class="neumorphic-button-outset results" (click)="openResultadosMode(eleccion)"><mat-icon>emoji_events</mat-icon><span>Resultados</span></button>
+          } @else if (eleccion.estado === 'Configuracion') {
+            <div class="status-badge upcoming"><mat-icon>update</mat-icon><span>Próximamente</span></div>
+            <button class="neumorphic-button-outset" (click)="openDetalleMode(eleccion)"><mat-icon>groups</mat-icon><span>Explorar</span></button>
+          }
+        </div>
+      </div>
+    } @empty {
+      <div class="message-container neumorphic-panel-outset"><mat-icon>info</mat-icon><h2>No hay elecciones disponibles</h2><p>No hay eventos de votación por el momento.</p></div>
+    }
+  </div>
+
+
+<!-- ===== MODAL DE VOTACIÓN COMPLETO (LAYOUT 3 COLUMNAS + RESUMEN) ===== -->
+
+@if(isVotingMode() && selectedEleccion(); as eleccion){
+  <div class="modal-overlay" (click)="closeVotingMode()">
+    <div class="voting-modal-content neumorphic-panel-outset" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-text">
+          <h2 class="modal-title">{{ isReviewMode() ? 'Resumen de tu Votación' : 'Votar en: ' + eleccion.nombre }}</h2>
+          <p class="modal-subtitle">{{ isReviewMode() ? 'Verifica tus puntajes antes de confirmar.' : 'Evalúa a cada candidata para continuar.' }}</p>
+        </div>
+        <button type="button" mat-icon-button class="modal-close-button" (click)="closeVotingMode()" matTooltip="Cerrar"><mat-icon>close</mat-icon></button>
+      </div>
+      <div class="modal-body">
+        @if(isVotingLoading()){
+          <div class="message-container"><mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner></div>
+        } @else {
+          <form [formGroup]="votacionForm" (ngSubmit)="onSubmit()">
+            @if (!isReviewMode()) {
+              <div class="wizard-container">
+                <div class="wizard-progress">
+                  <span class="progress-label">Candidata {{ currentStep() + 1 }} de {{ candidatas().length }}</span>
+                  <mat-progress-bar mode="determinate" [value]="wizardProgress()"></mat-progress-bar>
+                </div>
+                <div class="wizard-content" formArrayName="evaluaciones">
+                  @for(candidata of candidatas(); track candidata.id; let i = $index){
+                    @if(currentStep() === i){
+                      <div [formGroupName]="i">
+                        <!-- INICIO: Nuevo Layout de 3 Columnas -->
+                        <div class="voting-card-grid">
+                          <!-- Columna 1: Perfil Visual (Carrusel) -->
+                          <div class="candidate-profile-visuals">
+                            <div class="carousel-container neumorphic-panel-inset">
+                              <img [src]="candidata.fotosURL?.[carouselImageIndex()] || 'assets/user-default.jpg'" alt="Foto de la candidata" class="carousel-image">
+                              @if (candidata.fotosURL && candidata.fotosURL.length > 1) {
+                                <button type="button" mat-icon-button class="carousel-control prev" (click)="previousImage()" [disabled]="carouselImageIndex() === 0"><mat-icon>chevron_left</mat-icon></button>
+                                <button type="button" mat-icon-button class="carousel-control next" (click)="nextImage()" [disabled]="carouselImageIndex() === (candidata.fotosURL?.length || 0) - 1"><mat-icon>chevron_right</mat-icon></button>
+                              }
+                            </div>
+                          </div>
+
+                          <!-- Columna 2: Datos Adicionales -->
+                          <div class="candidate-profile-data">
+                            @if (eleccion.camposCandidata && eleccion.camposCandidata.length > 0) {
+                              <div class="candidate-custom-fields">
+                                @for (campo of eleccion.camposCandidata; track campo) {
+                                  <div class="field-item neumorphic-inset">
+                                    <span class="field-label">{{ campo }}</span>
+                                    <span class="field-value">{{ candidata.camposPersonalizados?.[campo] || '-' }}</span>
+                                  </div>
+                                }
+                              </div>
+                            } @else {
+                              <div class="no-fields-message">No hay información adicional para esta candidata.</div>
+                            }
+                          </div>
+
+                          <!-- Columna 3: Votación (Sliders) -->
+                          <div class="candidate-voting">
+                            <h3 class="candidate-name">{{ candidata.nombre }} {{ candidata.apellido }}</h3>
+                            <div class="criteria-sliders">
+                              @for (criterio of eleccion.criterios; track criterio) {
+                                <div class="criterion">
+                                  <label>{{ criterio }}</label>
+                                  <div class="slider-wrapper">
+                                    <mat-slider min="1" max="10" step="1" discrete>
+                                      <input matSliderThumb [formControlName]="criterio" #sliderInput (input)="updateSliderValue(i, criterio, +sliderInput.value)">
+                                    </mat-slider>
+                                    <span class="slider-value neumorphic-panel-inset">{{ getEvaluacionGroup(i, criterio)?.value }}</span>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                        <!-- FIN: Nuevo Layout de 3 Columnas -->
+                      </div>
+                    }
+                  }
+                </div>
+              </div>
+            }
+            @if (isReviewMode()) {
+              <div class="review-container" formArrayName="evaluaciones">
+                @for(candidata of candidatas(); track candidata.id; let i = $index){
+                  <div class="review-card neumorphic-panel-outset" [formGroupName]="i">
+                    <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'" alt="Foto" class="review-photo">
+                    <div class="review-details">
+                      <h4 class="review-name">{{ candidata.nombre }} {{ candidata.apellido }}</h4>
+                      <div class="review-total-score">{{ calculateTotalScore(i) }} Puntos</div>
+                      <div class="review-scores">
+                        @for (criterio of eleccion.criterios; track criterio) {
+                          <div class="score-item">
+                            <span class="score-label">{{ criterio }}:</span>
+                            <span class="score-value">{{ getEvaluacionGroup(i, criterio)?.value }}</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <button type="button" mat-icon-button class="edit-vote-btn" (click)="goToStep(i)" matTooltip="Editar Voto"><mat-icon>edit</mat-icon></button>
+                  </div>
+                }
+              </div>
+            }
+            <div class="modal-footer wizard-footer">
+              @if (!isReviewMode()) {
+                <button type="button" class="neumorphic-button-outset" (click)="previousStep()" [disabled]="currentStep() === 0"><mat-icon>arrow_back</mat-icon><span>Anterior</span></button>
+                @if(cameFromReview) {
+                  <button type="button" class="neumorphic-button-outset primary" (click)="enterReviewMode()"><span>Volver al Resumen</span><mat-icon>checklist</mat-icon></button>
+                } @else {
+                  @if(currentStep() < candidatas().length - 1){
+                    <button type="button" class="neumorphic-button-outset primary" (click)="nextStep()"><span>Siguiente</span><mat-icon>arrow_forward</mat-icon></button>
+                  } @else {
+                    <button type="button" class="neumorphic-button-outset primary" (click)="enterReviewMode()"><span>Ver Resumen</span><mat-icon>checklist</mat-icon></button>
+                  }
+                }
+              } @else {
+                <button type="button" class="neumorphic-button-outset" (click)="goToStep(candidatas().length - 1)"><mat-icon>arrow_back</mat-icon><span>Volver</span></button>
+                <button type="submit" class="neumorphic-button-outset primary" [disabled]="votacionForm.invalid"><mat-icon>how_to_vote</mat-icon><span>Confirmar y Enviar Voto</span></button>
+              }
+            </div>
+          </form>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+
+  @if(isDetalleMode() && selectedEleccionParaDetalle(); as eleccion){
+    <div class="modal-overlay" (click)="closeDetalleMode()">
+      <app-detalle-eleccion
+        [eleccion]="eleccion"
+        [haVotado]="haVotado(eleccion.id!)"
+        (closeModal)="closeDetalleMode()"
+        (iniciarVotacion)="handleIniciarVotacion(eleccion)">
+      </app-detalle-eleccion>
+    </div>
+  }
+</div>

@@ -1,0 +1,212 @@
+<div class="page-container">
+  <div class="header">
+    <div class="header-text">
+      <h1>Gestión de Elecciones</h1>
+      <p>Crea y administra los periodos de votación honorífica.</p>
+    </div>
+    <button class="neumorphic-button-outset primary" (click)="openCreateModal()">
+      <mat-icon>add</mat-icon>
+      <span>Nueva Elección</span>
+    </button>
+  </div>
+  <div class="table-container neumorphic-panel-outset">
+    <table mat-table [dataSource]="dataSource" class="elections-table">
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef>Nombre del Evento</th>
+        <td mat-cell *matCellDef="let eleccion" [matTooltip]="eleccion.nombre">
+          {{ eleccion.nombre }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="fechaInicio">
+        <th mat-header-cell *matHeaderCellDef>Inicio de Votación</th>
+        <td mat-cell *matCellDef="let eleccion">{{ eleccion.fechaInicio.toDate() | date:'dd/MM/yyyy':'UTC' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="fechaFin">
+        <th mat-header-cell *matHeaderCellDef>Fin de Votación</th>
+        <td mat-cell *matCellDef="let eleccion">{{ eleccion.fechaFin.toDate() | date:'dd/MM/yyyy':'UTC' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef class="text-center">Estado</th>
+        <td mat-cell *matCellDef="let eleccion" class="text-center"><span class="status-badge"
+            [ngClass]="eleccion.estado.toLowerCase()">{{ eleccion.estado }}</span></td>
+      </ng-container>
+
+      <!-- ====================================================== -->
+      <!-- ===== SECCIÓN DE ACCIONES (MODIFICADA) ===== -->
+      <!-- ====================================================== -->
+      <ng-container matColumnDef="acciones">
+  <th mat-header-cell *matHeaderCellDef class="text-right">Acciones</th>
+  <td mat-cell *matCellDef="let eleccion" class="text-right actions-cell">
+
+    <!-- Botón INICIAR (solo en Configuración) -->
+    @if (eleccion.estado === 'Configuracion') {
+      <button mat-icon-button (click)="iniciarVotacion(eleccion)" class="action-button start" matTooltip="Iniciar Votación">
+        <mat-icon>play_circle</mat-icon>
+      </button>
+    }
+    <!-- Botón FINALIZAR (solo en Activa) -->
+    @if (eleccion.estado === 'Activa') {
+      <button mat-icon-button (click)="finalizarVotacion(eleccion)" class="action-button stop" matTooltip="Finalizar Votación">
+        <mat-icon>stop_circle</mat-icon>
+      </button>
+    }
+    <!-- Botones para el estado FINALIZADA -->
+    @if (eleccion.estado === 'Finalizada') {
+      <!-- Botón para REVISAR resultados (privado) -->
+      <button mat-icon-button (click)="openResultados(eleccion)" class="action-button results" matTooltip="Revisar Resultados">
+        <mat-icon>preview</mat-icon> <!-- Usamos un ícono de "preview" -->
+      </button>
+      <!-- Botón para PUBLICAR resultados -->
+      <button mat-icon-button (click)="publishEleccion(eleccion)" class="action-button start" matTooltip="Publicar Resultados">
+        <mat-icon>campaign</mat-icon>
+      </button>
+    }
+    <!-- Botón para VER resultados (cuando ya están públicos) -->
+    @if (eleccion.estado === 'Publicada') {
+      <button mat-icon-button (click)="openResultados(eleccion)" class="action-button results" matTooltip="Ver Resultados Públicos">
+        <mat-icon>emoji_events</mat-icon>
+      </button>
+    }
+
+    <!-- Botones de Gestión (Candidatas y Editar) -->
+    <button mat-icon-button (click)="openCandidatasModal(eleccion)" class="action-button"
+      matTooltip="Gestionar Candidatas" [disabled]="eleccion.estado !== 'Configuracion'">
+      <mat-icon>groups</mat-icon>
+    </button>
+    <button mat-icon-button (click)="openEditModal(eleccion)" class="action-button edit"
+      matTooltip="Editar Elección" [disabled]="eleccion.estado !== 'Configuracion'">
+      <mat-icon>edit_calendar</mat-icon>
+    </button>
+  </td>
+</ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    @if(dataSource.data.length === 0){<div class="no-results-message">
+      <h3>No hay elecciones</h3>
+      <p>Crea la primera elección para comenzar.</p>
+    </div>}
+  </div>
+
+  <div class="cards-container">
+    @for (eleccion of dataSource.data; track eleccion.id) {
+    <div class="election-card-responsive neumorphic-panel-outset">
+      <div class="card-header">
+        <div class="election-icon"><mat-icon>how_to_vote</mat-icon></div>
+        <div class="election-actions-responsive">
+          @if (eleccion.estado === 'Configuracion') { <button mat-icon-button (click)="iniciarVotacion(eleccion)"
+            class="action-button start" matTooltip="Iniciar"><mat-icon>play_circle</mat-icon></button> }
+          @if (eleccion.estado === 'Activa') { <button mat-icon-button (click)="finalizarVotacion(eleccion)"
+            class="action-button stop" matTooltip="Finalizar"><mat-icon>stop_circle</mat-icon></button> }
+          @if (eleccion.estado === 'Finalizada') { <button mat-icon-button
+            class="action-button results" matTooltip="Resultados"><mat-icon>emoji_events</mat-icon></button> }
+          <button mat-icon-button (click)="openCandidatasModal(eleccion)" class="action-button"
+            matTooltip="Candidatas"><mat-icon>groups</mat-icon></button>
+          <button mat-icon-button (click)="openEditModal(eleccion)" class="action-button edit" matTooltip="Editar"
+            [disabled]="eleccion.estado !== 'Configuracion'"><mat-icon>edit_calendar</mat-icon></button>
+        </div>
+      </div>
+      <div class="election-details">
+        <h3 class="election-name">{{ eleccion.nombre }}</h3>
+        <p class="election-dates">{{ eleccion.fechaInicio.toDate() | date:'dd/MM/yy' }} - {{ eleccion.fechaFin.toDate()
+          | date:'dd/MM/yy' }}</p>
+      </div>
+      <div class="election-status"><span class="status-badge" [ngClass]="eleccion.estado.toLowerCase()">{{
+          eleccion.estado }}</span></div>
+    </div>
+    }
+    @if(dataSource.data.length === 0 && !isModalOpen()){<div class="no-results-message">
+      <h3>No hay elecciones</h3>
+      <p>Crea la primera elección para comenzar.</p>
+    </div>}
+  </div>
+</div>
+
+@if(isModalOpen()){
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content neumorphic-panel-outset" (click)="$event.stopPropagation()">
+    <form [formGroup]="eleccionForm" (ngSubmit)="onSubmit()">
+      <div class="modal-header">
+        <h2 class="modal-title">{{ isEditing() ? 'Editar Elección' : 'Crear Nueva Elección' }}</h2><button type="button"
+          mat-icon-button class="modal-close-button" (click)="closeModal()"
+          matTooltip="Cerrar"><mat-icon>close</mat-icon></button>
+      </div>
+      <div class="modal-body">
+        <div class="main-fields neumorphic-panel-outset">
+          <mat-form-field appearance="fill" class="field-nombre"><mat-label>Nombre del Evento</mat-label><input matInput
+              formControlName="nombre" placeholder="Ej: Elección Reina 2025"></mat-form-field>
+          <mat-form-field appearance="fill" class="field-fecha"><mat-label>Fecha de Inicio</mat-label><input matInput
+              type="date" formControlName="fechaInicio"></mat-form-field>
+          <mat-form-field appearance="fill" class="field-fecha"><mat-label>Fecha de Finalización</mat-label><input
+              matInput type="date" formControlName="fechaFin"></mat-form-field>
+        </div>
+        <div class="form-layout-grid">
+          <div class="dynamic-field-section">
+            <div class="neumorphic-panel-outset section-container">
+              <h4 class="field-title">Puestos a Premiar</h4>
+              <p class="field-subtitle">Títulos para las ganadoras.</p>
+              <div class="add-item-form"><mat-form-field appearance="fill" class="item-input"><mat-label>Nuevo
+                    Puesto</mat-label><input matInput formControlName="nuevoPuesto"
+                    (keyup.enter)="addPuesto()"></mat-form-field><button type="button" (click)="addPuesto()"
+                  class="neumorphic-button-outset primary add-btn"><mat-icon>add</mat-icon></button></div>
+              <div class="structured-list-container neumorphic-panel-inset">
+                @for (puesto of puestosArray.controls; track puesto; let i = $index) {<div class="structured-list-item">
+                  <mat-icon class="item-icon">emoji_events</mat-icon><span class="item-text">{{ puesto.value
+                    }}</span><button type="button" mat-icon-button (click)="removePuesto(i)" class="delete-btn"
+                    matTooltip="Eliminar"><mat-icon>close</mat-icon></button>
+                </div>} @empty { <p class="empty-list-message">Sin puestos definidos.</p> }
+              </div>
+            </div>
+          </div>
+          <div class="dynamic-field-section">
+            <div class="neumorphic-panel-outset section-container">
+              <h4 class="field-title">Criterios de Evaluación</h4>
+              <p class="field-subtitle">Qué puntuarán los alumnos.</p>
+              <div class="add-item-form"><mat-form-field appearance="fill" class="item-input"><mat-label>Nuevo
+                    Criterio</mat-label><input matInput formControlName="nuevoCriterio"
+                    (keyup.enter)="addCriterio()"></mat-form-field><button type="button" (click)="addCriterio()"
+                  class="neumorphic-button-outset primary add-btn"><mat-icon>add</mat-icon></button></div>
+              <div class="structured-list-container neumorphic-panel-inset">
+                @for (criterio of criteriosArray.controls; track criterio; let i = $index) {<div
+                  class="structured-list-item"><mat-icon class="item-icon">rule</mat-icon><span class="item-text">{{
+                    criterio.value }}</span><button type="button" mat-icon-button (click)="removeCriterio(i)"
+                    class="delete-btn" matTooltip="Eliminar"><mat-icon>close</mat-icon></button></div>} @empty { <p
+                  class="empty-list-message">Sin criterios definidos.</p> }
+              </div>
+            </div>
+          </div>
+          <div class="dynamic-field-section">
+            <div class="neumorphic-panel-outset section-container">
+              <h4 class="field-title">Campos del Perfil</h4>
+              <p class="field-subtitle">Info extra de la candidata.</p>
+              <div class="add-item-form"><mat-form-field appearance="fill" class="item-input"><mat-label>Nuevo
+                    Campo</mat-label><input matInput formControlName="nuevoCampoCandidata"
+                    (keyup.enter)="addCampoCandidata()"></mat-form-field><button type="button"
+                  (click)="addCampoCandidata()"
+                  class="neumorphic-button-outset primary add-btn"><mat-icon>add</mat-icon></button></div>
+              <div class="structured-list-container neumorphic-panel-inset">
+                @for (campo of camposCandidataArray.controls; track campo; let i = $index) {<div
+                  class="structured-list-item"><mat-icon class="item-icon">article</mat-icon><span class="item-text">{{
+                    campo.value }}</span><button type="button" mat-icon-button (click)="removeCampoCandidata(i)"
+                    class="delete-btn" matTooltip="Eliminar"><mat-icon>close</mat-icon></button></div>} @empty { <p
+                  class="empty-list-message">Sin campos adicionales.</p> }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="neumorphic-button-outset" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="neumorphic-button-outset primary" [disabled]="eleccionForm.invalid">{{ isEditing()
+          ? 'Guardar Cambios' : 'Crear Elección' }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+}
+
+@if(isCandidatasModalOpen() && selectedEleccion()){<div class="modal-overlay" (click)="closeCandidatasModal()">
+  <app-gestion-candidatas [eleccion]="selectedEleccion()!"
+    (closeModal)="closeCandidatasModal()"></app-gestion-candidatas>
+</div>}

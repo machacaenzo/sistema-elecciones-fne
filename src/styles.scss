@@ -1,0 +1,22 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.cdk-overlay-container {
+  z-index: 1100 !important;
+}
+:root {
+  --background-start: #f3f4fe;   // degradado fondo claro
+  --background-end: #e7e9fc;
+
+  --card-bg-start: rgba(255, 255, 255, 0.6);
+  --card-bg-end: rgba(245, 245, 255, 0.4);
+
+  --text-primary: #1e1e1e;       // texto negro/gris fuerte
+  --text-secondary: #6c6c6c;     // gris intermedio
+  --text-danger: #dc3545;        // errores
+
+  --border-radius: 1.2rem;
+  --shadow-light: rgba(255, 255, 255, 0.9);
+  --shadow-dark: rgba(163, 177, 198, 0.6);
+}

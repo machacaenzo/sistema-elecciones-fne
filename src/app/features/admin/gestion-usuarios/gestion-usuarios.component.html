@@ -1,0 +1,163 @@
+<div class="page-container">
+
+  <div class="header">
+    <div class="header-text">
+      <h1>Gestión de Usuarios</h1>
+      <p>Administra, edita y visualiza los usuarios de la plataforma.</p>
+    </div>
+  </div>
+
+  <div class="filters-container neumorphic-panel-outset">
+    <mat-form-field appearance="fill" class="search-input">
+      <mat-icon matPrefix>search</mat-icon>
+      <mat-label>Buscar por nombre, apellido o email...</mat-label>
+      <input matInput (keyup)="onSearchChange($event)">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Filtrar por Rol</mat-label>
+      <mat-select [ngModel]="(rolFilter$ | async)" (ngModelChange)="onRolChange($event)">
+        <mat-option value="">Todos los Roles</mat-option>
+        <mat-option value="Administrador">Administrador</mat-option>
+        <mat-option value="Director">Director</mat-option>
+        <mat-option value="Docente">Docente</mat-option>
+        <mat-option value="RTE">RTE</mat-option>
+        <mat-option value="Alumno">Alumno</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-slide-toggle [checked]="showInactive$ | async" (change)="onShowInactiveChange($event.checked)" color="primary">
+      Mostrar inactivos
+    </mat-slide-toggle>
+  </div>
+
+  <div *ngIf="isLoading" class="spinner-container">
+    <mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner>
+  </div>
+
+  <div class="content-wrapper" [hidden]="isLoading">
+    <div class="users-grid">
+      @for (user of dataSource.data; track user.uid) {
+        <div class="user-card neumorphic-panel-outset" [class.inactive-card]="!user.EsActivo">
+          <div class="card-header">
+            <div class="avatar-container">
+              <img class="user-avatar" [src]="user.fotoURL || 'assets/user-default.jpg'" [alt]="user.nombre">
+            </div>
+            <div class="user-actions">
+              @if (user.EsActivo) {
+                <button mat-icon-button class="action-button" (click)="openEditModal(user)" matTooltip="Editar Usuario">
+                  <mat-icon>edit_square</mat-icon>
+                </button>
+                <button mat-icon-button class="action-button warn" (click)="deleteUser(user)" matTooltip="Desactivar Usuario">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              } @else {
+                <button mat-icon-button class="action-button restore" (click)="restoreUser(user)" matTooltip="Reactivar Usuario">
+                  <mat-icon>restore_from_trash</mat-icon>
+                </button>
+                <button mat-icon-button class="action-button warn" (click)="deleteUser(user)" matTooltip="Eliminar Permanentemente">
+                  <mat-icon>delete_forever</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+          <div class="user-details">
+            <h3 class="user-name">{{user.nombre}} {{user.apellido}}</h3>
+            <p class="user-email">{{user.email}}</p>
+          </div>
+          <div class="user-badges">
+            <span class="badge neumorphic-panel-inset" [ngClass]="user.rol.toLowerCase()">{{user.rol}}</span>
+            <span class="badge neumorphic-panel-inset" [ngClass]="user.EsActivo ? 'activo' : 'inactivo'">
+              {{ user.EsActivo ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+        </div>
+      } @empty {
+        <div class="no-users-message">
+          <mat-icon>search_off</mat-icon>
+          <h3>No se encontraron usuarios</h3>
+          <p>Intenta ajustar los filtros de búsqueda o activa "Mostrar inactivos".</p>
+        </div>
+      }
+    </div>
+
+    <mat-paginator class="neumorphic-panel-outset" [pageSizeOptions]="[8, 16, 24]" showFirstLastButtons></mat-paginator>
+  </div>
+</div>
+
+@if (isModalVisible) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content neumorphic-panel-outset" (click)="$event.stopPropagation()">
+      <form [formGroup]="userForm" (ngSubmit)="saveChanges()">
+
+        <div class="modal-header">
+          <h2 class="modal-title">Editar Usuario</h2>
+          <button type="button" mat-icon-button class="modal-close-button" (click)="closeModal()" matTooltip="Cerrar">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="avatar-uploader">
+            <div class="avatar-preview-container neumorphic-panel-inset">
+              <img [src]="imagePreview" alt="Avatar" class="avatar-preview">
+            </div>
+            <div class="avatar-actions">
+              <label for="file-upload" class="avatar-action-button neumorphic-button-outset" matTooltip="Cambiar foto">
+                <mat-icon>photo_camera</mat-icon>
+              </label>
+              @if (imagePreview && imagePreview !== 'assets/user-default.jpg') {
+                <button type="button" (click)="removeImage()" class="avatar-action-button neumorphic-button-outset warn" matTooltip="Eliminar foto">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </div>
+            <input id="file-upload" type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
+          </div>
+
+          <div class="form-container-grid">
+            <mat-form-field appearance="fill">
+              <mat-label>Nombre</mat-label>
+              <input matInput formControlName="nombre">
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+              <mat-label>Apellido</mat-label>
+              <input matInput formControlName="apellido">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Rol</mat-label>
+              <mat-select formControlName="rol">
+                <mat-option value="Administrador">Administrador</mat-option>
+                <mat-option value="Director">Director</mat-option>
+                <mat-option value="Docente">Docente</mat-option>
+                <mat-option value="RTE">RTE</mat-option>
+                <mat-option value="Alumno">Alumno</mat-option>
+
+              </mat-select>
+            </mat-form-field>
+            <div class="status-toggle-container">
+              <mat-slide-toggle formControlName="EsActivo" color="primary" class="status-toggle">
+                {{ userForm.get('EsActivo')?.value ? 'Usuario Activo' : 'Usuario Inactivo' }}
+              </mat-slide-toggle>
+            </div>
+
+            <mat-form-field appearance="fill" class="full-width-field">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email">
+            </mat-form-field>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="neumorphic-button-outset" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="neumorphic-button-outset primary" [disabled]="userForm.invalid || !userForm.dirty">
+            Guardar Cambios
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+}

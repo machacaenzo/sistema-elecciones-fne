@@ -1,0 +1,179 @@
+
+:host {
+  --background: #EBF0F5;
+  --text-primary: #3D4A5C;
+  --text-secondary: #8A9CB0;
+  --primary-accent: #33374C;
+  --primary-accent-darker: #252836;
+  --warn-accent: #E53E3E;
+  --shadow-light: #FFFFFF;
+  --shadow-dark: rgba(163, 177, 198, 0.7);
+  --border-radius: 20px;
+}
+
+.page-container {
+  max-width: 900px;
+  margin: 2.5rem auto;
+  padding: 0 1rem;
+}
+
+.header {
+  margin-bottom: 2.5rem;
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  p {
+    color: var(--text-secondary);
+  }
+}
+
+.neumorphic-panel-outset {
+  background: var(--background);
+  border-radius: var(--border-radius);
+  box-shadow: -9px -9px 18px var(--shadow-light), 9px 9px 18px var(--shadow-dark);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.neumorphic-button-outset {
+  border: none; outline: none; padding: 0.75rem 1.5rem;
+  border-radius: 12px; font-weight: 600; color: var(--text-secondary);
+  background: var(--background); cursor: pointer;
+  box-shadow: -5px -5px 10px var(--shadow-light), 5px 5px 10px var(--shadow-dark);
+  transition: all 0.2s ease-in-out;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+
+  &:hover:not(:disabled) { box-shadow: -2px -2px 5px var(--shadow-light), 2px 2px 5px var(--shadow-dark); }
+  &:active:not(:disabled) {
+    box-shadow: inset -2px -2px 5px var(--shadow-light), inset 2px 2px 5px var(--shadow-dark);
+    transform: translateY(1px);
+  }
+  &.primary {
+    background-color: var(--primary-accent); color: white;
+    &:hover:not(:disabled) { background-color: var(--primary-accent-darker); }
+  }
+  &.warn {
+    color: var(--warn-accent);
+  }
+  &:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+}
+
+.profile-card {
+  padding: 2.5rem;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 3rem;
+  align-items: flex-start;
+}
+
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  .avatar-preview-container {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    padding: 8px;
+    box-shadow: inset 7px 7px 14px var(--shadow-dark),
+                inset -7px -7px 14px var(--shadow-light);
+  }
+
+  .avatar-preview {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .avatar-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  
+  .neumorphic-button-outset.is-icon {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 50%;
+    mat-icon { margin: 0; }
+  }
+
+  .avatar-note {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+}
+
+.details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .form-footer {
+    margin-top: 1rem;
+    .save-button {
+      width: 100%;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      font-size: 1rem;
+    }
+  }
+}
+
+::ng-deep {
+  .mat-mdc-form-field-flex {
+    background-color: transparent !important;
+    border-radius: 15px !important;
+    padding: 0 1rem !important;
+    height: 56px !important;
+    align-items: center !important;
+    border: 1px solid transparent !important;
+    box-shadow: inset 5px 5px 10px var(--shadow-dark),
+                inset -5px -5px 10px var(--shadow-light) !important;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .mat-form-field-appearance-fill.mat-form-field-focused .mat-mdc-form-field-flex {
+    border-color: rgba(var(--primary-accent), 0.5) !important;
+  }
+  .mdc-line-ripple, .mat-mdc-form-field-underline, .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background-color: transparent !important;
+  }
+  .mat-mdc-select-arrow { color: var(--text-secondary) !important; }
+  
+  .save-button .mat-mdc-progress-spinner {
+    --mdc-circular-progress-indicator-color: white;
+  }
+}
+
+.loading-container {
+  display: flex; flex-direction: column; justify-content: center;
+  align-items: center; padding: 4rem; gap: 1rem; color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .profile-card {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding: 1.5rem;
+  }
+  .details-section .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,146 @@
+<div class="modal-content neumorphic-panel-outset" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <div class="header-text">
+      <h2 class="modal-title">Gestionar Candidatas</h2>
+      <p class="modal-subtitle">{{ eleccion.nombre }}</p>
+    </div>
+    <button type="button" mat-icon-button class="modal-close-button" (click)="closeModal.emit()" matTooltip="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <!-- Vista de Lista de Candidatas (Sin cambios) -->
+    @if(!isFormVisible()){
+      <div class="view-mode">
+        <div class="actions-header">
+          <button class="neumorphic-button-outset primary"
+                  (click)="openCreateForm()"
+                  [disabled]="eleccion.estado !== 'Configuracion'"
+                  [matTooltip]="eleccion.estado !== 'Configuracion' ? 'No se pueden inscribir candidatas ahora' : 'Inscribir Nueva Candidata'">
+            <mat-icon>person_add</mat-icon>
+            <span>Inscribir Candidata</span>
+          </button>
+        </div>
+
+        <div class="table-container neumorphic-panel-inset">
+          <table mat-table [dataSource]="dataSource" class="candidates-table">
+            <ng-container matColumnDef="foto">
+              <th mat-header-cell *matHeaderCellDef> Foto Principal </th>
+              <td mat-cell *matCellDef="let candidata">
+                <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'" alt="Foto" class="candidate-avatar">
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="nombreCompleto">
+              <th mat-header-cell *matHeaderCellDef> Nombre y Apellido </th>
+              <td mat-cell *matCellDef="let candidata" class="candidate-name">{{ candidata.nombre }} {{ candidata.apellido }}</td>
+            </ng-container>
+            <ng-container matColumnDef="dni">
+              <th mat-header-cell *matHeaderCellDef> DNI </th>
+              <td mat-cell *matCellDef="let candidata">{{ candidata.dni }}</td>
+            </ng-container>
+            <ng-container matColumnDef="acciones">
+              <th mat-header-cell *matHeaderCellDef class="text-right"> Acciones </th>
+              <td mat-cell *matCellDef="let candidata" class="text-right">
+                <button mat-icon-button (click)="openEditForm(candidata)" class="action-button edit" matTooltip="Editar"
+                        [disabled]="eleccion.estado !== 'Configuracion'">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="confirmDelete(candidata)" class="action-button warn" matTooltip="Eliminar"
+                        [disabled]="eleccion.estado !== 'Configuracion'">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+          @if(dataSource.data.length === 0){
+            <div class="no-results-message">
+              <h3>Sin Candidatas</h3>
+              <p>Aún no se ha inscrito ninguna candidata para esta elección.</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ====================================================== -->
+    <!-- ===== VISTA DE FORMULARIO (LAYOUT INVERTIDO Y MEJORADO) ===== -->
+    <!-- ====================================================== -->
+    @if(isFormVisible()){
+      <form class="form-mode" [formGroup]="candidataForm" (ngSubmit)="onSubmit()">
+        <div class="form-header">
+          <button type="button" mat-icon-button (click)="hideForm()" class="back-button" matTooltip="Volver a la lista">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <h4>{{ isEditing() ? 'Editar Datos de Candidata' : 'Nueva Inscripción' }}</h4>
+        </div>
+
+        <!-- Contenedor principal del grid -->
+        <div class="form-layout-grid">
+
+          <!-- COLUMNA IZQUIERDA: Formulario de Datos -->
+          <div class="form-column">
+            <h5 class="form-section-title">Datos Personales</h5>
+            <div class="form-grid">
+              <mat-form-field appearance="fill">
+                <mat-label>Nombre</mat-label>
+                <input matInput formControlName="nombre">
+              </mat-form-field>
+              <mat-form-field appearance="fill">
+                <mat-label>Apellido</mat-label>
+                <input matInput formControlName="apellido">
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="full-width-field">
+                <mat-label>Documento de Identidad (DNI)</mat-label>
+                <input matInput formControlName="dni">
+              </mat-form-field>
+            </div>
+
+            @if (eleccion.camposCandidata && eleccion.camposCandidata.length > 0) {
+              <h5 class="form-section-title">Información Adicional</h5>
+              <div class="form-grid" [formGroup]="camposPersonalizadosGroup">
+                @for(campo of eleccion.camposCandidata; track campo){
+                  <mat-form-field appearance="fill">
+                    <mat-label>{{ campo }}</mat-label>
+                    <input matInput [formControlName]="campo">
+                  </mat-form-field>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- COLUMNA DERECHA: Galería -->
+          <div class="form-column">
+            <div class="gallery-uploader">
+              <h5 class="form-section-title">Galería de Fotos</h5>
+              <div class="image-previews-grid neumorphic-panel-inset">
+                @for(preview of imagePreviews(); track $index){
+                  <div class="image-preview-item">
+                    <img [src]="preview" alt="Vista previa">
+                    <button type="button" mat-icon-button class="remove-image-btn" (click)="removeImage($index)">
+                      <mat-icon>cancel</mat-icon> 
+                    </button>
+                  </div>
+                }
+                <label for="file-upload" class="add-image-card neumorphic-button-outset">
+                  <mat-icon>add_a_photo</mat-icon>
+                  <span>Añadir fotos</span>
+                </label>
+                <input id="file-upload" type="file" (change)="onFileSelected($event)" accept="image/*" multiple hidden>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-footer">
+          <button type="button" class="neumorphic-button-outset" (click)="hideForm()">Cancelar</button>
+          <button type="submit" class="neumorphic-button-outset primary" [disabled]="candidataForm.invalid">
+            {{ isEditing() ? 'Guardar Cambios' : 'Inscribir Candidata' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

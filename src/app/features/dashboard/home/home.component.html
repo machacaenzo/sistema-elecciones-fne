@@ -1,0 +1,150 @@
+<div class="dashboard-home-container">
+
+  <!-- CABECERA INSTITUCIONAL -->
+  <div class="welcome-header">
+    @if (currentUser()) {
+      <h1>Elección de Representante Estudiantil</h1>
+      <p>Panel General &bull; Usuario: <strong>{{ currentUser()?.nombre }} {{ currentUser()?.apellido }}</strong> ({{ currentUser()?.rol }})</p>
+    }
+  </div>
+
+  <div class="main-content-grid">
+    <div class="main-column">
+
+      <!-- TARJETAS DE MÉTRICAS -->
+      <div class="stats-grid">
+        <div class="stat-card neumorphic-panel-outset">
+          <div class="stat-icon-wrapper neumorphic-inset candidatas">
+            <mat-icon>group</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ candidatasCount() }}</span>
+            <span class="stat-label">Candidatas</span>
+          </div>
+        </div>
+
+        <div class="stat-card neumorphic-panel-outset">
+          <div class="stat-icon-wrapper neumorphic-inset jurados">
+            <mat-icon>how_to_reg</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ juradosCount() }}</span>
+            <span class="stat-label">Jurados</span>
+          </div>
+        </div>
+
+        <div class="stat-card neumorphic-panel-outset">
+          <div class="stat-icon-wrapper neumorphic-inset votos">
+            <mat-icon>how_to_vote</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ totalVotosCount() }}</span>
+            <span class="stat-label">Votos Registrados</span>
+          </div>
+        </div>
+
+        <div class="stat-card neumorphic-panel-outset">
+          <div class="stat-icon-wrapper neumorphic-inset estado">
+            <mat-icon>verified</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ eleccionActiva()?.estado || 'Inactivo' }}</span>
+            <span class="stat-label">Estado Urna</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCESOS PRINCIPALES -->
+      <div class="quick-actions-section">
+        <h2 class="section-title">
+          <mat-icon>grid_view</mat-icon>
+          Accesos del Sistema
+        </h2>
+
+        <div class="actions-grid">
+
+          <!-- Botón de Evaluación (Jurados / Alumnos) -->
+          @if (isJurado() || currentUser()?.rol === 'Alumno') {
+            <a routerLink="/dashboard/votacion" class="action-card neumorphic-panel-outset">
+              <div class="action-icon-wrapper neumorphic-button-outset">
+                <mat-icon class="action-icon">rate_review</mat-icon>
+              </div>
+              <span class="action-title">{{ isJurado() ? 'Planilla de Jurado' : 'Emitir Voto' }}</span>
+              <p class="action-description">Puntuación de candidatas en pasarela.</p>
+            </a>
+          }
+
+          <!-- Botones de Administración -->
+          @if (isAdmin()) {
+            <a routerLink="/dashboard/admin/elections" class="action-card neumorphic-panel-outset">
+              <div class="action-icon-wrapper neumorphic-button-outset">
+                <mat-icon class="action-icon">settings</mat-icon>
+              </div>
+              <span class="action-title">Configuración</span>
+              <p class="action-description">Gestión de candidatas, cursos y estado.</p>
+            </a>
+
+            <a routerLink="/dashboard/admin/users" class="action-card neumorphic-panel-outset">
+              <div class="action-icon-wrapper neumorphic-button-outset">
+                <mat-icon class="action-icon">badge</mat-icon>
+              </div>
+              <span class="action-title">Padrón de Jurados</span>
+              <p class="action-description">Alta y habilitación de cuentas jurado.</p>
+            </a>
+          }
+
+          <!-- Escrutinio / Pantalla Gigante -->
+          @if (eleccionActiva()?.id) {
+            <a [routerLink]="['/dashboard/resultados', eleccionActiva()?.id]" class="action-card neumorphic-panel-outset results-action">
+              <div class="action-icon-wrapper neumorphic-button-outset">
+                <mat-icon class="action-icon">military_tech</mat-icon>
+              </div>
+              <span class="action-title">Escrutinio Oficial</span>
+              <p class="action-description">Cómputos en vivo y pantalla de proclamación.</p>
+            </a>
+          }
+
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMNA LATERAL -->
+    <div class="sidebar-column">
+      <div class="info-section neumorphic-panel-outset">
+        <h3 class="section-title">
+          <mat-icon>event_note</mat-icon>
+          Datos de la Elección
+        </h3>
+        <div class="info-list">
+          @if (eleccionActiva(); as eleccion) {
+            <div class="info-item neumorphic-inset">
+              <span class="info-title">{{ eleccion.nombre }}</span>
+              <span class="info-subtitle"><strong>Criterios:</strong> {{ eleccion.criterios.join(', ') }}</span>
+              <span class="info-subtitle"><strong>Distinciones:</strong> {{ eleccion.puestos.join(' &bull; ') }}</span>
+            </div>
+          } @else {
+            <div class="empty-state-visual">
+              <mat-icon>info</mat-icon>
+              <p class="empty-message">No se encontró una elección activa configurada.</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="info-section neumorphic-panel-outset">
+        <h3 class="section-title">
+          <mat-icon>gavel</mat-icon>
+          Reglamento de Evaluación
+        </h3>
+        <div class="info-list">
+          <div class="info-item neumorphic-inset">
+            <p class="mb-2"><strong>1. Calificación:</strong> Evaluar de forma individual a cada candidata en sus respectivas pasadas.</p>
+            <p class="mb-2"><strong>2. Confirmación:</strong> Al enviar el formulario, el voto queda registrado e inalterable en el sistema.</p>
+            <p class="mb-0"><strong>3. Cierre:</strong> La fiscalía general valida las actas al finalizar la última pasada.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

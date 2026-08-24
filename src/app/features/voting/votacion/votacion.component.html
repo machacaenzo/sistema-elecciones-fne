@@ -1,164 +1,287 @@
-<div class="page-container">
-  <div class="view-list">
+<div class="min-h-screen p-4 sm:p-8 bg-[#000000] text-neutral-100 space-y-6 font-sans">
+
+  <!-- CABECERA -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#C5A059]/25 bg-[#000000]">
+    <div>
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#121212] border border-[#C5A059]/40 text-xs font-bold text-[#F3E7C4] mb-2 shadow-sm">
+        <i class="bi bi-award-fill text-[#C5A059]"></i>
+        <span>PLANILLA OFICIAL DE JURADOS</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-black text-white tracking-wide">
+        Centro de Votación
+      </h1>
+      <p class="text-xs sm:text-sm text-neutral-400 mt-1">
+        Seleccioná la noche de gala para explorar la nómina o ingresar a calificar.
+      </p>
+    </div>
+  </div>
+
+  <!-- LISTADO DE EVENTOS DE GALA (TARJETAS EN NEGRO Y ORO) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
     @for (eleccion of todasLasElecciones(); track eleccion.id) {
-      <div class="election-card neumorphic-panel-outset">
-        <div class="election-info">
-          <h3 class="election-name" [matTooltip]="eleccion.nombre">{{ eleccion.nombre }}</h3>
-          <!-- <span class="election-dates">Del {{ eleccion.fechaInicio.toDate() | date:'dd/MM' }} al {{ eleccion.fechaFin.toDate() | date:'dd/MM/yyyy' }}</span> -->
+      <div class="p-6 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/30 hover:border-[#C5A059]/70 shadow-[0_10px_30px_rgba(0,0,0,0.8)] transition-all duration-300 flex flex-col justify-between space-y-5">
+
+        <!-- Datos de la Elección -->
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <span class="px-3 py-1 rounded-full bg-[#171717] border border-[#C5A059]/40 text-[11px] font-bold text-[#F3E7C4]">
+              <i class="bi bi-calendar3 mr-1"></i>
+              {{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd/MM/yyyy' }}
+            </span>
+
+            @if (haVotado(eleccion.id!)) {
+              <span class="px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-xs font-bold flex items-center gap-1">
+                <i class="bi bi-check-circle-fill"></i> Ya Votaste
+              </span>
+            } @else if (eleccion.estado === 'Activa') {
+              <span class="px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/50 text-xs font-bold animate-pulse">
+                Votación Abierta
+              </span>
+            } @else if (eleccion.estado === 'Configuracion') {
+              <span class="px-3 py-1 rounded-full bg-[#171717] text-neutral-400 border border-neutral-700 text-xs font-medium">
+                Próximamente
+              </span>
+            } @else {
+              <span class="px-3 py-1 rounded-full bg-amber-950/80 text-amber-300 border border-[#C5A059]/40 text-xs font-bold">
+                Finalizada
+              </span>
+            }
+          </div>
+
+          <h3 class="text-lg font-black text-white line-clamp-2">{{ eleccion.nombre }}</h3>
         </div>
-        <div class="election-status">
-          @if (haVotado(eleccion.id!)) {
-            <div class="status-badge voted"><mat-icon>verified</mat-icon><span>Ya Votaste</span></div>
-            <button class="neumorphic-button-outset" (click)="openDetalleMode(eleccion)"><mat-icon>groups</mat-icon><span>Explorar</span></button>
-            @if(eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada'){<button class="neumorphic-button-outset results" (click)="openResultadosMode(eleccion)"><mat-icon>emoji_events</mat-icon><span>Resultados</span></button>}
-          <!-- } @else if (eleccion.estado === 'Activa' && eleccion.fechaFin.toDate() > today) { -->
-            <button class="neumorphic-button-outset" (click)="openDetalleMode(eleccion)"><mat-icon>groups</mat-icon><span>Explorar</span></button>
-            <button class="neumorphic-button-outset primary" (click)="openVotingMode(eleccion)"><mat-icon>how_to_vote</mat-icon><span>Votar Ahora</span></button>
-          } @else if (eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada') {
-            <button class="neumorphic-button-outset" (click)="openDetalleMode(eleccion)"><mat-icon>groups</mat-icon><span>Explorar</span></button>
-            <button class="neumorphic-button-outset results" (click)="openResultadosMode(eleccion)"><mat-icon>emoji_events</mat-icon><span>Resultados</span></button>
-          } @else if (eleccion.estado === 'Configuracion') {
-            <div class="status-badge upcoming"><mat-icon>update</mat-icon><span>Próximamente</span></div>
-            <button class="neumorphic-button-outset" (click)="openDetalleMode(eleccion)"><mat-icon>groups</mat-icon><span>Explorar</span></button>
+
+        <!-- Botonera -->
+        <div class="flex items-center gap-2 pt-4 border-t border-[#C5A059]/15">
+          <!-- Explorar Candidatos -->
+          <button type="button"
+                  (click)="openDetalleMode(eleccion)"
+                  class="flex-1 py-2.5 px-4 rounded-xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#C5A059]/30 text-xs font-bold text-[#F3E7C4] transition-all flex items-center justify-center gap-1.5">
+            <i class="bi bi-people-fill"></i>
+            <span>Explorar Nómina</span>
+          </button>
+
+          <!-- Votar Ahora (Dorado Metálico) -->
+          @if (!haVotado(eleccion.id!) && eleccion.estado === 'Activa') {
+            <button type="button"
+                    (click)="openVotingMode(eleccion)"
+                    class="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 hover:scale-105 transition-all flex items-center justify-center gap-1.5">
+              <i class="bi bi-pencil-square"></i>
+              <span>Votar Ahora</span>
+            </button>
+          }
+
+          <!-- Ver Resultados -->
+          @if (eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada') {
+            <button type="button"
+                    (click)="openResultadosMode(eleccion)"
+                    class="py-2.5 px-4 rounded-xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#C5A059]/30 text-xs font-bold text-[#F3E7C4] transition-all flex items-center justify-center gap-1.5">
+              <i class="bi bi-trophy-fill text-[#C5A059]"></i>
+              <span>Resultados</span>
+            </button>
           }
         </div>
+
       </div>
     } @empty {
-      <div class="message-container neumorphic-panel-outset"><mat-icon>info</mat-icon><h2>No hay elecciones disponibles</h2><p>No hay eventos de votación por el momento.</p></div>
+      <div class="col-span-full py-24 text-center text-neutral-500 border border-dashed border-[#C5A059]/20 rounded-3xl bg-[#0A0A0A]">
+        <i class="bi bi-calendar-x text-5xl block mb-2 text-[#C5A059]/30"></i>
+        <p class="text-base font-medium text-neutral-300">No hay elecciones disponibles en este momento.</p>
+      </div>
     }
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- MODAL DE VOTACIÓN (ASISTENTE PASO A PASO EN NEGRO Y ORO)                  -->
+  <!-- ========================================================================= -->
+  @if (isVotingMode() && selectedEleccion(); as eleccion) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-fade-in"
+         (click)="$event.stopPropagation()">
 
-<!-- ===== MODAL DE VOTACIÓN COMPLETO (LAYOUT 3 COLUMNAS + RESUMEN) ===== -->
+      <div class="relative w-full max-w-5xl max-h-[94vh] overflow-hidden rounded-3xl bg-[#050505] border-2 border-[#C5A059]/40 shadow-[0_0_60px_rgba(197,160,89,0.25)] flex flex-col">
 
-@if(isVotingMode() && selectedEleccion(); as eleccion){
-  <div class="modal-overlay" (click)="closeVotingMode()">
-    <div class="voting-modal-content neumorphic-panel-outset" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div class="header-text">
-          <h2 class="modal-title">{{ isReviewMode() ? 'Resumen de tu Votación' : 'Votar en: ' + eleccion.nombre }}</h2>
-          <p class="modal-subtitle">{{ isReviewMode() ? 'Verifica tus puntajes antes de confirmar.' : 'Evalúa a cada candidata para continuar.' }}</p>
+        <!-- Cabecera Modal -->
+        <div class="flex items-center justify-between px-8 py-5 border-b border-[#C5A059]/25 bg-[#0D0D0D]">
+          <div>
+            <h2 class="text-xl font-bold text-[#F3E7C4]">
+              {{ isReviewMode() ? 'Resumen de tu Planilla' : 'Puntuación: ' + eleccion.nombre }}
+            </h2>
+            <p class="text-xs text-neutral-400 mt-0.5">
+              {{ isReviewMode() ? 'Revisá tus puntajes antes del envío definitivo.' : 'Calificá a cada participante en su pasada oficial.' }}
+            </p>
+          </div>
+
+          <button type="button" (click)="closeVotingMode()" class="w-10 h-10 rounded-2xl bg-[#141414] hover:bg-[#202020] border border-[#C5A059]/30 text-neutral-400 hover:text-white flex items-center justify-center text-lg transition-all">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
-        <button type="button" mat-icon-button class="modal-close-button" (click)="closeVotingMode()" matTooltip="Cerrar"><mat-icon>close</mat-icon></button>
-      </div>
-      <div class="modal-body">
-        @if(isVotingLoading()){
-          <div class="message-container"><mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner></div>
-        } @else {
-          <form [formGroup]="votacionForm" (ngSubmit)="onSubmit()">
-            @if (!isReviewMode()) {
-              <div class="wizard-container">
-                <div class="wizard-progress">
-                  <span class="progress-label">Candidata {{ currentStep() + 1 }} de {{ candidatas().length }}</span>
-                  <mat-progress-bar mode="determinate" [value]="wizardProgress()"></mat-progress-bar>
-                </div>
-                <div class="wizard-content" formArrayName="evaluaciones">
-                  @for(candidata of candidatas(); track candidata.id; let i = $index){
-                    @if(currentStep() === i){
-                      <div [formGroupName]="i">
-                        <!-- INICIO: Nuevo Layout de 3 Columnas -->
-                        <div class="voting-card-grid">
-                          <!-- Columna 1: Perfil Visual (Carrusel) -->
-                          <div class="candidate-profile-visuals">
-                            <div class="carousel-container neumorphic-panel-inset">
-                              <img [src]="candidata.fotosURL?.[carouselImageIndex()] || 'assets/user-default.jpg'" alt="Foto de la candidata" class="carousel-image">
-                              @if (candidata.fotosURL && candidata.fotosURL.length > 1) {
-                                <button type="button" mat-icon-button class="carousel-control prev" (click)="previousImage()" [disabled]="carouselImageIndex() === 0"><mat-icon>chevron_left</mat-icon></button>
-                                <button type="button" mat-icon-button class="carousel-control next" (click)="nextImage()" [disabled]="carouselImageIndex() === (candidata.fotosURL?.length || 0) - 1"><mat-icon>chevron_right</mat-icon></button>
-                              }
-                            </div>
-                          </div>
 
-                          <!-- Columna 2: Datos Adicionales -->
-                          <div class="candidate-profile-data">
-                            @if (eleccion.camposCandidata && eleccion.camposCandidata.length > 0) {
-                              <div class="candidate-custom-fields">
-                                @for (campo of eleccion.camposCandidata; track campo) {
-                                  <div class="field-item neumorphic-inset">
-                                    <span class="field-label">{{ campo }}</span>
-                                    <span class="field-value">{{ candidata.camposPersonalizados?.[campo] || '-' }}</span>
-                                  </div>
-                                }
+        <!-- Cuerpo del Asistente -->
+        <div class="p-6 sm:p-8 overflow-y-auto flex-1 custom-scrollbar">
+          @if (isVotingLoading()) {
+            <div class="py-20 flex flex-col items-center justify-center text-neutral-400 space-y-4">
+              <div class="w-12 h-12 border-4 border-[#C5A059]/20 border-t-[#C5A059] rounded-full animate-spin"></div>
+              <p class="text-sm font-bold text-[#F3E7C4]">Cargando planilla de jurado...</p>
+            </div>
+          } @else {
+            <form [formGroup]="votacionForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+              <!-- VISTA DE PUNTUACIÓN PASO A PASO -->
+              @if (!isReviewMode()) {
+
+                <!-- Barra de Progreso Dorada -->
+                <div class="space-y-2 pb-2">
+                  <div class="flex items-center justify-between text-xs font-bold text-[#F3E7C4]">
+                    <span>Participante {{ currentStep() + 1 }} de {{ candidatas().length }}</span>
+                    <span>{{ wizardProgress() | number:'1.0-0' }}% Completado</span>
+                  </div>
+                  <div class="w-full h-2 rounded-full bg-[#171717] overflow-hidden border border-[#C5A059]/30">
+                    <div class="h-full bg-gradient-to-r from-[#C5A059] to-[#F3E7C4] transition-all duration-300" [style.width.%]="wizardProgress()"></div>
+                  </div>
+                </div>
+
+                <div formArrayName="evaluaciones">
+                  @for (candidata of candidatas(); track candidata.id; let i = $index) {
+                    @if (currentStep() === i) {
+                      <div [formGroupName]="i" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                        <!-- Columna 1: Foto y Número de Pasada -->
+                        <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 flex flex-col items-center justify-between space-y-3">
+                          <div class="relative w-full h-64 rounded-xl overflow-hidden bg-black border border-[#C5A059]/30">
+                            <img [src]="candidata.fotosURL?.[carouselImageIndex()] || 'assets/user-default.jpg'"
+                                 [alt]="candidata.nombre"
+                                 class="w-full h-full object-cover">
+
+                            <span class="absolute top-3 left-3 px-3 py-1 rounded-lg bg-[#C5A059] text-[#0A0D14] font-black text-sm border border-[#FFF3D1]/50 shadow-md">
+                              #{{ candidata.numero }}
+                            </span>
+
+                            @if (candidata.fotosURL && candidata.fotosURL.length > 1) {
+                              <div class="absolute inset-x-2 bottom-2 flex justify-between">
+                                <button type="button" (click)="previousImage()" [disabled]="carouselImageIndex() === 0" class="p-1.5 rounded-lg bg-black/70 text-white disabled:opacity-30">
+                                  <i class="bi bi-chevron-left"></i>
+                                </button>
+                                <button type="button" (click)="nextImage()" [disabled]="carouselImageIndex() === (candidata.fotosURL?.length || 0) - 1" class="p-1.5 rounded-lg bg-black/70 text-white disabled:opacity-30">
+                                  <i class="bi bi-chevron-right"></i>
+                                </button>
                               </div>
-                            } @else {
-                              <div class="no-fields-message">No hay información adicional para esta candidata.</div>
                             }
                           </div>
 
-                          <!-- Columna 3: Votación (Sliders) -->
-                          <div class="candidate-voting">
-                            <h3 class="candidate-name">{{ candidata.nombre }} {{ candidata.apellido }}</h3>
-                            <div class="criteria-sliders">
-                              @for (criterio of eleccion.criterios; track criterio) {
-                                <div class="criterion">
-                                  <label>{{ criterio }}</label>
-                                  <div class="slider-wrapper">
-                                    <mat-slider min="1" max="10" step="1" discrete>
-                                      <input matSliderThumb [formControlName]="criterio" #sliderInput (input)="updateSliderValue(i, criterio, +sliderInput.value)">
-                                    </mat-slider>
-                                    <span class="slider-value neumorphic-panel-inset">{{ getEvaluacionGroup(i, criterio)?.value }}</span>
-                                  </div>
+                          <div class="text-center">
+                            <h3 class="text-lg font-black text-white">{{ candidata.nombre }} {{ candidata.apellido }}</h3>
+                            <span class="text-xs text-[#F3E7C4] font-semibold">{{ candidata.cursoDivision }}</span>
+                          </div>
+                        </div>
+
+                        <!-- Columna 2: Datos Adicionales -->
+                        <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 space-y-3">
+                          <h4 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-2">Información del Perfil</h4>
+
+                          @if (candidata.camposPersonalizados && eleccion.camposCandidata) {
+                            <div class="space-y-3">
+                              @for (campo of eleccion.camposCandidata; track campo) {
+                                <div class="p-3 rounded-xl bg-[#171717] border border-[#C5A059]/20">
+                                  <span class="block text-[11px] font-bold text-[#F3E7C4]">{{ campo }}</span>
+                                  <span class="text-xs text-neutral-300">{{ candidata.camposPersonalizados?.[campo] || 'No especificado' }}</span>
                                 </div>
                               }
                             </div>
+                          } @else {
+                            <p class="text-xs text-neutral-500 italic">Sin datos adicionales cargados.</p>
+                          }
+                        </div>
+
+                        <!-- Columna 3: Sliders de Puntuación Dorados -->
+                        <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 space-y-4">
+                          <div class="flex items-center justify-between border-b border-[#C5A059]/20 pb-2">
+                            <h4 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider">Criterios de Pasarela</h4>
+                            <span class="text-sm font-black text-[#F3E7C4]">{{ calculateTotalScore(i) }} pts</span>
+                          </div>
+
+                          <div class="space-y-4">
+                            @for (criterio of getCriteriosParaCandidata(candidata, eleccion); track criterio) {
+                              <div class="space-y-1.5">
+                                <div class="flex justify-between text-xs font-semibold">
+                                  <span class="text-neutral-300">{{ criterio }}</span>
+                                  <span class="text-[#F3E7C4] font-bold">{{ getEvaluacionGroup(i, criterio)?.value }} / 10</span>
+                                </div>
+                                <input type="range" min="1" max="10" step="1"
+                                       [formControlName]="criterio"
+                                       (input)="updateSliderValue(i, criterio, $event)"
+                                       class="w-full accent-[#C5A059] bg-[#171717] rounded-lg h-2 cursor-pointer">
+                              </div>
+                            }
                           </div>
                         </div>
-                        <!-- FIN: Nuevo Layout de 3 Columnas -->
+
                       </div>
                     }
                   }
                 </div>
-              </div>
-            }
-            @if (isReviewMode()) {
-              <div class="review-container" formArrayName="evaluaciones">
-                @for(candidata of candidatas(); track candidata.id; let i = $index){
-                  <div class="review-card neumorphic-panel-outset" [formGroupName]="i">
-                    <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'" alt="Foto" class="review-photo">
-                    <div class="review-details">
-                      <h4 class="review-name">{{ candidata.nombre }} {{ candidata.apellido }}</h4>
-                      <div class="review-total-score">{{ calculateTotalScore(i) }} Puntos</div>
-                      <div class="review-scores">
-                        @for (criterio of eleccion.criterios; track criterio) {
-                          <div class="score-item">
-                            <span class="score-label">{{ criterio }}:</span>
-                            <span class="score-value">{{ getEvaluacionGroup(i, criterio)?.value }}</span>
-                          </div>
-                        }
-                      </div>
-                    </div>
-                    <button type="button" mat-icon-button class="edit-vote-btn" (click)="goToStep(i)" matTooltip="Editar Voto"><mat-icon>edit</mat-icon></button>
-                  </div>
-                }
-              </div>
-            }
-            <div class="modal-footer wizard-footer">
-              @if (!isReviewMode()) {
-                <button type="button" class="neumorphic-button-outset" (click)="previousStep()" [disabled]="currentStep() === 0"><mat-icon>arrow_back</mat-icon><span>Anterior</span></button>
-                @if(cameFromReview) {
-                  <button type="button" class="neumorphic-button-outset primary" (click)="enterReviewMode()"><span>Volver al Resumen</span><mat-icon>checklist</mat-icon></button>
-                } @else {
-                  @if(currentStep() < candidatas().length - 1){
-                    <button type="button" class="neumorphic-button-outset primary" (click)="nextStep()"><span>Siguiente</span><mat-icon>arrow_forward</mat-icon></button>
-                  } @else {
-                    <button type="button" class="neumorphic-button-outset primary" (click)="enterReviewMode()"><span>Ver Resumen</span><mat-icon>checklist</mat-icon></button>
-                  }
-                }
-              } @else {
-                <button type="button" class="neumorphic-button-outset" (click)="goToStep(candidatas().length - 1)"><mat-icon>arrow_back</mat-icon><span>Volver</span></button>
-                <button type="submit" class="neumorphic-button-outset primary" [disabled]="votacionForm.invalid"><mat-icon>how_to_vote</mat-icon><span>Confirmar y Enviar Voto</span></button>
+
               }
-            </div>
-          </form>
-        }
+
+              <!-- VISTA DE RESUMEN FINAL ANTES DE ENVIAR -->
+              @if (isReviewMode()) {
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" formArrayName="evaluaciones">
+                  @for (candidata of candidatas(); track candidata.id; let i = $index) {
+                    <div [formGroupName]="i" class="p-4 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/30 flex items-center justify-between gap-3 shadow-md">
+                      <div class="flex items-center gap-3">
+                        <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'"
+                             alt="Avatar"
+                             class="w-12 h-12 rounded-xl object-cover border border-[#C5A059]/40">
+                        <div>
+                          <p class="text-sm font-bold text-white">#{{ candidata.numero }} {{ candidata.nombre }}</p>
+                          <p class="text-xs text-[#F3E7C4] font-semibold">{{ calculateTotalScore(i) }} Puntos</p>
+                        </div>
+                      </div>
+
+                      <button type="button" (click)="goToStep(i)" class="p-2 rounded-xl bg-[#171717] text-[#F3E7C4] hover:bg-[#222222] border border-[#C5A059]/30" title="Editar Puntajes">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- BOTONERA INFERIOR DEL ASISTENTE -->
+              <div class="flex items-center justify-between pt-6 border-t border-[#C5A059]/25">
+                @if (!isReviewMode()) {
+                  <button type="button" (click)="previousStep()" [disabled]="currentStep() === 0" class="px-5 py-2.5 rounded-xl border border-[#C5A059]/30 text-neutral-300 hover:text-white disabled:opacity-30 text-xs font-bold">
+                    <i class="bi bi-arrow-left mr-1"></i> Anterior
+                  </button>
+
+                  @if (currentStep() < candidatas().length - 1) {
+                    <button type="button" (click)="nextStep()" class="px-6 py-2.5 bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs rounded-xl shadow-md hover:scale-105 transition-all">
+                      Siguiente <i class="bi bi-arrow-right ml-1"></i>
+                    </button>
+                  } @else {
+                    <button type="button" (click)="enterReviewMode()" class="px-6 py-2.5 bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs rounded-xl shadow-md hover:scale-105 transition-all">
+                      Ver Resumen <i class="bi bi-check2-circle ml-1"></i>
+                    </button>
+                  }
+                } @else {
+                  <button type="button" (click)="goToStep(candidatas().length - 1)" class="px-5 py-2.5 rounded-xl border border-[#C5A059]/30 text-neutral-300 hover:text-white text-xs font-bold">
+                    <i class="bi bi-arrow-left mr-1"></i> Volver a Evaluar
+                  </button>
+
+                  <button type="submit" [disabled]="votacionForm.invalid" class="px-8 py-3 bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-sm rounded-2xl shadow-[0_4px_30px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/50 hover:scale-105 transition-all">
+                    Confirmar y Enviar Voto Oficial
+                  </button>
+                }
+              </div>
+
+            </form>
+          }
+        </div>
       </div>
     </div>
-  </div>
-}
+  }
 
-
-  @if(isDetalleMode() && selectedEleccionParaDetalle(); as eleccion){
-    <div class="modal-overlay" (click)="closeDetalleMode()">
+  <!-- MODAL DE DETALLE / EXPLORAR -->
+  @if (isDetalleMode() && selectedEleccionParaDetalle(); as eleccion) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md" (click)="closeDetalleMode()">
       <app-detalle-eleccion
         [eleccion]="eleccion"
         [haVotado]="haVotado(eleccion.id!)"
@@ -167,4 +290,5 @@
       </app-detalle-eleccion>
     </div>
   }
+
 </div>

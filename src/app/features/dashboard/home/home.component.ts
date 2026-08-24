@@ -37,15 +37,14 @@ export class HomeComponent implements OnInit {
   }
 
   private cargarDatosGala(): void {
-    // 1. Cargar la Elección activa o más reciente
+    // 1. Cargar la Elección (Permitido para Alumnos y Admins)
     this.firestoreService.getCollection<Eleccion>('elecciones').subscribe(elecciones => {
       if (elecciones.length > 0) {
-        // Busca si hay una en estado 'Activa' o toma la primera
         const activa = elecciones.find(e => e.estado === 'Activa') || elecciones[0];
         this.eleccionActiva.set(activa);
 
         if (activa && activa.id) {
-          // 2. Cargar Participantes de esta gala
+          // 2. Cargar Participantes (Permitido para Alumnos y Admins)
           this.firestoreService.getCollectionByFilter<Candidata>('candidatas', 'eleccionId', activa.id)
             .subscribe(candidatas => {
               const chicas = candidatas.filter(c => c.categoria === 'Embajadora' || !c.categoria);
@@ -54,7 +53,6 @@ export class HomeComponent implements OnInit {
               this.embajadorasCount.set(chicas.length);
               this.embajadoresCount.set(chicos.length);
 
-              // Suma de votos totales
               const votos = candidatas.reduce((sum, c) => sum + (c.cantidadDeVotos || 0), 0);
               this.totalVotosCount.set(votos);
             });
@@ -62,10 +60,12 @@ export class HomeComponent implements OnInit {
       }
     });
 
-    // 3. Cargar Jurados habilitados en el padrón
-    this.firestoreService.getCollection<User>('users').subscribe(users => {
-      const jurados = users.filter(u => u.rol === 'Jurado');
-      this.juradosCount.set(jurados.length);
-    });
+    // 3. Cargar Jurados (SOLO si es Administrador, para respetar las reglas de Firebase sin romper nada)
+    if (this.isAdmin()) {
+  this.firestoreService.getCollection<User>('users').subscribe(users => {
+    const jurados = users.filter(u => u.rol === 'Jurado');
+    this.juradosCount.set(jurados.length);
+  });
+}
   }
 }

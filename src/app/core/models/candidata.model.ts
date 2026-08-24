@@ -1,19 +1,25 @@
+export type CategoriaParticipante = 'Embajadora' | 'Embajador' | 'Paje';
+
 export interface Candidata {
   id?: string;
   eleccionId: string;
-  numeroCandidata?: number;
+  
+  // Número de pasada (#01, #02) y Categoría
+  numero?: number;
+  numeroCandidata?: number; // Para compatibilidad
+  categoria?: CategoriaParticipante;
+  
   nombre: string;
   apellido: string;
-  dni: string;
+  dni?: string;
   cursoDivision?: string;
   fotosURL?: string[];
 
-  // Objeto para campos personalizados (Ej: { "Hobby": "Danza" })
-  camposPersonalizados: { [key: string]: string };
+  // Campos personalizados (Hobbies, proyectos)
+  camposPersonalizados?: { [key: string]: string };
 
-  // Objeto para puntuaciones acumuladas
-  puntuacionPorCriterio: { [key: string]: number };
-
+  // Puntuaciones
+  puntuacionPorCriterio?: { [key: string]: number };
   puntuacionTotal: number;
   cantidadDeVotos: number;
 }

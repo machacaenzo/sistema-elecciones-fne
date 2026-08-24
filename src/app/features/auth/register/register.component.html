@@ -1,92 +1,163 @@
-<main class="auth-page-wrapper">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-8 col-lg-6 col-xl-5">
+<main class="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-cover bg-center bg-no-repeat py-10"
+      style="background-image: url('assets/FONDO.jpg');">
+  
+  <!-- CAPA OSCURA Y DESENFOQUE CINEMATOGRÁFICO -->
+  <div class="absolute inset-0 bg-slate-950/75 backdrop-blur-[3px]"></div>
 
-        <section class="auth-container">
-          <form class="auth-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+  <!-- DESTELLO DORADO AMBIENTAL -->
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-amber-500/15 rounded-full blur-[110px] pointer-events-none"></div>
 
-            <div class="auth-header">
-              <h1>Crea tu Cuenta</h1>
-              <p>Únete a EduTask Manager para empezar a organizarte</p>
-            </div>
+  <div class="w-full max-w-lg relative z-10">
+    
+    <!-- TARJETA DE VIDRIO OSCURO DE GALA -->
+    <section class="backdrop-blur-2xl bg-black/40 border border-amber-400/30 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-black/95 transition-all duration-300 hover:border-amber-400/50 hover:shadow-amber-500/10">
+      
+      <!-- CABECERA CON EL LOGO FNE -->
+      <div class="text-center mb-6">
+        <div class="relative inline-flex items-center justify-center p-3 rounded-full bg-white/[0.12] backdrop-blur-md border border-amber-400/50 shadow-[0_0_35px_rgba(245,158,11,0.35)] mb-3 transition-transform duration-300 hover:scale-105">
+          <div class="absolute inset-0 rounded-full bg-amber-400/20 blur-md pointer-events-none"></div>
+          <img 
+            src="assets/logo-fne.png" 
+            alt="Fiesta Nacional de los Estudiantes" 
+            class="relative w-20 h-20 mx-auto object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]"
+          >
+        </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-4">
-                <div class="input-group-icon">
-                  <i class="bi bi-person icon"></i>
-                  <input type="text" class="form-control" placeholder="Nombre" formControlName="nombre">
-                </div>
-                @if (nombre?.invalid && (nombre?.touched || nombre?.dirty)) {
-                <div class="text-danger small mt-1 ps-2">
-                  @if (nombre?.errors?.['required']) { <span>El nombre es obligatorio.</span> }
-                  @if (nombre?.errors?.['minlength']) { <span>Debe tener al menos 3 caracteres.</span> }
-                </div>
-                }
-              </div>
-
-              <div class="col-md-6 mb-4">
-                <div class="input-group-icon">
-                  <i class="bi bi-person icon"></i>
-                  <input type="text" class="form-control" placeholder="Apellido" formControlName="apellido">
-                </div>
-                 @if (apellido?.invalid && (apellido?.touched || apellido?.dirty)) {
-                <div class="text-danger small mt-1 ps-2">
-                  @if (apellido?.errors?.['required']) { <span>El apellido es obligatorio.</span> }
-                  @if (apellido?.errors?.['minlength']) { <span>Debe tener al menos 3 caracteres.</span> }
-                </div>
-                }
-              </div>
-            </div>
-
-            <div class="form-group mb-4">
-              <div class="input-group-icon">
-                <i class="bi bi-envelope-fill icon"></i>
-                <input type="email" class="form-control" placeholder="Correo Electrónico" formControlName="email">
-              </div>
-              @if (email?.invalid && (email?.touched || email?.dirty)) {
-              <div class="text-danger small mt-1 ps-2">
-                @if (email?.errors?.['required']) { <span>El correo es obligatorio.</span> }
-                @if (email?.errors?.['email']) { <span>Ingresa un correo válido.</span> }
-              </div>
-              }
-            </div>
-
-            <div class="form-group mb-3 position-relative">
-              <div class="input-group-icon">
-                <i class="bi bi-lock-fill icon"></i>
-                <input [type]="passwordVisible() ? 'text' : 'password'" class="form-control" placeholder="Contraseña" formControlName="password">
-                <button type="button" class="btn-eye" (click)="togglePasswordVisibility()">
-                  <i class="bi" [ngClass]="passwordVisible() ? 'bi-eye-slash' : 'bi-eye'"></i>
-                </button>
-              </div>
-               @if (password?.invalid && (password?.touched || password?.dirty)) {
-              <div class="text-danger small mt-1 ps-2">
-                @if (password?.errors?.['required']) { <span>La contraseña es obligatoria.</span> }
-                @if (password?.errors?.['minlength']) { <span>Debe tener al menos 6 caracteres.</span> }
-              </div>
-              }
-            </div>
-
-            <div class="mt-4">
-              <button class="btn-custom btn-primary" type="submit" [disabled]="isSubmitting()">
-                @if (isSubmitting()) {
-                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  <span>Creando cuenta...</span>
-                } @else {
-                  <span>Crear Cuenta</span>
-                }
-              </button>
-            </div>
-
-            <p class="auth-link">
-              ¿Ya tienes una cuenta? <a routerLink="/login">Inicia Sesión</a>
-            </p>
-
-          </form>
-        </section>
-
+        <h1 class="text-2xl font-bold text-white tracking-tight">Nueva Acreditación</h1>
+        <p class="text-xs text-amber-400 font-semibold uppercase tracking-widest mt-1">Registro de Usuario / Jurado</p>
       </div>
-    </div>
+
+      <!-- FORMULARIO -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate class="space-y-4">
+
+        <!-- FILA: NOMBRE Y APELLIDO -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          <!-- NOMBRE -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Nombre</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <i class="bi bi-person-fill text-base"></i>
+              </span>
+              <input 
+                type="text" 
+                formControlName="nombre"
+                placeholder="Ej. Lucas"
+                class="w-full pl-11 pr-4 py-3 bg-black/40 border border-white/15 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 focus:bg-black/60 transition-all"
+              >
+            </div>
+            @if (nombre?.invalid && (nombre?.touched || nombre?.dirty)) {
+              <p class="text-rose-400 text-xs mt-1 pl-1">
+                @if (nombre?.errors?.['required']) { El nombre es obligatorio. }
+                @if (nombre?.errors?.['minlength']) { Mínimo 3 letras. }
+              </p>
+            }
+          </div>
+
+          <!-- APELLIDO -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Apellido</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <i class="bi bi-person-fill text-base"></i>
+              </span>
+              <input 
+                type="text" 
+                formControlName="apellido"
+                placeholder="Ej. Morales"
+                class="w-full pl-11 pr-4 py-3 bg-black/40 border border-white/15 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 focus:bg-black/60 transition-all"
+              >
+            </div>
+            @if (apellido?.invalid && (apellido?.touched || apellido?.dirty)) {
+              <p class="text-rose-400 text-xs mt-1 pl-1">
+                @if (apellido?.errors?.['required']) { El apellido es obligatorio. }
+                @if (apellido?.errors?.['minlength']) { Mínimo 3 letras. }
+              </p>
+            }
+          </div>
+
+        </div>
+
+        <!-- CAMPO: CORREO -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Correo Electrónico</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i class="bi bi-envelope-fill text-base"></i>
+            </span>
+            <input 
+              type="email" 
+              formControlName="email"
+              placeholder="usuario@colegio.edu.ar"
+              class="w-full pl-11 pr-4 py-3 bg-black/40 border border-white/15 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 focus:bg-black/60 transition-all"
+            >
+          </div>
+          @if (email?.invalid && (email?.touched || email?.dirty)) {
+            <p class="text-rose-400 text-xs mt-1 pl-1">
+              @if (email?.errors?.['required']) { El correo es obligatorio. }
+              @if (email?.errors?.['email']) { Ingresá un correo válido. }
+            </p>
+          }
+        </div>
+
+        <!-- CAMPO: CONTRASEÑA -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Contraseña</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i class="bi bi-lock-fill text-base"></i>
+            </span>
+            <input 
+              [type]="passwordVisible() ? 'text' : 'password'" 
+              formControlName="password"
+              placeholder="Mínimo 6 caracteres"
+              class="w-full pl-11 pr-12 py-3 bg-black/40 border border-white/15 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 focus:bg-black/60 transition-all"
+            >
+            <button 
+              type="button" 
+              (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-amber-400 transition-colors"
+            >
+              <i class="bi text-lg" [ngClass]="passwordVisible() ? 'bi-eye-slash' : 'bi-eye'"></i>
+            </button>
+          </div>
+          @if (password?.invalid && (password?.touched || password?.dirty)) {
+            <p class="text-rose-400 text-xs mt-1 pl-1">
+              @if (password?.errors?.['required']) { La contraseña es obligatoria. }
+              @if (password?.errors?.['minlength']) { Debe tener al menos 6 caracteres. }
+            </p>
+          }
+        </div>
+
+        <!-- BOTÓN REGISTRARSE (DORADO GALA) -->
+        <button 
+          type="submit" 
+          [disabled]="isSubmitting()"
+          class="w-full py-3.5 px-4 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-black font-extrabold rounded-xl shadow-[0_0_25px_rgba(245,158,11,0.35)] hover:shadow-[0_0_35px_rgba(245,158,11,0.55)] hover:brightness-110 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 text-sm tracking-wide mt-3"
+        >
+          @if (isSubmitting()) {
+            <span class="inline-block w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+            <span>Creando cuenta...</span>
+          } @else {
+            <i class="bi bi-person-check-fill text-base"></i>
+            <span>CREAR CUENTA OFICIAL</span>
+          }
+        </button>
+
+        <!-- ENLACE A INICIAR SESIÓN -->
+        <p class="text-center text-xs text-slate-400 pt-3 border-t border-white/10 mt-4">
+          ¿Ya contás con acreditación? 
+          <a routerLink="/login" class="text-amber-400 font-semibold hover:underline ml-1">Iniciá Sesión aquí</a>
+        </p>
+
+      </form>
+    </section>
+
+    <!-- PIE INSTITUCIONAL -->
+    <p class="text-center text-xs text-slate-400/80 mt-5 tracking-wide">
+      Fiesta Nacional de los Estudiantes &bull; San Salvador de Jujuy
+    </p>
+
   </div>
 </main>

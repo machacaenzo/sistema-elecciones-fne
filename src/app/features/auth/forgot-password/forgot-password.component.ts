@@ -1,4 +1,3 @@
-
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -10,8 +9,7 @@ import { NotificacionService } from '../../../core/services/notificacion.service
   selector: 'app-forgot-password',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './forgot-password.component.html',
-  styleUrl: '../communAuth.scss'
+  templateUrl: './forgot-password.component.html'
 })
 export class ForgotPasswordComponent {
   private fb = inject(FormBuilder);
@@ -38,6 +36,7 @@ export class ForgotPasswordComponent {
       const email = this.forgotPasswordForm.value.email;
       await this.authService.resetPassword(email);
     } catch (error) {
+      // Manejado por AuthService
     } finally {
       this.isSubmitting.set(false);
     }

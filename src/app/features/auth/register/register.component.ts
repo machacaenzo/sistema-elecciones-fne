@@ -9,8 +9,7 @@ import { NotificacionService } from '../../../core/services/notificacion.service
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './register.component.html',
-  styleUrl: '../communAuth.scss'
+  templateUrl: './register.component.html'
 })
 export class RegisterComponent {
   private fb = inject(FormBuilder);
@@ -38,7 +37,7 @@ export class RegisterComponent {
   async onSubmit(): Promise<void> {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
-      this.notificationService.showAlertWarning('Formulario incompleto', 'Por favor, revisa los campos marcados en rojo.');
+      this.notificationService.showAlertWarning('Formulario incompleto', 'Por favor, revisá los campos marcados en rojo.');
       return;
     }
 
@@ -47,7 +46,7 @@ export class RegisterComponent {
     try {
       await this.authService.register(this.registerForm.value);
     } catch (error) {
-      console.error("Error en el registro desde el componente:", error);
+      console.error("Error en el registro:", error);
     } finally {
       this.isSubmitting.set(false);
     }

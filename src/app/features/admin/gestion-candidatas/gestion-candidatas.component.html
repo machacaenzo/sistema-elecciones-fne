@@ -294,18 +294,26 @@
 
           </div>
 
-          <!-- Pie del Formulario -->
-          <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 sm:pt-6 border-t border-[#C5A059]/30">
-            <button type="button" (click)="hideForm()"
-                    class="px-6 py-3.5 rounded-xl border border-[#C5A059]/40 text-neutral-300 hover:text-white hover:bg-white/10 text-xs font-bold uppercase tracking-wider transition-all text-center">
-              Cancelar
-            </button>
-            <button type="submit"
-                    [disabled]="candidataForm.invalid || isProcessingImages()"
-                    class="px-8 py-3.5 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_0_30px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/70 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none text-center">
-              {{ isEditing() ? 'Guardar Cambios' : 'Completar Inscripción' }}
-            </button>
-          </div>
+         <!-- Pie del Formulario con Bloqueo Anti Doble Clic y Spinner -->
+<div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 sm:pt-6 border-t border-[#C5A059]/30">
+  <button type="button"
+          (click)="hideForm()"
+          [disabled]="isSubmitting()"
+          class="px-6 py-3.5 rounded-xl border border-[#C5A059]/40 text-neutral-300 hover:text-white hover:bg-white/10 text-xs font-bold uppercase tracking-wider transition-all text-center disabled:opacity-40">
+    Cancelar
+  </button>
+
+  <button type="submit"
+          [disabled]="candidataForm.invalid || isProcessingImages() || isSubmitting()"
+          class="px-8 py-3.5 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_0_30px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/70 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none text-center flex items-center justify-center gap-2">
+    @if (isSubmitting()) {
+      <span class="inline-block w-4 h-4 border-2 border-[#0A0D14] border-t-transparent rounded-full animate-spin"></span>
+      <span>Guardando...</span>
+    } @else {
+      <span>{{ isEditing() ? 'Guardar Cambios' : 'Completar Inscripción' }}</span>
+    }
+  </button>
+</div>
 
         </form>
       }

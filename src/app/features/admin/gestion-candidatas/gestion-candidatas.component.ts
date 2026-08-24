@@ -35,6 +35,8 @@ export class GestionCandidatasComponent implements OnInit {
   imagePreviews = signal<string[]>([]);
   isProcessingImages = signal(false);
 
+  isSubmitting = signal(false); // 👈 Agrega esto
+
   candidataForm: FormGroup;
 
   // Lista filtrada por categoría y siempre ordenada por número de pasada (1, 2, 3...)
@@ -152,9 +154,7 @@ export class GestionCandidatasComponent implements OnInit {
     this.isFormVisible.set(true);
   }
 
-  hideForm(): void {
-    this.isFormVisible.set(false);
-  }
+  
 
   // Compresor de fotos con Canvas en el navegador
   private compressImage(file: File, maxWidth = 800, quality = 0.7): Promise<string> {
@@ -222,67 +222,77 @@ export class GestionCandidatasComponent implements OnInit {
     }
   }
 
-  async onSubmit(): Promise<void> {
-    if (this.candidataForm.invalid) {
-      this.notificationService.showAlertWarning('Formulario Incompleto', 'Por favor completá los campos obligatorios.');
-      return;
-    }
+async onSubmit(): Promise<void> {
+  // 1. Si ya se está enviando, frena en seco cualquier segundo clic
+  if (this.isSubmitting()) return;
 
-    const formValue = this.candidataForm.value;
-    const num = Number(formValue.numero);
-    const cat = formValue.categoria as CategoriaParticipante;
-
-    // Validación contra número duplicado en la misma categoría
-    const existeDuplicado = this.participantes().some(p =>
-      (p.categoria || 'Embajadora') === cat &&
-      p.numero === num &&
-      p.id !== this.editingCandidataId()
-    );
-
-    if (existeDuplicado) {
-      this.notificationService.showAlertWarning(
-        'Número Duplicado',
-        `Ya existe un/a participante con el N° ${num} en la categoría "${cat}". Elegí otro número de pasada.`
-      );
-      return;
-    }
-
-    const finalFotosURL = [...formValue.fotosURL, ...formValue.nuevasImagenes];
-
-    const data: Omit<Candidata, 'id'> = {
-      eleccionId: this.eleccion.id!,
-      numero: num,
-      categoria: cat,
-      nombre: formValue.nombre.trim(),
-      apellido: formValue.apellido.trim(),
-      dni: formValue.dni.trim(),
-      cursoDivision: formValue.cursoDivision.trim(),
-      fotosURL: finalFotosURL,
-      camposPersonalizados: formValue.camposPersonalizados || {},
-      puntuacionPorCriterio: {},
-      puntuacionTotal: 0,
-      cantidadDeVotos: 0,
-    };
-
-    try {
-      if (this.isEditing() && this.editingCandidataId()) {
-        const anterior = this.participantes().find(p => p.id === this.editingCandidataId());
-        data.puntuacionTotal = anterior?.puntuacionTotal || 0;
-        data.cantidadDeVotos = anterior?.cantidadDeVotos || 0;
-        data.puntuacionPorCriterio = anterior?.puntuacionPorCriterio || {};
-
-        await this.candidataService.updateCandidata(this.editingCandidataId()!, data);
-        this.notificationService.showSuccessToast('Ficha actualizada correctamente');
-      } else {
-        await this.candidataService.createCandidata(data);
-        this.notificationService.showSuccessToast('Participante inscripto/a con éxito');
-      }
-      this.hideForm();
-    } catch (error) {
-      this.notificationService.showAlertError('Error', 'No se pudo guardar la ficha en la base de datos.');
-    }
+  if (this.candidataForm.invalid) {
+    this.notificationService.showAlertWarning('Formulario Incompleto', 'Por favor completá los campos obligatorios.');
+    return;
   }
 
+  const formValue = this.candidataForm.value;
+  const num = Number(formValue.numero);
+  const cat = formValue.categoria as CategoriaParticipante;
+  const editId = this.editingCandidataId();
+
+  // 2. Validación de número duplicado (Ignorando correctamente al participante que se está editando)
+  const existeDuplicado = this.participantes().some(p => {
+    const mismaCat = (p.categoria || 'Embajadora') === cat;
+    const mismoNumero = Number(p.numero) === num;
+    const esOtroParticipante = p.id !== editId; // Si es el mismo que editas, NO da duplicado
+    return mismaCat && mismoNumero && esOtroParticipante;
+  });
+
+  if (existeDuplicado) {
+    this.notificationService.showAlertWarning(
+      'Número Duplicado',
+      `Ya existe un/a participante con el N° ${num} en la categoría "${cat}". Elegí otro número.`
+    );
+    return;
+  }
+
+  // 3. Bloqueamos el botón y empezamos a guardar
+  this.isSubmitting.set(true);
+
+  const finalFotosURL = [...formValue.fotosURL, ...formValue.nuevasImagenes];
+
+  const data: Omit<Candidata, 'id'> = {
+    eleccionId: this.eleccion.id!,
+    numero: num,
+    categoria: cat,
+    nombre: formValue.nombre.trim(),
+    apellido: formValue.apellido.trim(),
+    dni: formValue.dni.trim(),
+    cursoDivision: formValue.cursoDivision.trim(),
+    fotosURL: finalFotosURL,
+    camposPersonalizados: formValue.camposPersonalizados || {},
+    puntuacionPorCriterio: {},
+    puntuacionTotal: 0,
+    cantidadDeVotos: 0,
+  };
+
+  try {
+    if (this.isEditing() && editId) {
+      const anterior = this.participantes().find(p => p.id === editId);
+      data.puntuacionTotal = anterior?.puntuacionTotal || 0;
+      data.cantidadDeVotos = anterior?.cantidadDeVotos || 0;
+      data.puntuacionPorCriterio = anterior?.puntuacionPorCriterio || {};
+
+      await this.candidataService.updateCandidata(editId, data);
+      this.notificationService.showSuccessToast('Ficha actualizada correctamente');
+    } else {
+      await this.candidataService.createCandidata(data);
+      this.notificationService.showSuccessToast('Participante inscripto/a con éxito');
+    }
+    this.hideForm();
+  } catch (error) {
+    this.notificationService.showAlertError('Error', 'No se pudo guardar la ficha en la base de datos.');
+  } finally {
+    // 4. Liberamos el botón al terminar
+    this.isSubmitting.set(false);
+  }
+}
   async confirmDelete(candidata: Candidata): Promise<void> {
     if (candidata.cantidadDeVotos > 0) {
       this.notificationService.showAlertError('Acción Bloqueada', 'No se puede eliminar un participante que ya tiene votos registrados en la gala.');
@@ -306,5 +316,9 @@ export class GestionCandidatasComponent implements OnInit {
 
 descargarPlanillaJurados(): void {
   this.pdfService.exportarPlanillaJurado(this.eleccion, this.participantes());
+}
+hideForm(): void {
+  this.isFormVisible.set(false);
+  this.isSubmitting.set(false);
 }
 }

@@ -1,15 +1,23 @@
-<div class="flex h-screen bg-[#000000] text-neutral-100 overflow-hidden font-sans">
+<!-- CONTENEDOR PRINCIPAL CON LA FOTO DE FONDO -->
+<div class="flex h-screen w-full relative bg-cover bg-center bg-fixed bg-no-repeat text-neutral-100 overflow-hidden font-sans"
+     style="background-image: url('assets/FONDO.jpg');">
 
-  <!-- SIDEBAR LATERAL: NEGRO PURO CON BORDE DE ORO -->
-  <aside class="fixed inset-y-0 left-0 z-40 w-64 bg-[#080808] border-r border-[#C5A059]/30 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 shadow-[10px_0_30px_rgba(0,0,0,0.8)]"
+  <!-- CAPA OSCURA DE CINE Y DESENFOQUE PARA QUE TODO EL TEXTO RESALTE -->
+  <div class="absolute inset-0 bg-black/85 backdrop-blur-[2px] pointer-events-none z-0"></div>
+
+  <!-- DESTELLO DORADO AMBIENTAL -->
+  <div class="absolute top-20 right-20 w-96 h-96 bg-[#C5A059]/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+  <!-- SIDEBAR LATERAL: VIDRIO OSCURO ESMERILADO CON BORDE DE ORO -->
+  <aside class="fixed inset-y-0 left-0 z-40 w-64 backdrop-blur-2xl bg-[#080808]/90 border-r border-[#C5A059]/30 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 shadow-[10px_0_30px_rgba(0,0,0,0.8)]"
          [class.translate-x-0]="isSidebarOpen()"
          [class.-translate-x-full]="!isSidebarOpen()">
 
     <!-- CABECERA DE MARCA -->
     <div>
-      <div class="flex items-center gap-3.5 px-6 py-6 border-b border-[#C5A059]/20 bg-[#000000]">
-        <div class="w-11 h-11 rounded-2xl bg-[#121212] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_20px_rgba(197,160,89,0.2)]">
-          <i class="bi bi-stars"></i>
+      <div class="flex items-center gap-3.5 px-6 py-6 border-b border-[#C5A059]/20 bg-[#000000]/60">
+        <div class="w-11 h-11 rounded-2xl bg-[#121212] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_20px_rgba(197,160,89,0.2)] p-1">
+          <img src="assets/logo-fne.png" alt="Logo FNE" class="w-full h-full object-contain">
         </div>
         <div>
           <h2 class="text-sm font-black tracking-widest text-[#F3E7C4] uppercase">FNE Elección</h2>
@@ -25,8 +33,8 @@
            routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
            [routerLinkActiveOptions]="{ exact: true }"
            (click)="isSidebarOpen.set(false)"
-           class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414] border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
-          <i class="bi bi-house-door-fill text-lg"></i>
+           class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
+          <i class="bi bi-house-door-fill text-lg text-[#C5A059]"></i>
           <span>Inicio</span>
         </a>
 
@@ -35,8 +43,8 @@
           <a routerLink="/dashboard/votacion"
              routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
              (click)="isSidebarOpen.set(false)"
-             class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414] border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
-            <i class="bi bi-award-fill text-lg"></i>
+             class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
+            <i class="bi bi-award-fill text-lg text-[#C5A059]"></i>
             <span>{{ isJurado() ? 'Planilla de Jurado' : 'Centro de Votación' }}</span>
           </a>
         }
@@ -45,8 +53,8 @@
         <a routerLink="/dashboard/profile"
            routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
            (click)="isSidebarOpen.set(false)"
-           class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414] border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
-          <i class="bi bi-person-circle text-lg"></i>
+           class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
+          <i class="bi bi-person-circle text-lg text-[#C5A059]"></i>
           <span>Mi Perfil</span>
         </a>
 
@@ -60,8 +68,8 @@
           <a routerLink="/dashboard/admin/elections"
              routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
              (click)="isSidebarOpen.set(false)"
-             class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414] border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
-            <i class="bi bi-trophy-fill text-lg"></i>
+             class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
+            <i class="bi bi-trophy-fill text-lg text-[#C5A059]"></i>
             <span>Noches de Elección</span>
           </a>
 
@@ -69,17 +77,17 @@
           <a routerLink="/dashboard/admin/users"
              routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
              (click)="isSidebarOpen.set(false)"
-             class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414] border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
-            <i class="bi bi-people-fill text-lg"></i>
+             class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
+            <i class="bi bi-people-fill text-lg text-[#C5A059]"></i>
             <span>Padrón de Jurados</span>
           </a>
         }
       </nav>
     </div>
 
-    <!-- TARJETA DE USUARIO INFERIOR (NEGRO PROFUNDO + ORO) -->
+    <!-- TARJETA DE USUARIO INFERIOR -->
     @if (currentUser()) {
-      <div class="p-4 border-t border-[#C5A059]/20 bg-[#000000]">
+      <div class="p-4 border-t border-[#C5A059]/20 bg-[#000000]/60">
         <div class="flex items-center justify-between gap-3">
           <div class="flex items-center gap-3 min-w-0">
             <img [src]="currentUser()?.fotoURL || 'assets/user-default.jpg'"
@@ -109,22 +117,23 @@
          (click)="isSidebarOpen.set(false)"></div>
   }
 
-  <!-- CONTENEDOR PRINCIPAL: NEGRO ABSOLUTO -->
-  <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#000000]">
+  <!-- CONTENEDOR PRINCIPAL: TRANSPARENTE PARA QUE SE VEA EL FONDO -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 bg-transparent">
 
     <!-- CABECERA MÓVIL (SOLO PARA PANTALLAS CHICAS) -->
-    <header class="flex items-center justify-between px-5 py-3.5 bg-[#080808] border-b border-[#C5A059]/30 lg:hidden shadow-md">
+    <header class="flex items-center justify-between px-5 py-3.5 bg-[#080808]/90 backdrop-blur-md border-b border-[#C5A059]/30 lg:hidden shadow-md">
       <button (click)="toggleSidebar()" class="p-2 rounded-xl bg-[#141414] text-[#F3E7C4] border border-[#C5A059]/40">
         <i class="bi bi-list text-xl"></i>
       </button>
       <span class="text-sm font-black text-[#F3E7C4] tracking-wider flex items-center gap-2">
-        <i class="bi bi-stars text-[#C5A059]"></i> FNE ELECCIÓN
+        <img src="assets/logo-fne.png" alt="Logo" class="w-6 h-6 object-contain">
+        FNE ELECCIÓN
       </span>
       <div class="w-8"></div>
     </header>
 
-    <!-- ÁREA DONDE SE CARGAN LAS PÁGINAS -->
-    <main class="flex-1 overflow-y-auto custom-scrollbar bg-[#000000]">
+    <!-- ÁREA DONDE SE CARGAN LAS PÁGINAS (ROUTER OUTLET) -->
+    <main class="flex-1 overflow-y-auto custom-scrollbar bg-transparent p-4 sm:p-6 lg:p-8">
       <router-outlet></router-outlet>
     </main>
   </div>

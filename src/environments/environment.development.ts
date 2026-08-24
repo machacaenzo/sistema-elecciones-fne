@@ -1,13 +1,11 @@
 export const environment = {
-  production:true,
-  firebase : {
-  apiKey: "AIzaSyBB090ZSbId9liLUemL8kyXLOF2vdJQKwk",
-  authDomain: "edu-task-dev.firebaseapp.com",
-  projectId: "edu-task-dev",
-  storageBucket: "edu-task-dev.firebasestorage.app",
-  messagingSenderId: "92284909854",
-  appId: "1:92284909854:web:45dc019c0bbef93ee1310f"
-}
-
+  production: false,
+  firebase: {
+    apiKey: "AIzaSyCs6TYJffSk5rkEN0PoF4TMznKaAlh8PBU",
+    authDomain: "fne-elecciones.firebaseapp.com",
+    projectId: "fne-elecciones",
+    storageBucket: "fne-elecciones.firebasestorage.app",
+    messagingSenderId: "201926808085",
+    appId: "1:201926808085:web:045a1de178c228cdec741c"
+  }
 };
-//enzomachaca919@gmail.com

@@ -1,150 +1,232 @@
-<div class="dashboard-home-container">
+<div class="min-h-screen p-4 sm:p-8 bg-[#000000] text-neutral-100 space-y-8 font-sans">
 
-  <!-- CABECERA INSTITUCIONAL -->
-  <div class="welcome-header">
-    @if (currentUser()) {
-      <h1>Elección de Representante Estudiantil</h1>
-      <p>Panel General &bull; Usuario: <strong>{{ currentUser()?.nombre }} {{ currentUser()?.apellido }}</strong> ({{ currentUser()?.rol }})</p>
+  <!-- CABECERA INSTITUCIONAL DE GALA -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#C5A059]/25 bg-[#000000]">
+    <div>
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#121212] border border-[#C5A059]/40 text-xs font-bold text-[#F3E7C4] mb-2 shadow-sm">
+        <i class="bi bi-stars text-[#C5A059]"></i>
+        <span>SISTEMA OFICIAL DE ELECCIÓN Y PROCLAMACIÓN</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-black text-white tracking-wide">
+        Bienvenido/a, {{ currentUser()?.nombre }} {{ currentUser()?.apellido }}
+      </h1>
+      <p class="text-sm text-neutral-400 mt-1">
+        Panel de Control &bull; Rol actual: <span class="text-[#F3E7C4] font-semibold">{{ currentUser()?.rol }}</span>
+      </p>
+    </div>
+
+    <!-- Badge del Evento Activo -->
+    @if (eleccionActiva(); as eleccion) {
+      <div class="px-5 py-3 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/30 shadow-md flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-[#171717] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-lg">
+          <i class="bi bi-calendar-event"></i>
+        </div>
+        <div>
+          <p class="text-xs text-neutral-400 font-medium">Evento en Curso</p>
+          <p class="text-sm font-extrabold text-[#F3E7C4] truncate max-w-xs">{{ eleccion.nombre }}</p>
+        </div>
+      </div>
     }
   </div>
 
-  <div class="main-content-grid">
-    <div class="main-column">
+  <!-- GRILLA DE MÉTRICAS EN VIVO DE LA NOCHE (5 TARJETAS NEGRAS + ORO) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 
-      <!-- TARJETAS DE MÉTRICAS -->
-      <div class="stats-grid">
-        <div class="stat-card neumorphic-panel-outset">
-          <div class="stat-icon-wrapper neumorphic-inset candidatas">
-            <mat-icon>group</mat-icon>
-          </div>
-          <div class="stat-info">
-            <span class="stat-value">{{ candidatasCount() }}</span>
-            <span class="stat-label">Candidatas</span>
-          </div>
-        </div>
-
-        <div class="stat-card neumorphic-panel-outset">
-          <div class="stat-icon-wrapper neumorphic-inset jurados">
-            <mat-icon>how_to_reg</mat-icon>
-          </div>
-          <div class="stat-info">
-            <span class="stat-value">{{ juradosCount() }}</span>
-            <span class="stat-label">Jurados</span>
-          </div>
-        </div>
-
-        <div class="stat-card neumorphic-panel-outset">
-          <div class="stat-icon-wrapper neumorphic-inset votos">
-            <mat-icon>how_to_vote</mat-icon>
-          </div>
-          <div class="stat-info">
-            <span class="stat-value">{{ totalVotosCount() }}</span>
-            <span class="stat-label">Votos Registrados</span>
-          </div>
-        </div>
-
-        <div class="stat-card neumorphic-panel-outset">
-          <div class="stat-icon-wrapper neumorphic-inset estado">
-            <mat-icon>verified</mat-icon>
-          </div>
-          <div class="stat-info">
-            <span class="stat-value">{{ eleccionActiva()?.estado || 'Inactivo' }}</span>
-            <span class="stat-label">Estado Urna</span>
-          </div>
-        </div>
+    <!-- 1. EMBAJADORAS -->
+    <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md flex items-center gap-4 hover:border-[#C5A059]/60 transition-all">
+      <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
+        <i class="bi bi-crown"></i>
       </div>
-
-      <!-- ACCESOS PRINCIPALES -->
-      <div class="quick-actions-section">
-        <h2 class="section-title">
-          <mat-icon>grid_view</mat-icon>
-          Accesos del Sistema
-        </h2>
-
-        <div class="actions-grid">
-
-          <!-- Botón de Evaluación (Jurados / Alumnos) -->
-          @if (isJurado() || currentUser()?.rol === 'Alumno') {
-            <a routerLink="/dashboard/votacion" class="action-card neumorphic-panel-outset">
-              <div class="action-icon-wrapper neumorphic-button-outset">
-                <mat-icon class="action-icon">rate_review</mat-icon>
-              </div>
-              <span class="action-title">{{ isJurado() ? 'Planilla de Jurado' : 'Emitir Voto' }}</span>
-              <p class="action-description">Puntuación de candidatas en pasarela.</p>
-            </a>
-          }
-
-          <!-- Botones de Administración -->
-          @if (isAdmin()) {
-            <a routerLink="/dashboard/admin/elections" class="action-card neumorphic-panel-outset">
-              <div class="action-icon-wrapper neumorphic-button-outset">
-                <mat-icon class="action-icon">settings</mat-icon>
-              </div>
-              <span class="action-title">Configuración</span>
-              <p class="action-description">Gestión de candidatas, cursos y estado.</p>
-            </a>
-
-            <a routerLink="/dashboard/admin/users" class="action-card neumorphic-panel-outset">
-              <div class="action-icon-wrapper neumorphic-button-outset">
-                <mat-icon class="action-icon">badge</mat-icon>
-              </div>
-              <span class="action-title">Padrón de Jurados</span>
-              <p class="action-description">Alta y habilitación de cuentas jurado.</p>
-            </a>
-          }
-
-          <!-- Escrutinio / Pantalla Gigante -->
-          @if (eleccionActiva()?.id) {
-            <a [routerLink]="['/dashboard/resultados', eleccionActiva()?.id]" class="action-card neumorphic-panel-outset results-action">
-              <div class="action-icon-wrapper neumorphic-button-outset">
-                <mat-icon class="action-icon">military_tech</mat-icon>
-              </div>
-              <span class="action-title">Escrutinio Oficial</span>
-              <p class="action-description">Cómputos en vivo y pantalla de proclamación.</p>
-            </a>
-          }
-
-        </div>
+      <div>
+        <p class="text-2xl font-black text-white">{{ embajadorasCount() }}</p>
+        <p class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mt-0.5">Embajadoras</p>
       </div>
     </div>
 
-    <!-- COLUMNA LATERAL -->
-    <div class="sidebar-column">
-      <div class="info-section neumorphic-panel-outset">
-        <h3 class="section-title">
-          <mat-icon>event_note</mat-icon>
-          Datos de la Elección
-        </h3>
-        <div class="info-list">
-          @if (eleccionActiva(); as eleccion) {
-            <div class="info-item neumorphic-inset">
-              <span class="info-title">{{ eleccion.nombre }}</span>
-              <span class="info-subtitle"><strong>Criterios:</strong> {{ eleccion.criterios.join(', ') }}</span>
-              <span class="info-subtitle"><strong>Distinciones:</strong> {{ eleccion.puestos.join(' &bull; ') }}</span>
-            </div>
-          } @else {
-            <div class="empty-state-visual">
-              <mat-icon>info</mat-icon>
-              <p class="empty-message">No se encontró una elección activa configurada.</p>
-            </div>
-          }
-        </div>
+    <!-- 2. EMBAJADORES -->
+    <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md flex items-center gap-4 hover:border-[#C5A059]/60 transition-all">
+      <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
+        <i class="bi bi-person-badge"></i>
       </div>
+      <div>
+        <p class="text-2xl font-black text-white">{{ embajadoresCount() }}</p>
+        <p class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mt-0.5">Embajadores</p>
+      </div>
+    </div>
 
-      <div class="info-section neumorphic-panel-outset">
-        <h3 class="section-title">
-          <mat-icon>gavel</mat-icon>
-          Reglamento de Evaluación
-        </h3>
-        <div class="info-list">
-          <div class="info-item neumorphic-inset">
-            <p class="mb-2"><strong>1. Calificación:</strong> Evaluar de forma individual a cada candidata en sus respectivas pasadas.</p>
-            <p class="mb-2"><strong>2. Confirmación:</strong> Al enviar el formulario, el voto queda registrado e inalterable en el sistema.</p>
-            <p class="mb-0"><strong>3. Cierre:</strong> La fiscalía general valida las actas al finalizar la última pasada.</p>
-          </div>
-        </div>
+    <!-- 3. JURADOS -->
+    <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md flex items-center gap-4 hover:border-[#C5A059]/60 transition-all">
+      <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <div>
+        <p class="text-2xl font-black text-white">{{ juradosCount() }}</p>
+        <p class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mt-0.5">Jurados</p>
+      </div>
+    </div>
+
+    <!-- 4. VOTOS EMITIDOS -->
+    <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md flex items-center gap-4 hover:border-[#C5A059]/60 transition-all">
+      <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
+        <i class="bi bi-check2-circle"></i>
+      </div>
+      <div>
+        <p class="text-2xl font-black text-white">{{ totalVotosCount() }}</p>
+        <p class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mt-0.5">Votos Emitidos</p>
+      </div>
+    </div>
+
+    <!-- 5. ESTADO DE LA NOCHE -->
+    <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md flex items-center gap-4 hover:border-[#C5A059]/60 transition-all">
+      <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
+        <i class="bi bi-soundwave"></i>
+      </div>
+      <div>
+        <p class="text-sm font-black text-white">
+          {{ eleccionActiva()?.estado || 'Inactivo' }}
+        </p>
+        <p class="text-xs font-bold text-[#C5A059] uppercase tracking-wider mt-0.5">Estado Votación</p>
       </div>
     </div>
 
   </div>
+
+  <!-- SECCIÓN DE ACCESOS Y DETALLES DEL EVENTO -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- COLUMNA IZQUIERDA: ACCESOS RÁPIDOS DE CONTROL (2 COLUMNAS) -->
+    <div class="lg:col-span-2 space-y-5">
+      <div class="flex items-center gap-2.5">
+        <i class="bi bi-grid-fill text-[#C5A059] text-lg"></i>
+        <h2 class="text-lg font-bold text-white uppercase tracking-wider">Panel de Acciones</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+        <!-- Tarjeta 1: Noches de Elección (Admin) -->
+        @if (isAdmin()) {
+          <a routerLink="/dashboard/admin/elections"
+             class="group p-6 rounded-2xl bg-[#0F0F0F] hover:bg-[#141414] border border-[#C5A059]/25 hover:border-[#C5A059]/60 transition-all duration-300 flex flex-col justify-between shadow-md">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-2xl mb-4 group-hover:scale-110 transition-transform">
+                <i class="bi bi-trophy-fill"></i>
+              </div>
+              <h3 class="text-base font-bold text-white group-hover:text-[#F3E7C4] transition-colors">Noches de Elección</h3>
+              <p class="text-xs text-neutral-400 mt-1">Configurar eventos, abrir la votación y cargar participantes.</p>
+            </div>
+            <div class="mt-4 flex items-center gap-2 text-xs font-bold text-[#F3E7C4]">
+              <span>Ingresar</span> <i class="bi bi-arrow-right"></i>
+            </div>
+          </a>
+
+          <!-- Tarjeta 2: Padrón de Jurados -->
+          <a routerLink="/dashboard/admin/users"
+             class="group p-6 rounded-2xl bg-[#0F0F0F] hover:bg-[#141414] border border-[#C5A059]/25 hover:border-[#C5A059]/60 transition-all duration-300 flex flex-col justify-between shadow-md">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-2xl mb-4 group-hover:scale-110 transition-transform">
+                <i class="bi bi-person-check-fill"></i>
+              </div>
+              <h3 class="text-base font-bold text-white group-hover:text-[#F3E7C4] transition-colors">Padrón de Jurados</h3>
+              <p class="text-xs text-neutral-400 mt-1">Habilitar cuentas de jurados para la noche de gala.</p>
+            </div>
+            <div class="mt-4 flex items-center gap-2 text-xs font-bold text-[#F3E7C4]">
+              <span>Ingresar</span> <i class="bi bi-arrow-right"></i>
+            </div>
+          </a>
+        }
+
+        <!-- Tarjeta 3: Pantalla de Proclamación / Escenario -->
+        @if (eleccionActiva()?.id) {
+          <a [routerLink]="['/dashboard/resultados', eleccionActiva()?.id]"
+             class="group p-6 rounded-2xl bg-[#0F0F0F] hover:bg-[#141414] border border-[#C5A059]/40 hover:border-[#C5A059]/80 transition-all duration-300 flex flex-col justify-between shadow-md sm:col-span-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-2xl mb-3 group-hover:scale-110 transition-transform">
+                  <i class="bi bi-award-fill"></i>
+                </div>
+                <h3 class="text-base font-bold text-white group-hover:text-[#F3E7C4] transition-colors">
+                  Pantalla de Proclamación / Escenario
+                </h3>
+                <p class="text-xs text-neutral-400 mt-1">Conectar al proyector para revelar los ganadores y coronar a la Embajadora.</p>
+              </div>
+
+              <!-- Botón Dorado Metálico -->
+              <span class="hidden sm:inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#000000] font-black text-xs rounded-xl shadow-[0_4px_20px_rgba(197,160,89,0.3)]">
+                <i class="bi bi-display text-sm"></i> Modo Escenario
+              </span>
+            </div>
+          </a>
+        }
+
+        <!-- Tarjeta 4: Planilla de Votación (Jurados / Alumnos) -->
+        @if (isJurado() || currentUser()?.rol === 'Alumno') {
+          <a routerLink="/dashboard/votacion"
+             class="group p-6 rounded-2xl bg-[#0F0F0F] hover:bg-[#141414] border border-[#C5A059]/40 hover:border-[#C5A059]/80 transition-all duration-300 flex flex-col justify-between shadow-md sm:col-span-2">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-2xl mb-4 group-hover:scale-110 transition-transform">
+                <i class="bi bi-pencil-square"></i>
+              </div>
+              <h3 class="text-base font-bold text-white group-hover:text-[#F3E7C4] transition-colors">
+                {{ isJurado() ? 'Abrir Planilla de Jurado' : 'Ingresar a Votar' }}
+              </h3>
+              <p class="text-xs text-neutral-400 mt-1">Puntuación en pasarela para Embajadoras y Embajadores.</p>
+            </div>
+            <div class="mt-4 flex items-center gap-2 text-xs font-bold text-[#F3E7C4]">
+              <span>Comenzar Evaluación</span> <i class="bi bi-arrow-right"></i>
+            </div>
+          </a>
+        }
+
+      </div>
+    </div>
+
+    <!-- COLUMNA DERECHA: RESUMEN DE LA GALA ACTIVA -->
+    <div class="space-y-5">
+      <div class="flex items-center gap-2.5">
+        <i class="bi bi-info-circle-fill text-[#C5A059] text-lg"></i>
+        <h2 class="text-lg font-bold text-white uppercase tracking-wider">Datos de la Gala</h2>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md space-y-4">
+        @if (eleccionActiva(); as eleccion) {
+          <div>
+            <p class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Evento</p>
+            <p class="text-base font-extrabold text-white mt-0.5">{{ eleccion.nombre }}</p>
+          </div>
+
+          <div class="pt-3 border-t border-[#C5A059]/15">
+            <p class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Fecha de la Noche</p>
+            <p class="text-sm font-semibold text-[#F3E7C4] mt-0.5">
+              <i class="bi bi-calendar3 mr-1.5"></i>
+              {{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd/MM/yyyy' }}
+            </p>
+          </div>
+
+          <div class="pt-3 border-t border-[#C5A059]/15">
+            <p class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Títulos a Coronar</p>
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              @for (puesto of eleccion.puestosFemeninos || eleccion.puestos; track puesto) {
+                <span class="px-2.5 py-1 rounded-lg bg-[#171717] border border-[#C5A059]/30 text-[11px] font-semibold text-[#F3E7C4]">
+                  {{ puesto }}
+                </span>
+              }
+              @for (puesto of eleccion.puestosMasculinos; track puesto) {
+                <span class="px-2.5 py-1 rounded-lg bg-[#171717] border border-[#C5A059]/30 text-[11px] font-semibold text-[#F3E7C4]">
+                  {{ puesto }}
+                </span>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="py-12 text-center text-neutral-500">
+            <i class="bi bi-calendar-x text-3xl block mb-2 text-[#C5A059]/40"></i>
+            <p class="text-sm font-medium text-slate-300">No hay una gala activa configurada.</p>
+            <p class="text-xs text-slate-500 mt-1">Creá una desde "Noches de Elección".</p>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+
 </div>

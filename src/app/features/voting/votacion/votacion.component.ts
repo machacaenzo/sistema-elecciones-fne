@@ -76,7 +76,7 @@ export class VotacionComponent implements OnInit {
   loadElecciones(): void {
     this.isLoading.set(true);
     this.eleccionService.getElecciones().pipe(first()).subscribe(elecciones => {
-      this.todasLasElecciones.set(elecciones.sort((a, b) => b.fechaInicio.toMillis() - a.fechaInicio.toMillis()));
+      // this.todasLasElecciones.set(elecciones.sort((a, b) => b.fechaInicio.toMillis() - a.fechaInicio.toMillis()));
       this.isLoading.set(false);
     });
   }

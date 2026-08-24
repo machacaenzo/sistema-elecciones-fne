@@ -1,212 +1,426 @@
-<div class="page-container">
-  <div class="header">
-    <div class="header-text">
-      <h1>Gestión de Elecciones</h1>
-      <p>Crea y administra los periodos de votación honorífica.</p>
+<div class="min-h-screen p-4 sm:p-8 bg-[#07090E] text-slate-100 space-y-6">
+
+  <!-- CABECERA PRINCIPAL -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-3">
+        <span class="w-11 h-11 rounded-2xl bg-[#121620] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
+          <i class="bi bi-stars"></i>
+        </span>
+        Noches de Elección
+      </h1>
+      <p class="text-sm text-slate-400 mt-1">Administrá las galas estudiantiles, configurá títulos y controlá la votación en tiempo real.</p>
     </div>
-    <button class="neumorphic-button-outset primary" (click)="openCreateModal()">
-      <mat-icon>add</mat-icon>
-      <span>Nueva Elección</span>
+
+    <!-- Botón Crear Nueva Elección -->
+    <button type="button"
+            (click)="openCreateModal()"
+            class="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-bold text-sm rounded-2xl shadow-[0_4px_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 hover:scale-105 active:scale-95 transition-all">
+      <i class="bi bi-plus-lg text-base"></i>
+      <span>Nueva Noche de Gala</span>
     </button>
   </div>
-  <div class="table-container neumorphic-panel-outset">
-    <table mat-table [dataSource]="dataSource" class="elections-table">
-      <ng-container matColumnDef="nombre">
-        <th mat-header-cell *matHeaderCellDef>Nombre del Evento</th>
-        <td mat-cell *matCellDef="let eleccion" [matTooltip]="eleccion.nombre">
-          {{ eleccion.nombre }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="fechaInicio">
-        <th mat-header-cell *matHeaderCellDef>Inicio de Votación</th>
-        <td mat-cell *matCellDef="let eleccion">{{ eleccion.fechaInicio.toDate() | date:'dd/MM/yyyy':'UTC' }}</td>
-      </ng-container>
-      <ng-container matColumnDef="fechaFin">
-        <th mat-header-cell *matHeaderCellDef>Fin de Votación</th>
-        <td mat-cell *matCellDef="let eleccion">{{ eleccion.fechaFin.toDate() | date:'dd/MM/yyyy':'UTC' }}</td>
-      </ng-container>
-      <ng-container matColumnDef="estado">
-        <th mat-header-cell *matHeaderCellDef class="text-center">Estado</th>
-        <td mat-cell *matCellDef="let eleccion" class="text-center"><span class="status-badge"
-            [ngClass]="eleccion.estado.toLowerCase()">{{ eleccion.estado }}</span></td>
-      </ng-container>
 
-      <!-- ====================================================== -->
-      <!-- ===== SECCIÓN DE ACCIONES (MODIFICADA) ===== -->
-      <!-- ====================================================== -->
-      <ng-container matColumnDef="acciones">
-  <th mat-header-cell *matHeaderCellDef class="text-right">Acciones</th>
-  <td mat-cell *matCellDef="let eleccion" class="text-right actions-cell">
+  <!-- TABLA DE EVENTOS (LA QUE TE GUSTÓ) -->
+  <!-- TABLA DE EVENTOS: NEGRO PURO + ORO (CERO AZUL) -->
+  <div class="rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/30 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-sm">
 
-    <!-- Botón INICIAR (solo en Configuración) -->
-    @if (eleccion.estado === 'Configuracion') {
-      <button mat-icon-button (click)="iniciarVotacion(eleccion)" class="action-button start" matTooltip="Iniciar Votación">
-        <mat-icon>play_circle</mat-icon>
-      </button>
-    }
-    <!-- Botón FINALIZAR (solo en Activa) -->
-    @if (eleccion.estado === 'Activa') {
-      <button mat-icon-button (click)="finalizarVotacion(eleccion)" class="action-button stop" matTooltip="Finalizar Votación">
-        <mat-icon>stop_circle</mat-icon>
-      </button>
-    }
-    <!-- Botones para el estado FINALIZADA -->
-    @if (eleccion.estado === 'Finalizada') {
-      <!-- Botón para REVISAR resultados (privado) -->
-      <button mat-icon-button (click)="openResultados(eleccion)" class="action-button results" matTooltip="Revisar Resultados">
-        <mat-icon>preview</mat-icon> <!-- Usamos un ícono de "preview" -->
-      </button>
-      <!-- Botón para PUBLICAR resultados -->
-      <button mat-icon-button (click)="publishEleccion(eleccion)" class="action-button start" matTooltip="Publicar Resultados">
-        <mat-icon>campaign</mat-icon>
-      </button>
-    }
-    <!-- Botón para VER resultados (cuando ya están públicos) -->
-    @if (eleccion.estado === 'Publicada') {
-      <button mat-icon-button (click)="openResultados(eleccion)" class="action-button results" matTooltip="Ver Resultados Públicos">
-        <mat-icon>emoji_events</mat-icon>
-      </button>
-    }
+        <thead>
+          <tr class="border-b border-[#C5A059]/20 bg-[#121212] text-xs font-bold text-neutral-300 uppercase tracking-wider">
+            <th class="py-4 px-6">Evento</th>
+            <th class="py-4 px-6">Fecha de Gala</th>
+            <th class="py-4 px-6 text-center">Estado</th>
+            <th class="py-4 px-6 text-right">Panel de Control</th>
+          </tr>
+        </thead>
 
-    <!-- Botones de Gestión (Candidatas y Editar) -->
-    <button mat-icon-button (click)="openCandidatasModal(eleccion)" class="action-button"
-      matTooltip="Gestionar Candidatas" [disabled]="eleccion.estado !== 'Configuracion'">
-      <mat-icon>groups</mat-icon>
-    </button>
-    <button mat-icon-button (click)="openEditModal(eleccion)" class="action-button edit"
-      matTooltip="Editar Elección" [disabled]="eleccion.estado !== 'Configuracion'">
-      <mat-icon>edit_calendar</mat-icon>
-    </button>
-  </td>
-</ng-container>
+        <tbody class="divide-y divide-[#222222]">
+          @for (eleccion of elecciones(); track eleccion.id) {
+            <tr class="hover:bg-[#171717] transition-colors">
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-    @if(dataSource.data.length === 0){<div class="no-results-message">
-      <h3>No hay elecciones</h3>
-      <p>Crea la primera elección para comenzar.</p>
-    </div>}
-  </div>
+              <!-- Nombre del Evento -->
+              <td class="py-4 px-6 font-bold text-white flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4]">
+                  <i class="bi bi-crown text-base"></i>
+                </div>
+                <span class="text-base">{{ eleccion.nombre }}</span>
+              </td>
 
-  <div class="cards-container">
-    @for (eleccion of dataSource.data; track eleccion.id) {
-    <div class="election-card-responsive neumorphic-panel-outset">
-      <div class="card-header">
-        <div class="election-icon"><mat-icon>how_to_vote</mat-icon></div>
-        <div class="election-actions-responsive">
-          @if (eleccion.estado === 'Configuracion') { <button mat-icon-button (click)="iniciarVotacion(eleccion)"
-            class="action-button start" matTooltip="Iniciar"><mat-icon>play_circle</mat-icon></button> }
-          @if (eleccion.estado === 'Activa') { <button mat-icon-button (click)="finalizarVotacion(eleccion)"
-            class="action-button stop" matTooltip="Finalizar"><mat-icon>stop_circle</mat-icon></button> }
-          @if (eleccion.estado === 'Finalizada') { <button mat-icon-button
-            class="action-button results" matTooltip="Resultados"><mat-icon>emoji_events</mat-icon></button> }
-          <button mat-icon-button (click)="openCandidatasModal(eleccion)" class="action-button"
-            matTooltip="Candidatas"><mat-icon>groups</mat-icon></button>
-          <button mat-icon-button (click)="openEditModal(eleccion)" class="action-button edit" matTooltip="Editar"
-            [disabled]="eleccion.estado !== 'Configuracion'"><mat-icon>edit_calendar</mat-icon></button>
-        </div>
-      </div>
-      <div class="election-details">
-        <h3 class="election-name">{{ eleccion.nombre }}</h3>
-        <p class="election-dates">{{ eleccion.fechaInicio.toDate() | date:'dd/MM/yy' }} - {{ eleccion.fechaFin.toDate()
-          | date:'dd/MM/yy' }}</p>
-      </div>
-      <div class="election-status"><span class="status-badge" [ngClass]="eleccion.estado.toLowerCase()">{{
-          eleccion.estado }}</span></div>
+              <!-- Fecha -->
+              <td class="py-4 px-6 text-neutral-300 text-sm font-medium">
+                <i class="bi bi-calendar3 text-[#C5A059] mr-2"></i>
+                {{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd/MM/yyyy' }}
+              </td>
+
+              <!-- Estado -->
+              <td class="py-4 px-6 text-center">
+                @if (eleccion.estado === 'Configuracion') {
+                  <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-medium bg-[#171717] border border-neutral-700 text-neutral-300">
+                    <span class="w-1.5 h-1.5 rounded-full bg-neutral-400"></span> En Preparación
+                  </span>
+                } @else if (eleccion.estado === 'Activa') {
+                  <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-950/90 text-emerald-400 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Votación en Vivo
+                  </span>
+                } @else if (eleccion.estado === 'Finalizada') {
+                  <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-amber-950/90 text-amber-300 border border-[#C5A059]/40">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059]"></span> Votación Cerrada
+                  </span>
+                } @else if (eleccion.estado === 'Publicada') {
+                  <span class="inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-xs font-bold bg-[#171717] border border-[#C5A059]/50 text-[#F3E7C4]">
+                    <i class="bi bi-trophy-fill text-xs text-[#C5A059]"></i> Proclamada
+                  </span>
+                }
+              </td>
+
+              <!-- Botones de Control -->
+              <td class="py-4 px-6 text-right">
+                <div class="flex items-center justify-end gap-2">
+
+                  <!-- Abrir Votación -->
+                  @if (eleccion.estado === 'Configuracion') {
+                    <button type="button"
+                            (click)="iniciarVotacion(eleccion)"
+                            class="px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-bold transition-all flex items-center gap-1.5">
+                      <i class="bi bi-play-fill text-base"></i>
+                      <span>Abrir Votación</span>
+                    </button>
+                  }
+
+                  <!-- Cerrar Votación -->
+                  @if (eleccion.estado === 'Activa') {
+                    <button type="button"
+                            (click)="finalizarVotacion(eleccion)"
+                            class="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/40 text-rose-400 text-xs font-bold transition-all flex items-center gap-1.5">
+                      <i class="bi bi-stop-fill text-base"></i>
+                      <span>Cerrar Votación</span>
+                    </button>
+                  }
+
+                  <!-- Ver Resultados y Proclamar -->
+                  @if (eleccion.estado === 'Finalizada') {
+                    <button type="button"
+                            (click)="openResultados(eleccion)"
+                            class="px-3.5 py-2 rounded-xl bg-[#171717] hover:bg-[#222222] border border-[#C5A059]/30 text-[#F3E7C4] text-xs font-semibold transition-all flex items-center gap-1">
+                      <i class="bi bi-eye mr-1"></i> Ver Resultados
+                    </button>
+                    <button type="button"
+                            (click)="publishEleccion(eleccion)"
+                            class="px-4 py-2 rounded-xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-bold transition-all flex items-center gap-1">
+                      <i class="bi bi-megaphone-fill text-xs"></i>
+                      <span>Proclamar</span>
+                    </button>
+                  }
+
+                  @if (eleccion.estado === 'Publicada') {
+                    <button type="button"
+                            (click)="openResultados(eleccion)"
+                            class="px-4 py-2 rounded-xl bg-[#171717] hover:bg-[#222222] border border-[#C5A059]/50 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5">
+                      <i class="bi bi-award-fill text-[#C5A059]"></i>
+                      <span>Pantalla Escenario</span>
+                    </button>
+                  }
+
+                  <!-- Participantes -->
+                  <button type="button"
+                          (click)="openCandidatasModal(eleccion)"
+                          class="px-3.5 py-2 rounded-xl bg-[#171717] hover:bg-[#222222] border border-[#C5A059]/30 text-[#F3E7C4] text-xs font-medium transition-all flex items-center gap-1.5"
+                          title="Cargar Participantes">
+                    <i class="bi bi-people-fill text-[#C5A059]"></i>
+                    <span>Participantes</span>
+                  </button>
+
+                  <!-- Editar -->
+                  <button type="button"
+                          (click)="openEditModal(eleccion)"
+                          [disabled]="eleccion.estado !== 'Configuracion'"
+                          class="p-2.5 rounded-xl bg-[#171717] hover:bg-[#222222] border border-white/10 text-neutral-400 hover:text-white transition-all disabled:opacity-30 disabled:pointer-events-none"
+                          title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="py-16 text-center text-neutral-500">
+                <i class="bi bi-stars text-4xl block mb-2 text-[#C5A059]/40"></i>
+                <p class="text-base font-medium text-neutral-300">No hay galas registradas</p>
+                <p class="text-sm text-neutral-500 mt-1">Creá tu primera elección con el botón de arriba.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
-    }
-    @if(dataSource.data.length === 0 && !isModalOpen()){<div class="no-results-message">
-      <h3>No hay elecciones</h3>
-      <p>Crea la primera elección para comenzar.</p>
-    </div>}
   </div>
-</div>
 
-@if(isModalOpen()){
-<div class="modal-overlay" (click)="closeModal()">
-  <div class="modal-content neumorphic-panel-outset" (click)="$event.stopPropagation()">
-    <form [formGroup]="eleccionForm" (ngSubmit)="onSubmit()">
-      <div class="modal-header">
-        <h2 class="modal-title">{{ isEditing() ? 'Editar Elección' : 'Crear Nueva Elección' }}</h2><button type="button"
-          mat-icon-button class="modal-close-button" (click)="closeModal()"
-          matTooltip="Cerrar"><mat-icon>close</mat-icon></button>
-      </div>
-      <div class="modal-body">
-        <div class="main-fields neumorphic-panel-outset">
-          <mat-form-field appearance="fill" class="field-nombre"><mat-label>Nombre del Evento</mat-label><input matInput
-              formControlName="nombre" placeholder="Ej: Elección Reina 2025"></mat-form-field>
-          <mat-form-field appearance="fill" class="field-fecha"><mat-label>Fecha de Inicio</mat-label><input matInput
-              type="date" formControlName="fechaInicio"></mat-form-field>
-          <mat-form-field appearance="fill" class="field-fecha"><mat-label>Fecha de Finalización</mat-label><input
-              matInput type="date" formControlName="fechaFin"></mat-form-field>
-        </div>
-        <div class="form-layout-grid">
-          <div class="dynamic-field-section">
-            <div class="neumorphic-panel-outset section-container">
-              <h4 class="field-title">Puestos a Premiar</h4>
-              <p class="field-subtitle">Títulos para las ganadoras.</p>
-              <div class="add-item-form"><mat-form-field appearance="fill" class="item-input"><mat-label>Nuevo
-                    Puesto</mat-label><input matInput formControlName="nuevoPuesto"
-                    (keyup.enter)="addPuesto()"></mat-form-field><button type="button" (click)="addPuesto()"
-                  class="neumorphic-button-outset primary add-btn"><mat-icon>add</mat-icon></button></div>
-              <div class="structured-list-container neumorphic-panel-inset">
-                @for (puesto of puestosArray.controls; track puesto; let i = $index) {<div class="structured-list-item">
-                  <mat-icon class="item-icon">emoji_events</mat-icon><span class="item-text">{{ puesto.value
-                    }}</span><button type="button" mat-icon-button (click)="removePuesto(i)" class="delete-btn"
-                    matTooltip="Eliminar"><mat-icon>close</mat-icon></button>
-                </div>} @empty { <p class="empty-list-message">Sin puestos definidos.</p> }
-              </div>
-            </div>
-          </div>
-          <div class="dynamic-field-section">
-            <div class="neumorphic-panel-outset section-container">
-              <h4 class="field-title">Criterios de Evaluación</h4>
-              <p class="field-subtitle">Qué puntuarán los alumnos.</p>
-              <div class="add-item-form"><mat-form-field appearance="fill" class="item-input"><mat-label>Nuevo
-                    Criterio</mat-label><input matInput formControlName="nuevoCriterio"
-                    (keyup.enter)="addCriterio()"></mat-form-field><button type="button" (click)="addCriterio()"
-                  class="neumorphic-button-outset primary add-btn"><mat-icon>add</mat-icon></button></div>
-              <div class="structured-list-container neumorphic-panel-inset">
-                @for (criterio of criteriosArray.controls; track criterio; let i = $index) {<div
-                  class="structured-list-item"><mat-icon class="item-icon">rule</mat-icon><span class="item-text">{{
-                    criterio.value }}</span><button type="button" mat-icon-button (click)="removeCriterio(i)"
-                    class="delete-btn" matTooltip="Eliminar"><mat-icon>close</mat-icon></button></div>} @empty { <p
-                  class="empty-list-message">Sin criterios definidos.</p> }
-              </div>
-            </div>
-          </div>
-          <div class="dynamic-field-section">
-            <div class="neumorphic-panel-outset section-container">
-              <h4 class="field-title">Campos del Perfil</h4>
-              <p class="field-subtitle">Info extra de la candidata.</p>
-              <div class="add-item-form"><mat-form-field appearance="fill" class="item-input"><mat-label>Nuevo
-                    Campo</mat-label><input matInput formControlName="nuevoCampoCandidata"
-                    (keyup.enter)="addCampoCandidata()"></mat-form-field><button type="button"
-                  (click)="addCampoCandidata()"
-                  class="neumorphic-button-outset primary add-btn"><mat-icon>add</mat-icon></button></div>
-              <div class="structured-list-container neumorphic-panel-inset">
-                @for (campo of camposCandidataArray.controls; track campo; let i = $index) {<div
-                  class="structured-list-item"><mat-icon class="item-icon">article</mat-icon><span class="item-text">{{
-                    campo.value }}</span><button type="button" mat-icon-button (click)="removeCampoCandidata(i)"
-                    class="delete-btn" matTooltip="Eliminar"><mat-icon>close</mat-icon></button></div>} @empty { <p
-                  class="empty-list-message">Sin campos adicionales.</p> }
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="neumorphic-button-outset" (click)="closeModal()">Cancelar</button>
-        <button type="submit" class="neumorphic-button-outset primary" [disabled]="eleccionForm.invalid">{{ isEditing()
-          ? 'Guardar Cambios' : 'Crear Elección' }}</button>
-      </div>
-    </form>
-  </div>
-</div>
-}
+<!-- ========================================================================= -->
+  <!-- MODAL DE CONFIGURACIÓN: NEGRO PURO + DETALLES DORADOS (CERO AZUL)          -->
+  <!-- ========================================================================= -->
+  @if (isModalOpen()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-fade-in"
+         (click)="$event.stopPropagation()">
 
-@if(isCandidatasModalOpen() && selectedEleccion()){<div class="modal-overlay" (click)="closeCandidatasModal()">
-  <app-gestion-candidatas [eleccion]="selectedEleccion()!"
-    (closeModal)="closeCandidatasModal()"></app-gestion-candidatas>
-</div>}
+      <!-- CONTENEDOR PRINCIPAL: NEGRO PROFUNDO Y BORDE DORADO -->
+      <div class="relative w-full max-w-5xl max-h-[94vh] overflow-hidden rounded-3xl bg-[#050505] border-2 border-[#C5A059]/50 shadow-[0_0_60px_rgba(197,160,89,0.25)] flex flex-col">
+
+        <!-- CABECERA DEL MODAL (NEGRO + ORO) -->
+        <div class="flex items-center justify-between px-8 py-5 border-b border-[#C5A059]/25 bg-[#0D0D0D]">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-[#141414] border border-[#C5A059]/60 flex items-center justify-center text-[#F3E7C4] text-2xl shadow-[0_0_20px_rgba(197,160,89,0.2)]">
+              <i class="bi bi-sliders"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-[#F3E7C4] tracking-wide">
+                {{ isEditing() ? 'Modificar Noche de Gala' : 'Configurar Nueva Elección' }}
+              </h2>
+              <p class="text-sm text-slate-400 mt-0.5">Definí los títulos, criterios de puntuación y preguntas del perfil</p>
+            </div>
+          </div>
+
+          <button type="button"
+                  (click)="closeModal()"
+                  class="w-10 h-10 rounded-2xl bg-[#141414] hover:bg-[#202020] border border-[#C5A059]/30 text-slate-300 hover:text-white flex items-center justify-center text-lg transition-all">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <!-- CUERPO DEL FORMULARIO CON SCROLL -->
+        <div class="p-6 sm:p-8 overflow-y-auto flex-1 custom-scrollbar space-y-6">
+          <form [formGroup]="eleccionForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+            <!-- BLOQUE 1: NOMBRE Y FECHA (FONDO NEGRO CON BORDE DORADO) -->
+            <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/30 shadow-md">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+
+                <div class="sm:col-span-2">
+                  <label class="block text-sm font-bold text-[#F3E7C4] uppercase tracking-wider mb-2">
+                    Nombre del Evento
+                  </label>
+                  <input type="text" formControlName="nombre" placeholder="Ej: Elección Representantes 2026 - Colegio Nacional N° 1"
+                         class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all placeholder:text-neutral-500">
+                </div>
+
+                <div>
+                  <label class="block text-sm font-bold text-[#F3E7C4] uppercase tracking-wider mb-2">
+                    Fecha de la Noche
+                  </label>
+                  <input type="date" formControlName="fechaEvento"
+                         class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all [color-scheme:dark]">
+                </div>
+
+              </div>
+            </div>
+
+            <!-- BLOQUE 2: GRILLA DE PUESTOS Y CRITERIOS (DIVISIONES DORADAS) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+              <!-- PANEL 1: PUESTOS FEMENINOS -->
+              <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 flex flex-col justify-between space-y-4 shadow-sm">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <i class="bi bi-crown text-[#C5A059] text-lg"></i>
+                    <h3 class="text-sm font-bold text-[#F3E7C4] uppercase tracking-wider">Embajadora y Cortes (Chicas)</h3>
+                  </div>
+                  <p class="text-xs text-neutral-400 mb-3">Títulos a coronar en orden de proclamación.</p>
+
+                  <div class="flex gap-2 mb-3">
+                    <input type="text" formControlName="nuevoPuestoFemenino" placeholder="Nuevo título..." (keyup.enter)="addPuestoFemenino()"
+                           class="flex-1 bg-[#171717] border border-[#C5A059]/30 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#C5A059]">
+                    <button type="button" (click)="addPuestoFemenino()"
+                            class="px-4 py-2.5 bg-[#C5A059]/20 hover:bg-[#C5A059]/30 text-[#F3E7C4] border border-[#C5A059]/50 rounded-xl text-sm font-bold transition-all">
+                      <i class="bi bi-plus-lg"></i>
+                    </button>
+                  </div>
+
+                  <div class="space-y-2 max-h-44 overflow-y-auto custom-scrollbar">
+                    @for (puesto of puestosFemeninosArray.controls; track puesto; let i = $index) {
+                      <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#171717] border border-[#C5A059]/20 text-sm text-neutral-200">
+                        <span class="flex items-center gap-2.5 truncate font-medium">
+                          <span class="w-6 h-6 rounded-md bg-[#C5A059]/20 text-[#F3E7C4] font-bold border border-[#C5A059]/40 flex items-center justify-center text-xs">
+                            {{ i + 1 }}
+                          </span>
+                          <span class="truncate">{{ puesto.value }}</span>
+                        </span>
+                        <button type="button" (click)="removePuestoFemenino(i)" class="text-neutral-400 hover:text-red-400 p-1 transition-colors">
+                          <i class="bi bi-x-lg text-sm"></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- PANEL 2: PUESTOS MASCULINOS -->
+              <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 flex flex-col justify-between space-y-4 shadow-sm">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <i class="bi bi-person-badge text-[#C5A059] text-lg"></i>
+                    <h3 class="text-sm font-bold text-[#F3E7C4] uppercase tracking-wider">Embajador y Cortes (Chicos)</h3>
+                  </div>
+                  <p class="text-xs text-neutral-400 mb-3">Títulos masculinos a proclamar.</p>
+
+                  <div class="flex gap-2 mb-3">
+                    <input type="text" formControlName="nuevoPuestoMasculino" placeholder="Nuevo título..." (keyup.enter)="addPuestoMasculino()"
+                           class="flex-1 bg-[#171717] border border-[#C5A059]/30 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#C5A059]">
+                    <button type="button" (click)="addPuestoMasculino()"
+                            class="px-4 py-2.5 bg-[#C5A059]/20 hover:bg-[#C5A059]/30 text-[#F3E7C4] border border-[#C5A059]/50 rounded-xl text-sm font-bold transition-all">
+                      <i class="bi bi-plus-lg"></i>
+                    </button>
+                  </div>
+
+                  <div class="space-y-2 max-h-44 overflow-y-auto custom-scrollbar">
+                    @for (puesto of puestosMasculinosArray.controls; track puesto; let i = $index) {
+                      <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#171717] border border-[#C5A059]/20 text-sm text-neutral-200">
+                        <span class="flex items-center gap-2.5 truncate font-medium">
+                          <span class="w-6 h-6 rounded-md bg-[#C5A059]/20 text-[#F3E7C4] font-bold border border-[#C5A059]/40 flex items-center justify-center text-xs">
+                            {{ i + 1 }}
+                          </span>
+                          <span class="truncate">{{ puesto.value }}</span>
+                        </span>
+                        <button type="button" (click)="removePuestoMasculino(i)" class="text-neutral-400 hover:text-red-400 p-1 transition-colors">
+                          <i class="bi bi-x-lg text-sm"></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- PANEL 3: CRITERIOS FEMENINOS -->
+              <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 flex flex-col justify-between space-y-4 shadow-sm">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <i class="bi bi-sliders text-[#C5A059] text-lg"></i>
+                    <h3 class="text-sm font-bold text-[#F3E7C4] uppercase tracking-wider">Criterios Jurado (Chicas)</h3>
+                  </div>
+                  <p class="text-xs text-neutral-400 mb-3">Qué evaluará el jurado del 1 al 10.</p>
+
+                  <div class="flex gap-2 mb-3">
+                    <input type="text" formControlName="nuevoCriterioFemenino" placeholder="Ej: Elegancia..." (keyup.enter)="addCriterioFemenino()"
+                           class="flex-1 bg-[#171717] border border-[#C5A059]/30 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#C5A059]">
+                    <button type="button" (click)="addCriterioFemenino()"
+                            class="px-4 py-2.5 bg-[#C5A059]/20 hover:bg-[#C5A059]/30 text-[#F3E7C4] border border-[#C5A059]/50 rounded-xl text-sm font-bold transition-all">
+                      <i class="bi bi-plus-lg"></i>
+                    </button>
+                  </div>
+
+                  <div class="space-y-2 max-h-44 overflow-y-auto custom-scrollbar">
+                    @for (criterio of criteriosFemeninosArray.controls; track criterio; let i = $index) {
+                      <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#171717] border border-[#C5A059]/20 text-sm text-neutral-200">
+                        <span class="flex items-center gap-2.5 truncate font-medium">
+                          <i class="bi bi-check-circle-fill text-[#C5A059] text-sm"></i>
+                          <span class="truncate">{{ criterio.value }}</span>
+                        </span>
+                        <button type="button" (click)="removeCriterioFemenino(i)" class="text-neutral-400 hover:text-red-400 p-1 transition-colors">
+                          <i class="bi bi-x-lg text-sm"></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- PANEL 4: CRITERIOS MASCULINOS -->
+              <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 flex flex-col justify-between space-y-4 shadow-sm">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <i class="bi bi-sliders text-[#C5A059] text-lg"></i>
+                    <h3 class="text-sm font-bold text-[#F3E7C4] uppercase tracking-wider">Criterios Jurado (Chicos)</h3>
+                  </div>
+                  <p class="text-xs text-neutral-400 mb-3">Qué evaluará el jurado del 1 al 10.</p>
+
+                  <div class="flex gap-2 mb-3">
+                    <input type="text" formControlName="nuevoCriterioMasculino" placeholder="Ej: Actitud..." (keyup.enter)="addCriterioMasculino()"
+                           class="flex-1 bg-[#171717] border border-[#C5A059]/30 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#C5A059]">
+                    <button type="button" (click)="addCriterioMasculino()"
+                            class="px-4 py-2.5 bg-[#C5A059]/20 hover:bg-[#C5A059]/30 text-[#F3E7C4] border border-[#C5A059]/50 rounded-xl text-sm font-bold transition-all">
+                      <i class="bi bi-plus-lg"></i>
+                    </button>
+                  </div>
+
+                  <div class="space-y-2 max-h-44 overflow-y-auto custom-scrollbar">
+                    @for (criterio of criteriosMasculinosArray.controls; track criterio; let i = $index) {
+                      <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#171717] border border-[#C5A059]/20 text-sm text-neutral-200">
+                        <span class="flex items-center gap-2.5 truncate font-medium">
+                          <i class="bi bi-check-circle-fill text-[#C5A059] text-sm"></i>
+                          <span class="truncate">{{ criterio.value }}</span>
+                        </span>
+                        <button type="button" (click)="removeCriterioMasculino(i)" class="text-neutral-400 hover:text-red-400 p-1 transition-colors">
+                          <i class="bi bi-x-lg text-sm"></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- BLOQUE 3: INFORMACIÓN ADICIONAL (PREGUNTAS DEL PERFIL) -->
+            <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 space-y-4 shadow-sm">
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2.5">
+                  <i class="bi bi-card-text text-[#C5A059] text-lg"></i>
+                  <h3 class="text-sm font-bold text-[#F3E7C4] uppercase tracking-wider">Preguntas del Perfil (Información Adicional)</h3>
+                </div>
+                <span class="text-xs text-neutral-400">Hobbies, Mensajes, etc.</span>
+              </div>
+              <p class="text-xs text-neutral-400">Campos que completará cada participante para su ficha de pasarela.</p>
+
+              <div class="flex gap-2 max-w-lg">
+                <input type="text" formControlName="nuevoCampoCandidata" placeholder="Ej: Mensaje a los Estudiantes..." (keyup.enter)="addCampoCandidata()"
+                       class="flex-1 bg-[#171717] border border-[#C5A059]/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#C5A059]">
+                <button type="button" (click)="addCampoCandidata()"
+                        class="px-5 py-2.5 bg-[#C5A059]/20 hover:bg-[#C5A059]/30 text-[#F3E7C4] border border-[#C5A059]/50 rounded-xl text-sm font-bold transition-all">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+              </div>
+
+              <!-- Lista de Cápsulas en Negro + Borde Dorado Fino -->
+              <div class="flex flex-wrap gap-2.5 pt-2">
+                @for (campo of camposCandidataArray.controls; track campo; let i = $index) {
+                  <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#171717] border border-[#C5A059]/40 text-sm text-neutral-200 shadow-sm">
+                    <span class="text-[#F3E7C4] font-medium">{{ campo.value }}</span>
+                    <button type="button" (click)="removeCampoCandidata(i)" class="text-neutral-400 hover:text-red-400 ml-1.5 transition-colors">
+                      <i class="bi bi-x-lg text-xs"></i>
+                    </button>
+                  </div>
+                } @empty {
+                  <p class="text-xs text-neutral-500 italic">No hay preguntas de perfil configuradas.</p>
+                }
+              </div>
+            </div>
+
+            <!-- PIE DEL MODAL (BOTONES GRANDES Y CÓMODOS) -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-[#C5A059]/25">
+              <button type="button" (click)="closeModal()"
+                      class="px-6 py-3.5 rounded-2xl border border-[#C5A059]/30 text-neutral-300 hover:text-white hover:bg-[#1A1A1A] text-sm font-semibold transition-all">
+                Cancelar
+              </button>
+              <button type="submit"
+                      [disabled]="eleccionForm.invalid"
+                      class="px-8 py-3.5 rounded-2xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-extrabold text-sm sm:text-base shadow-[0_4px_30px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/50 hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none">
+                {{ isEditing() ? 'Guardar Cambios' : 'Crear Elección de Gala' }}
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL EMBEBIDO DE PARTICIPANTES -->
+  @if (isCandidatasModalOpen() && selectedEleccion()) {
+    <app-gestion-candidatas
+      [eleccion]="selectedEleccion()!"
+      (closeModal)="closeCandidatasModal()">
+    </app-gestion-candidatas>
+  }
+
+</div>

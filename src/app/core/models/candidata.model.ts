@@ -6,7 +6,7 @@ export interface Candidata {
   
   // Número de pasada (#01, #02) y Categoría
   numero?: number;
-  numeroCandidata?: number; // Para compatibilidad
+  numeroCandidata?: number;
   categoria?: CategoriaParticipante;
   
   nombre: string;

@@ -42,6 +42,8 @@
     <div class="gold-particle bokeh-lg p24"></div>
     <div class="gold-particle bokeh-lg p25"></div>
   </div>
+
+
   <!-- CONTENIDO RELATIVO -->
   <div class="relative z-10 w-full flex flex-col flex-1">
 
@@ -125,6 +127,56 @@
               <span>La Quiaca, Jujuy</span>
             </p>
           </section>
+
+          <!-- ================================================================= -->
+          <!-- RELOJ DORADO DE CUENTA REGRESIVA (SI ESTÁ EN CONFIGURACIÓN)       -->
+          <!-- ================================================================= -->
+          @if (gala.estado === 'Configuracion' && !countdown().iniciado) {
+            <div class="max-w-2xl mx-auto p-5 sm:p-7 rounded-3xl backdrop-blur-2xl bg-[#050505]/80 border border-[#C5A059]/40 shadow-[0_0_50px_rgba(197,160,89,0.2)] space-y-4 animate-fadeIn">
+
+              <div class="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-[#F3E7C4]">
+                <i class="bi bi-clock-history text-[#C5A059]"></i>
+                <span>La Gran Noche de Gala comienza en</span>
+              </div>
+
+              <!-- Cápsulas del Tiempo (Días, Horas, Minutos, Segundos) -->
+              <div class="grid grid-cols-4 gap-2 sm:gap-4 text-center">
+
+                <!-- Días -->
+                <div class="p-3 sm:p-4 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 shadow-inner">
+                  <span class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] block font-mono">
+                    {{ countdown().dias }}
+                  </span>
+                  <span class="text-[9px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider block mt-1">Días</span>
+                </div>
+
+                <!-- Horas -->
+                <div class="p-3 sm:p-4 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 shadow-inner">
+                  <span class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] block font-mono">
+                    {{ countdown().horas }}
+                  </span>
+                  <span class="text-[9px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider block mt-1">Horas</span>
+                </div>
+
+                <!-- Minutos -->
+                <div class="p-3 sm:p-4 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 shadow-inner">
+                  <span class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] block font-mono">
+                    {{ countdown().minutos }}
+                  </span>
+                  <span class="text-[9px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider block mt-1">Minutos</span>
+                </div>
+
+                <!-- Segundos -->
+                <div class="p-3 sm:p-4 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 shadow-inner">
+                  <span class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] block font-mono">
+                    {{ countdown().segundos }}
+                  </span>
+                  <span class="text-[9px] sm:text-[11px] font-bold text-[#C5A059] uppercase tracking-wider block mt-1">Segundos</span>
+                </div>
+
+              </div>
+            </div>
+          }
 
           <!-- ================================================================= -->
           <!-- PODIO DE CORONACIÓN (SI ESTÁ PUBLICADA)                           -->

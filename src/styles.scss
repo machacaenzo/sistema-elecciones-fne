@@ -31,31 +31,14 @@ body {
 }
 
 
-
-
-
-// ---------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------
-
-
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-.cdk-overlay-container {
-  z-index: 1100 !important;
+/* Ajuste de SweetAlert2 al Tema Gala */
+.swal2-popup.swal2-toast {
+  background-color: #0a0a0a !important;
 }
-:root {
-  --background-start: #f3f4fe;   // degradado fondo claro
-  --background-end: #e7e9fc;
-
-  --card-bg-start: rgba(255, 255, 255, 0.6);
-  --card-bg-end: rgba(245, 245, 255, 0.4);
-
-  --text-primary: #1e1e1e;       // texto negro/gris fuerte
-  --text-secondary: #6c6c6c;     // gris intermedio
-  --text-danger: #dc3545;        // errores
-
-  --border-radius: 1.2rem;
-  --shadow-light: rgba(255, 255, 255, 0.9);
-  --shadow-dark: rgba(163, 177, 198, 0.6);
+.swal2-icon.swal2-success .swal2-success-ring {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+.swal2-icon.swal2-question {
+  border-color: rgba(197, 160, 89, 0.6) !important;
+  color: #C5A059 !important;
 }

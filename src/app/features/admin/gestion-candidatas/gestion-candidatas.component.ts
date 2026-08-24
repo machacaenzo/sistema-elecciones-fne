@@ -6,6 +6,7 @@ import { CandidataService } from '../gestion-elecciones/candidata.service';
 import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Eleccion } from '../../../core/models/eleccion.model';
 import { Candidata, CategoriaParticipante } from '../../../core/models/candidata.model';
+import { PdfExportService } from '../../../core/services/pdf-export.service';
 
 @Component({
   selector: 'app-gestion-candidatas',
@@ -21,6 +22,8 @@ export class GestionCandidatasComponent implements OnInit {
   private candidataService = inject(CandidataService);
   private notificationService = inject(NotificacionService);
   private fb = inject(FormBuilder);
+  private pdfService = inject(PdfExportService);
+
 
   // Signals de estado
   participantes = signal<Candidata[]>([]);
@@ -296,4 +299,12 @@ export class GestionCandidatasComponent implements OnInit {
       this.notificationService.showSuccessToast('Participante eliminado/a');
     }
   }
+
+  descargarGuionLocutor(): void {
+  this.pdfService.exportarGuionLocutor(this.eleccion, this.participantes());
+}
+
+descargarPlanillaJurados(): void {
+  this.pdfService.exportarPlanillaJurado(this.eleccion, this.participantes());
+}
 }

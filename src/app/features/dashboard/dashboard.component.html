@@ -28,7 +28,7 @@
       <!-- NAVEGACIÓN PRINCIPAL -->
       <nav class="p-4 space-y-2">
 
-        <!-- INICIO (ÍCONO CAMBIA A NEGRO AL SELECCIONARSE) -->
+        <!-- INICIO -->
         <a routerLink="/dashboard/home"
            routerLinkActive="!bg-gradient-to-b !from-[#FFF3D1] !via-[#C5A059] !to-[#8C6D2D] !text-[#0A0D14] [&>i]:!text-[#0A0D14] font-black shadow-[0_0_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
            [routerLinkActiveOptions]="{ exact: true }"
@@ -38,14 +38,22 @@
           <span>Inicio</span>
         </a>
 
-        <!-- ACCESO A VOTACIÓN (JURADOS O ALUMNOS) -->
-        @if (isJurado() || isAlumno()) {
+        <!-- ACCESO DIRECTO AL PORTAL PÚBLICO (NUEVO) -->
+        <a routerLink="/"
+           (click)="isSidebarOpen.set(false)"
+           class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
+          <i class="bi bi-globe2 text-lg text-[#C5A059] transition-colors"></i>
+          <span>Ver Portal Público</span>
+        </a>
+
+        <!-- ACCESO A VOTACIÓN (JURADOS) -->
+        @if (isJurado()) {
           <a routerLink="/dashboard/votacion"
              routerLinkActive="!bg-gradient-to-b !from-[#FFF3D1] !via-[#C5A059] !to-[#8C6D2D] !text-[#0A0D14] [&>i]:!text-[#0A0D14] font-black shadow-[0_0_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
              (click)="isSidebarOpen.set(false)"
              class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
             <i class="bi bi-award-fill text-lg text-[#C5A059] transition-colors"></i>
-            <span>{{ isJurado() ? 'Planilla de Jurado' : 'Centro de Votación' }}</span>
+            <span>Planilla de Jurado</span>
           </a>
         }
 
@@ -120,7 +128,7 @@
   <!-- CONTENEDOR PRINCIPAL: TRANSPARENTE PARA QUE SE VEA EL FONDO -->
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 bg-transparent">
 
-    <!-- CABECERA MÓVIL -->
+    <!-- CABECERA MÓVIL (CON BOTÓN DE ACCESO AL PORTAL PÚBLICO) -->
     <header class="flex items-center justify-between px-5 py-3.5 bg-[#080808]/90 backdrop-blur-md border-b border-[#C5A059]/30 lg:hidden shadow-md">
       <button (click)="toggleSidebar()" class="p-2 rounded-xl bg-[#141414] text-[#F3E7C4] border border-[#C5A059]/40">
         <i class="bi bi-list text-xl"></i>
@@ -129,7 +137,11 @@
         <img src="assets/logo-fne.png" alt="Logo" class="w-6 h-6 object-contain">
         ELECCIÓN REINA
       </span>
-      <div class="w-8"></div>
+
+      <!-- Botón de acceso al portal en celular -->
+      <a routerLink="/" class="p-2 rounded-xl bg-[#141414] text-[#F3E7C4] border border-[#C5A059]/40 flex items-center justify-center shadow-sm" title="Ver Portal Público">
+        <i class="bi bi-globe2 text-base text-[#C5A059]"></i>
+      </a>
     </header>
 
     <!-- ÁREA DONDE SE CARGAN LAS PÁGINAS -->

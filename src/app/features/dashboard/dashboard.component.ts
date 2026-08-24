@@ -24,12 +24,10 @@ export class DashboardComponent {
   });
 
   isJurado = computed(() => {
-    return this.currentUser()?.rol === 'Jurado' || this.currentUser()?.rol === 'Docente';
+    return this.currentUser()?.rol === 'Jurado';
   });
 
-  isAlumno = computed(() => {
-    return this.currentUser()?.rol === 'Alumno';
-  });
+
 
   toggleSidebar(): void {
     this.isSidebarOpen.update(isOpen => !isOpen);

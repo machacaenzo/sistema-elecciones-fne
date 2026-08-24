@@ -19,6 +19,27 @@
         </div>
       </div>
 
+      <!-- Botones de Exportación PDF -->
+<div class="flex items-center gap-2">
+  <!-- Botón Guión Locutor -->
+  <button type="button"
+          (click)="descargarGuionLocutor()"
+          title="Descargar Fichas para el Locutor"
+          class="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all hover:scale-105 shadow-sm">
+    <i class="bi bi-file-earmark-person-fill text-[#C5A059]"></i>
+    <span class="hidden sm:inline">Guión Locutor</span>
+  </button>
+
+  <!-- Botón Planilla Jurado -->
+  <button type="button"
+          (click)="descargarPlanillaJurados()"
+          title="Descargar Planillas de contingencia para Jurados"
+          class="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all hover:scale-105 shadow-sm">
+    <i class="bi bi-file-earmark-spreadsheet-fill text-[#C5A059]"></i>
+    <span class="hidden sm:inline">Planilla Jurados</span>
+  </button>
+</div>
+
       <!-- BOTÓN CERRAR CON ASSETS/BOTON.PNG GIRATORIO -->
       <button type="button"
               (click)="closeModal.emit()"

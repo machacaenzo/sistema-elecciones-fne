@@ -2,11 +2,15 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { publicGuard } from './core/guards/public.guard';
 import { roleGuard } from './core/guards/role.guard';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { HomeComponent } from './features/dashboard/home/home.component';
 
 export const routes: Routes = [
-  // --- Rutas Públicas (Autenticación) ---
+  // --- RUTA PÚBLICA PRINCIPAL (Cualquiera entra con QR o link sin login) ---
+  {
+    path: '',
+    loadComponent: () => import('./features/public/gala-portal/gala-portal.component').then(c => c.GalaPortalComponent)
+  },
+
+  // --- Rutas de Autenticación ---
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login.component').then(c => c.LoginComponent),
@@ -27,22 +31,20 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/verify-email/verify-email.component').then(c => c.VerifyEmailComponent)
   },
 
-  // --- Panel Principal (Usuarios autenticados) ---
+  // --- Panel Privado (Dashboard / Admin / Jurados) ---
   {
     path: 'dashboard',
-    component: DashboardComponent,
+    loadComponent: () => import('./features/dashboard/dashboard.component').then(c => c.DashboardComponent),
     canActivate: [authGuard],
     children: [
       {
         path: 'home',
-        component: HomeComponent
+        loadComponent: () => import('./features/dashboard/home/home.component').then(c => c.HomeComponent)
       },
       {
         path: 'profile',
         loadComponent: () => import('./features/profile/user-profile/user-profile.component').then(c => c.UserProfileComponent)
       },
-
-      // --- Módulo de Votación y Resultados FNE ---
       {
         path: 'votacion',
         loadComponent: () => import('./features/voting/votacion/votacion.component').then(c => c.VotacionComponent)
@@ -51,8 +53,6 @@ export const routes: Routes = [
         path: 'resultados/:id',
         loadComponent: () => import('./features/voting/resultados-eleccion/resultados-eleccion.component').then(c => c.ResultadosEleccionComponent)
       },
-
-      // --- Panel de Control / Administración FNE ---
       {
         path: 'admin/users',
         loadComponent: () => import('./features/admin/gestion-usuarios/gestion-usuarios.component').then(c => c.GestionUsuariosComponent),
@@ -65,12 +65,10 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['Administrador'] }
       },
-
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]
   },
 
-  // --- Redirecciones Globales ---
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  { path: '**', redirectTo: 'dashboard' }
+  // Redirección si la ruta no existe
+  { path: '**', redirectTo: '' }
 ];

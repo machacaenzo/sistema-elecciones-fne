@@ -42,13 +42,12 @@
 
       <!-- Selector de Rol -->
       <select (change)="onRolChange($event)"
-              class="flex-1 sm:flex-none bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-2xl px-4 py-3 text-xs sm:text-sm text-[#F3E7C4] font-bold focus:outline-none [&>option]:bg-[#0A0A0A] [&>option]:text-white">
-        <option value="">Todos los Roles</option>
-        <option value="Jurado">Jurados</option>
-        <option value="Administrador">Administradores</option>
-        <option value="Docente">Docentes</option>
-        <option value="Alumno">Alumnos</option>
-      </select>
+        class="flex-1 sm:flex-none bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-2xl px-4 py-3 text-xs sm:text-sm text-[#F3E7C4] font-bold focus:outline-none [&>option]:bg-[#0A0A0A] [&>option]:text-white">
+  <option value="">Todos los Roles</option>
+  <option value="Jurado">Jurados Oficiales</option>
+  <option value="Administrador">Administradores</option>
+  <option value="Pendiente">Pendientes de Acreditación</option>
+</select>
 
       <!-- Botón Toggle: Mostrar Inactivos -->
       <button type="button"
@@ -209,15 +208,14 @@
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">Rol en el Evento</label>
-              <select formControlName="rol"
-                      class="w-full px-4 py-2.5 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-[#F3E7C4] text-sm font-bold focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all [&>option]:bg-[#0A0A0A] [&>option]:text-white">
-                <option value="Jurado">Jurado (Puntuación en Gala)</option>
-                <option value="Administrador">Administrador (Control Total)</option>
-                <option value="Docente">Docente</option>
-                <option value="Alumno">Alumno</option>
-              </select>
-            </div>
+  <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">Rol en el Evento</label>
+  <select formControlName="rol"
+          class="w-full px-4 py-2.5 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-[#F3E7C4] text-sm font-bold focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all [&>option]:bg-[#0A0A0A] [&>option]:text-white">
+    <option value="Jurado">Jurado (Habilitado para Calificar)</option>
+    <option value="Administrador">Administrador (Control Total)</option>
+    <option value="Pendiente">Pendiente (Sin Permisos de Votación)</option>
+  </select>
+</div>
 
             <div>
               <label class="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1.5">Correo Electrónico (No editable)</label>

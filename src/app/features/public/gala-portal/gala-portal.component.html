@@ -1,0 +1,386 @@
+<!-- ========================================================================= -->
+<!-- CONTENEDOR PRINCIPAL: PORTAL PÚBLICO DE GALA (100% LIMPIO Y SIN BOTONES)   -->
+<!-- ========================================================================= -->
+<div class="min-h-screen w-full relative bg-cover bg-center bg-fixed bg-no-repeat text-neutral-100 font-sans overflow-x-hidden flex flex-col justify-between"
+     style="background-image: url('assets/FONDO.jpg');">
+
+  <!-- CAPA OSCURA DE CINE CON DESENFOQUE -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-[3px] pointer-events-none z-0"></div>
+
+  <!-- DESTELLOS DORADOS AMBIENTALES -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[#C5A059]/15 rounded-full blur-[140px] pointer-events-none z-0"></div>
+  <div class="fixed bottom-10 right-10 w-[400px] h-[400px] bg-[#C5A059]/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+<!-- LLUVIA DE PARTICULAS Y BOKEH DORADO SUAVE EN CASCADA -->
+  <div class="gold-particles-container">
+    <!-- Pequeñas -->
+    <div class="gold-particle p1"></div>
+    <div class="gold-particle p2"></div>
+    <div class="gold-particle p3"></div>
+    <div class="gold-particle p4"></div>
+    <div class="gold-particle p5"></div>
+    <div class="gold-particle p6"></div>
+    <div class="gold-particle p7"></div>
+    <div class="gold-particle p8"></div>
+    <div class="gold-particle p9"></div>
+    <!-- Medianas -->
+    <div class="gold-particle p10"></div>
+    <div class="gold-particle p11"></div>
+    <div class="gold-particle p12"></div>
+    <div class="gold-particle p13"></div>
+    <div class="gold-particle p14"></div>
+    <div class="gold-particle p15"></div>
+    <div class="gold-particle p16"></div>
+    <div class="gold-particle p17"></div>
+    <div class="gold-particle p18"></div>
+    <!-- Grandes Bokeh Desenfoque -->
+    <div class="gold-particle bokeh-lg p19"></div>
+    <div class="gold-particle bokeh-lg p20"></div>
+    <div class="gold-particle bokeh-lg p21"></div>
+    <div class="gold-particle bokeh-lg p22"></div>
+    <div class="gold-particle bokeh-lg p23"></div>
+    <div class="gold-particle bokeh-lg p24"></div>
+    <div class="gold-particle bokeh-lg p25"></div>
+  </div>
+  <!-- CONTENIDO RELATIVO -->
+  <div class="relative z-10 w-full flex flex-col flex-1">
+
+    <!-- ===================================================================== -->
+    <!-- CABECERA DE MARCA LIMPIA (CERO BOTONES MOLESTOS)                      -->
+    <!-- ===================================================================== -->
+    <header class="w-full px-4 sm:px-8 py-4 backdrop-blur-2xl bg-[#050505]/70 border-b border-[#C5A059]/30 sticky top-0 z-30 shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+
+        <!-- Identidad Oficial -->
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/60 flex items-center justify-center p-1.5 shadow-[0_0_20px_rgba(197,160,89,0.35)]">
+            <img src="assets/logo-fne.png" alt="Logo FNE" class="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(197,160,89,0.5)]">
+          </div>
+          <div>
+            <span class="text-xs font-black tracking-widest text-[#F3E7C4] uppercase block">Elección de Representantes</span>
+            <span class="text-[10px] text-neutral-400 uppercase tracking-widest font-bold">Portal Oficial</span>
+          </div>
+        </div>
+
+        <!-- Decoración discreta a la derecha -->
+        <div class="hidden sm:flex items-center gap-2 text-neutral-400 text-xs">
+          <i class="bi bi-stars text-[#C5A059]"></i>
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-[#F3E7C4]/80">Gala Estudiantil</span>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- CUERPO PRINCIPAL DEL PORTAL                                           -->
+    <!-- ===================================================================== -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-8 py-8 sm:py-12 space-y-10 flex-1">
+
+      @if (isLoading()) {
+        <div class="py-32 flex flex-col items-center justify-center space-y-4">
+          <div class="w-14 h-14 border-4 border-[#C5A059]/20 border-t-[#C5A059] rounded-full animate-spin"></div>
+          <p class="text-xs tracking-[0.2em] font-black uppercase text-[#F3E7C4]">Cargando nómina oficial...</p>
+        </div>
+      } @else {
+
+        @if (eleccion(); as gala) {
+
+          <!-- HERO / BANNER DEL EVENTO -->
+          <section class="text-center space-y-4 pt-2">
+
+            <!-- Badge de Estado de Gala -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-md shadow-lg border"
+                 [ngClass]="{
+                   'bg-emerald-950/90 text-emerald-400 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.35)] animate-pulse': gala.estado === 'Activa',
+                   'bg-[#0A0A0A] text-[#F3E7C4] border-[#C5A059]/60 shadow-[0_0_20px_rgba(197,160,89,0.3)]': gala.estado === 'Publicada',
+                   'bg-[#0A0A0A] text-neutral-400 border-neutral-700': gala.estado === 'Configuracion',
+                   'bg-amber-950/90 text-amber-300 border-[#C5A059]/40': gala.estado === 'Finalizada'
+                 }">
+              @if (gala.estado === 'Activa') {
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span class="text-xs font-black uppercase tracking-wider">Gala en Vivo &bull; Votación Abierta</span>
+              } @else if (gala.estado === 'Publicada') {
+                <i class="bi bi-award-fill text-xs text-[#C5A059]"></i>
+                <span class="text-xs font-black uppercase tracking-wider">Resultados Oficiales Proclamados</span>
+              } @else if (gala.estado === 'Finalizada') {
+                <i class="bi bi-hourglass-split text-xs text-[#C5A059]"></i>
+                <span class="text-xs font-bold uppercase tracking-wider">Escrutinio Finalizado &bull; En espera de coronación</span>
+              } @else {
+                <i class="bi bi-calendar-event text-xs text-neutral-400"></i>
+                <span class="text-xs font-bold uppercase tracking-wider">Próximamente &bull; Noche de Gala</span>
+              }
+            </div>
+
+            <!-- Título del Evento en Oro Líquido -->
+            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] drop-shadow-[0_4px_25px_rgba(197,160,89,0.35)] leading-tight max-w-4xl mx-auto">
+              {{ gala.nombre }}
+            </h1>
+
+            <!-- Fecha y Detalles -->
+            <p class="text-xs sm:text-sm text-neutral-300 font-medium flex items-center justify-center gap-2">
+              <i class="bi bi-calendar3 text-[#C5A059]"></i>
+              <span>Fecha oficial: <strong class="text-[#F3E7C4]">{{ (gala.fechaEvento || gala.fechaInicio).toDate() | date:'dd/MM/yyyy' }}</strong></span>
+              <span class="text-neutral-500">&bull;</span>
+              <i class="bi bi-geo-alt-fill text-[#C5A059]"></i>
+              <span>La Quiaca, Jujuy</span>
+            </p>
+          </section>
+
+          <!-- ================================================================= -->
+          <!-- PODIO DE CORONACIÓN (SI ESTÁ PUBLICADA)                           -->
+          <!-- ================================================================= -->
+          @if (gala.estado === 'Publicada') {
+            <section class="p-6 sm:p-10 rounded-3xl backdrop-blur-3xl bg-[#050505]/90 border-2 border-[#C5A059]/60 shadow-[0_0_70px_rgba(197,160,89,0.3)] space-y-8 animate-fadeIn">
+
+              <div class="text-center space-y-1">
+                <div class="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#F3E7C4]">
+                  <i class="bi bi-stars text-[#C5A059] text-base"></i>
+                  <span>CORONACIÓN OFICIAL</span>
+                  <i class="bi bi-stars text-[#C5A059] text-base"></i>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-black text-white">Nómina de Representantes Elegidos</h2>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-center">
+                @for (candidata of podioEmbajadoras(); track candidata.id; let i = $index) {
+                  <div class="relative rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 shadow-xl"
+                       [ngClass]="i === 0
+                         ? 'bg-[#121212] border-2 border-[#C5A059] shadow-[0_0_40px_rgba(197,160,89,0.35)] md:scale-105 order-first'
+                         : 'bg-[#0A0A0A] border border-[#C5A059]/35'">
+
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                      <span class="px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider"
+                            [ngClass]="i === 0 ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] shadow-md' : 'bg-[#171717] text-[#F3E7C4] border border-[#C5A059]/40'">
+                        {{ getPuestoFemenino(i) }}
+                      </span>
+                      @if (i === 0) {
+                        <i class="bi bi-crown-fill text-xl text-[#C5A059] animate-bounce"></i>
+                      }
+                    </div>
+
+                    <div class="w-full aspect-[3/4] rounded-2xl overflow-hidden mb-3 bg-black relative border border-white/5">
+                      <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'" [alt]="candidata.nombre" class="w-full h-full object-cover">
+                      <span class="absolute bottom-2.5 left-2.5 px-2.5 py-0.5 rounded-lg bg-black/80 text-[#F3E7C4] font-black text-xs border border-[#C5A059]/40">
+                        #{{ getNumeroFormat(candidata.numero) }}
+                      </span>
+                    </div>
+
+                    <div class="text-center">
+                      <h3 class="text-base font-bold text-white truncate">{{ candidata.nombre }} {{ candidata.apellido }}</h3>
+                      <p class="text-xs text-[#F3E7C4] font-semibold mt-0.5">{{ candidata.cursoDivision }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+
+            </section>
+          }
+
+          <!-- ================================================================= -->
+          <!-- NÓMINA DE POSTULANTES: PESTAÑAS Y TARJETAS                        -->
+          <!-- ================================================================= -->
+          <section class="space-y-6">
+
+            <!-- Selector de Pestañas (Chicas / Chicos) -->
+            <div class="flex items-center justify-center">
+              <div class="flex p-1 bg-[#0A0A0A]/90 backdrop-blur-xl rounded-2xl border border-[#C5A059]/40 shadow-xl">
+
+                <button type="button"
+                        (click)="categoriaActiva.set('Embajadora')"
+                        [class]="categoriaActiva() === 'Embajadora'
+                          ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black shadow-[0_0_25px_rgba(197,160,89,0.35)] scale-105'
+                          : 'text-neutral-400 hover:text-[#F3E7C4]'"
+                        class="flex items-center gap-2 px-6 sm:px-8 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300">
+                  <i class="bi bi-crown-fill"></i>
+                  <span>Embajadoras ({{ embajadorasCount() }})</span>
+                </button>
+
+                <button type="button"
+                        (click)="categoriaActiva.set('Embajador')"
+                        [class]="categoriaActiva() === 'Embajador'
+                          ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black shadow-[0_0_25px_rgba(197,160,89,0.35)] scale-105'
+                          : 'text-neutral-400 hover:text-[#F3E7C4]'"
+                        class="flex items-center gap-2 px-6 sm:px-8 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300">
+                  <i class="bi bi-person-badge-fill"></i>
+                  <span>Embajadores ({{ embajadoresCount() }})</span>
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Grilla de Tarjetas -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+              @for (candidata of participantesFiltrados(); track candidata.id; let i = $index) {
+
+                <div (click)="openFicha(candidata)"
+                     class="group relative backdrop-blur-2xl bg-[#0A0A0A]/85 hover:bg-[#121212] border border-[#C5A059]/30 hover:border-[#C5A059]/80 rounded-3xl p-3 sm:p-4 flex flex-col justify-between cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_35px_rgba(197,160,89,0.35)]">
+
+                  <!-- Moneda Dorada Flotante (#01) -->
+                  <div class="absolute top-4 left-4 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-[#C5A059] via-[#F3E7C4] to-[#FFF3D1] text-[#0A0D14] font-black text-xs sm:text-sm flex items-center justify-center shadow-[0_0_20px_rgba(197,160,89,0.6)] border border-white group-hover:scale-110 transition-transform">
+                    #{{ getNumeroFormat(candidata.numero) }}
+                  </div>
+
+                  <!-- Foto Vertical -->
+                  <div class="w-full aspect-[3/4] rounded-2xl overflow-hidden mb-3 border border-[#C5A059]/30 group-hover:border-[#C5A059] transition-colors relative bg-black/60 shadow-lg">
+                    <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'"
+                         [alt]="candidata.nombre"
+                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-85 group-hover:opacity-60 transition-opacity"></div>
+                  </div>
+
+                  <!-- Datos Personales -->
+                  <div class="text-center space-y-1">
+                    <h3 class="text-xs sm:text-base font-extrabold text-white group-hover:text-[#F3E7C4] transition-colors line-clamp-1">
+                      {{ candidata.nombre }} {{ candidata.apellido }}
+                    </h3>
+                    <span class="inline-block text-[10px] sm:text-xs font-bold text-[#F3E7C4] bg-[#141414] border border-[#C5A059]/30 px-2.5 sm:px-3 py-0.5 rounded-full">
+                      {{ candidata.cursoDivision || '5to Año' }}
+                    </span>
+                  </div>
+
+                  <!-- Botón Ver Ficha -->
+                  <div class="mt-3 w-full py-2 rounded-xl bg-[#141414] group-hover:bg-gradient-to-b group-hover:from-[#FFF3D1] group-hover:via-[#C5A059] group-hover:to-[#8C6D2D] group-hover:text-[#0A0D14] text-[#F3E7C4] text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 border border-[#C5A059]/30">
+                    <span>Ver Ficha</span>
+                    <i class="bi bi-arrow-right-short text-base"></i>
+                  </div>
+
+                </div>
+
+              } @empty {
+                <div class="col-span-full py-20 text-center text-neutral-400 border border-dashed border-[#C5A059]/30 rounded-3xl bg-[#050505]/70 p-6">
+                  <i class="bi bi-person-badge text-5xl block mb-2 text-[#C5A059]/40"></i>
+                  <p class="text-base font-bold text-neutral-200">No hay participantes registrados en esta categoría aún.</p>
+                  <p class="text-xs text-neutral-400 mt-1">Próximamente se publicará la nómina oficial.</p>
+                </div>
+              }
+            </div>
+
+          </section>
+
+        } @else {
+          <!-- PANTALLA DE ESPERA SI NO HAY NINGUNA ELECCIÓN CREADA -->
+          <div class="py-24 text-center space-y-4 max-w-lg mx-auto backdrop-blur-2xl bg-[#050505]/80 border border-[#C5A059]/40 p-8 rounded-3xl shadow-2xl">
+            <div class="w-16 h-16 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/60 flex items-center justify-center text-3xl text-[#C5A059] mx-auto shadow-lg">
+              <i class="bi bi-stars"></i>
+            </div>
+            <h2 class="text-2xl font-black text-white">Elección de Representantes</h2>
+            <p class="text-xs text-neutral-300">
+              La gala estudiantil se encuentra en preparación. Próximamente se habilitará la nómina de participantes.
+            </p>
+          </div>
+        }
+
+      }
+
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- PIE INSTITUCIONAL (OPCIÓN 3: ENLACE DISCRETO OCULTO)                 -->
+    <!-- ===================================================================== -->
+    <footer class="w-full py-6 text-center text-xs text-neutral-400 border-t border-[#C5A059]/20 bg-[#050505]/80 backdrop-blur-xl">
+      <p class="tracking-wide">
+        Fiesta Nacional de los Estudiantes &bull; Elección de Representantes Estudiantiles
+      </p>
+      <!-- Micro-enlace discreto: Los que saben hacen clic aquí para ir al login -->
+      <a routerLink="/login"
+         class="text-[10px] text-neutral-500 hover:text-[#C5A059] transition-colors mt-1 inline-block cursor-pointer tracking-wider"
+         title="Acceso al Sistema">
+        Sistema Digital de Escrutinio y Pasarela en Tiempo Real
+      </a>
+    </footer>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL DE FICHA TÉCNICA (SOLO LECTURA PÚBLICA CON BOTON.PNG)               -->
+  <!-- ========================================================================= -->
+  @if (isFichaModalOpen() && selectedCandidata(); as candidata) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-fadeIn"
+         (click)="closeFicha()">
+
+      <div class="relative w-full max-w-4xl max-h-[92vh] p-5 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-[#0A0A0A]/95 backdrop-blur-3xl border-2 border-[#C5A059]/50 shadow-[0_0_90px_rgba(0,0,0,0.95),0_0_40px_rgba(197,160,89,0.25)] overflow-y-auto custom-scrollbar"
+           (click)="$event.stopPropagation()">
+
+        <!-- BOTÓN CERRAR CON ASSETS/BOTON.PNG GIRATORIO -->
+        <button type="button"
+                (click)="closeFicha()"
+                title="Cerrar Ficha"
+                class="absolute top-5 right-5 sm:top-6 sm:right-6 p-1 rounded-full hover:bg-white/10 transition-all z-20 group">
+          <img src="assets/BOTON.png"
+               alt="Cerrar"
+               class="w-8 h-8 sm:w-9 sm:h-9 object-contain group-hover:rotate-90 group-hover:scale-110 active:scale-95 transition-transform duration-300">
+        </button>
+
+        <!-- LAYOUT 2 COLUMNAS: FOTOS + PÍLDORAS DINÁMICAS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-center pt-2">
+
+          <!-- COLUMNA 1: GALERÍA DE FOTOS -->
+          <div class="space-y-3">
+            <div class="w-full aspect-[3/4] max-w-xs sm:max-w-sm mx-auto rounded-3xl overflow-hidden border-2 border-[#C5A059]/50 shadow-[0_0_30px_rgba(197,160,89,0.25)] bg-black/60 relative">
+              <img [src]="candidata.fotosURL?.[selectedPhotoIndex()] || 'assets/user-default.jpg'"
+                   alt="Foto Postulante"
+                   class="w-full h-full object-cover">
+            </div>
+
+            <!-- Miniaturas -->
+            @if (candidata.fotosURL && candidata.fotosURL.length > 1) {
+              <div class="flex gap-2 justify-center overflow-x-auto pb-1">
+                @for (foto of candidata.fotosURL; track $index) {
+                  <button type="button"
+                          (click)="selectPhoto($index)"
+                          class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0"
+                          [ngClass]="selectedPhotoIndex() === $index ? 'border-[#C5A059] ring-2 ring-[#C5A059] shadow-[0_0_15px_rgba(197,160,89,0.6)] scale-105' : 'border-white/20 opacity-60 hover:opacity-100'">
+                    <img [src]="foto" alt="Miniatura" class="w-full h-full object-cover">
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- COLUMNA 2: INFORMACIÓN DEL PERFIL Y PREGUNTAS -->
+          <div class="flex flex-col gap-3.5 justify-center">
+
+            <!-- Nombre y Número -->
+            <div class="flex items-center gap-3 mb-1">
+              <span class="w-9 h-9 rounded-full bg-[#C5A059] text-[#0A0D14] font-black text-xs flex items-center justify-center shadow-md border border-[#FFF3D1]/60 flex-shrink-0">
+                #{{ getNumeroFormat(candidata.numero) }}
+              </span>
+              <div>
+                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight">{{ candidata.nombre }} {{ candidata.apellido }}</h3>
+                <span class="text-xs text-[#F3E7C4] font-semibold">{{ candidata.categoria }}</span>
+              </div>
+            </div>
+
+            <!-- Píldora: Curso -->
+            <div class="w-full rounded-2xl border border-[#C5A059]/40 bg-[#050505] px-5 py-3 flex items-center justify-between shadow-sm">
+              <span class="text-xs font-semibold text-neutral-300">Curso / División: <strong class="text-[#F3E7C4] ml-1">{{ candidata.cursoDivision || 'No especificado' }}</strong></span>
+              <i class="bi bi-mortarboard-fill text-[#C5A059] text-sm"></i>
+            </div>
+
+            <!-- Píldoras Dinámicas del Perfil (Frases, Hobbies, Proyectos) -->
+            @if (eleccion()?.camposCandidata && eleccion()!.camposCandidata!.length > 0) {
+              @for (campo of eleccion()!.camposCandidata; track campo) {
+                <div class="w-full rounded-2xl border border-[#C5A059]/40 bg-[#050505] px-5 py-3 flex flex-col gap-0.5 shadow-sm">
+                  <span class="text-[10px] uppercase tracking-wider text-[#C5A059] font-bold">{{ campo }}</span>
+                  <span class="text-xs font-medium text-neutral-200">{{ candidata.camposPersonalizados?.[campo] || 'No especificado' }}</span>
+                </div>
+              }
+            }
+
+            <!-- Botón Volver -->
+            <button type="button"
+                    (click)="closeFicha()"
+                    class="w-full mt-2 py-3 px-6 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/70 hover:scale-[1.02] active:scale-[0.98] transition-all">
+              Volver a la Galería
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  }
+
+</div>

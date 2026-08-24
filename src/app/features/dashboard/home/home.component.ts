@@ -29,7 +29,7 @@ export class HomeComponent implements OnInit {
 
   // Permisos de usuario
   isAdmin = computed(() => this.currentUser()?.rol === 'Administrador');
-  isJurado = computed(() => this.currentUser()?.rol === 'Jurado' || this.currentUser()?.rol === 'Docente');
+  isJurado = computed(() => this.currentUser()?.rol === 'Jurado');
 
   ngOnInit(): void {
     this.cargarDatosGala();

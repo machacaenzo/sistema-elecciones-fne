@@ -1,11 +1,11 @@
-
-import { sendEmailVerification, sendPasswordResetEmail } from '@angular/fire/auth';
 import { Injectable, inject, signal, WritableSignal } from '@angular/core';
 import {
   Auth,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   onAuthStateChanged,
+  sendEmailVerification,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -29,23 +29,20 @@ export class AuthService {
 
   constructor() {
     onAuthStateChanged(this.auth, async (firebaseUser: FirebaseUser | null) => {
-     
       if (firebaseUser && firebaseUser.emailVerified) {
         const userProfile = await this.userService.getUserById(firebaseUser.uid);
         this.currentUser.set(userProfile || null);
       } else {
-        
         this.currentUser.set(null);
       }
     });
   }
 
-  
-
   public getAuth(): Auth {
     return this.auth;
   }
 
+  // REGISTRO CON CORREO: Nace como "Pendiente" y "Deshabilitado"
   async register(data: any): Promise<void> {
     try {
       const { email, password, nombre, apellido } = data;
@@ -59,20 +56,18 @@ export class AuthService {
         email: firebaseUser.email!,
         nombre,
         apellido,
-        rol: 'Docente',
-        EsActivo: true
+        rol: 'Pendiente',
+        EsActivo: false
       };
       await this.userService.createUser(newUser);
 
       this.notificationService.showAlertSuccess(
         `¡Registro Exitoso, ${nombre}!`,
-        'Hemos enviado un enlace a tu correo. Por favor, verifica tu cuenta para poder iniciar sesión.'
+        'Hemos enviado un enlace de verificación a tu correo. El Administrador deberá habilitar tu cuenta para la gala.'
       );
 
       await signOut(this.auth);
-     
       this.router.navigate(['/login']);
-
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
         this.notificationService.showAlertError('Email ya registrado', 'La dirección de correo electrónico ya está en uso.');
@@ -83,42 +78,37 @@ export class AuthService {
     }
   }
 
+  // REDIRECCIÓN SEGURA SEGÚN ROL Y ESTADO
   private redirectToDashboard(user: User): void {
-    // Aquí está la lógica de redirección basada en el rol
-    if (user.rol === 'Alumno') {
-      this.router.navigate(['/dashboard/voting']);
+    if (user.rol === 'Administrador') {
+      this.router.navigate(['/dashboard/home']);
+    } else if (user.rol === 'Jurado' && user.EsActivo) {
+      this.router.navigate(['/dashboard/votacion']);
     } else {
-      // Para cualquier otro rol, los enviamos al 'home' principal del dashboard.
       this.router.navigate(['/dashboard/home']);
     }
   }
+
   async login({ email, password }: { email: string; password: string }): Promise<void> {
     try {
       const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
-      
-      // *** INICIO DE LA CORRECCIÓN ***
-      // Después de un login exitoso, obtenemos el perfil del usuario para saber su rol.
       const userProfile = await this.userService.getUserById(userCredential.user.uid);
 
       if (userProfile && userCredential.user.emailVerified) {
-        // Si el perfil existe y el email está verificado, llamamos a nuestra función de redirección.
         this.redirectToDashboard(userProfile);
       } else if (!userCredential.user.emailVerified) {
-        // Si el usuario no está verificado, lo mandamos a la página de verificación.
         this.router.navigate(['/verify-email']);
       } else {
-        // Caso raro: usuario autenticado pero sin perfil en la base de datos.
         await signOut(this.auth);
         this.notificationService.showAlertError('Error de Perfil', 'No se encontró tu perfil de usuario.');
       }
-      // *** FIN DE LA CORRECCIÓN ***
-
     } catch (error: any) {
       this.notificationService.showAlertError('Error al iniciar sesión', 'El correo o la contraseña son incorrectos.');
     }
   }
 
-   async loginWithGoogle() {
+  // LOGIN CON GOOGLE: Nace como "Pendiente" y "Deshabilitado"
+  async loginWithGoogle(): Promise<void> {
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(this.auth, provider);
@@ -127,15 +117,8 @@ export class AuthService {
       const existingUser = await this.userService.getUserById(firebaseUser.uid);
 
       if (existingUser) {
-        if (existingUser.EsActivo) {
-          this.currentUser.set(existingUser);
-          this.notificationService.showAlertSuccess(`¡Hola de nuevo, ${existingUser.nombre}!`, 'Has iniciado sesión.');
-       //   this.router.navigate(['/dashboard']);
-           this.redirectToDashboard(existingUser);
-        } else {
-          await signOut(this.auth);
-          this.notificationService.showAlertWarning('Acceso Denegado', 'Tu cuenta está desactivada.');
-        }
+        this.currentUser.set(existingUser);
+        this.redirectToDashboard(existingUser);
       } else {
         const [nombre, ...apellidoParts] = (firebaseUser.displayName || 'Sin Nombre').split(' ');
         const newUser: User = {
@@ -144,14 +127,13 @@ export class AuthService {
           nombre,
           apellido: apellidoParts.join(' '),
           fotoURL: firebaseUser.photoURL || '',
-          rol: 'Docente',
-          EsActivo: true
+          rol: 'Pendiente',
+          EsActivo: false
         };
 
         await this.userService.createUser(newUser);
         this.currentUser.set(newUser);
-        this.notificationService.showAlertSuccess(`¡Bienvenido, ${newUser.nombre}!`, 'Tu cuenta ha sido creada.');
-       // this.router.navigate(['/dashboard']);
+        this.notificationService.showAlertSuccess(`¡Bienvenido, ${newUser.nombre}!`, 'Tu cuenta fue creada. El Administrador la acreditará.');
         this.redirectToDashboard(newUser);
       }
     } catch (error) {
@@ -173,7 +155,7 @@ export class AuthService {
       );
       this.router.navigate(['/login']);
     } catch (error: any) {
-      this.notificationService.showAlertError('Error al Enviar', 'Ocurrió un problema. Verifica el correo e inténtalo de nuevo.');
+      this.notificationService.showAlertError('Error al Enviar', 'Ocurrió un problema. Verifica el correo.');
       throw error;
     }
   }
@@ -194,14 +176,15 @@ export class AuthService {
       this.router.navigate(['/login']);
     }
   }
-   public async refreshUserProfile(): Promise<void> {
+
+  public async refreshUserProfile(): Promise<void> {
     const user = this.currentUser();
     if (user && user.uid) {
       try {
         const updatedProfile = await this.userService.getUserById(user.uid);
         this.currentUser.set(updatedProfile || null);
       } catch (error) {
-        console.error("Error al refrescar el perfil del usuario:", error);
+        console.error('Error al refrescar perfil:', error);
       }
     }
   }

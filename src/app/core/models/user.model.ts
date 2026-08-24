@@ -1,4 +1,4 @@
-export type UserRole = 'Administrador' | 'Jurado' | 'Alumno' | 'Docente';
+export type UserRole = 'Administrador' | 'Jurado' | 'Pendiente';
 
 export interface User {
   uid: string;
@@ -10,5 +10,5 @@ export interface User {
   rol: UserRole;
   EsActivo?: boolean;
   dni?: string;
-  eleccionesVotadas?: string[]; // IDs de elecciones donde ya emitió su voto
+  eleccionesVotadas?: string[];
 }

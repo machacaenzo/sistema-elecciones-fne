@@ -17,44 +17,44 @@
     <div>
       <div class="flex items-center gap-3.5 px-6 py-6 border-b border-[#C5A059]/20 bg-[#000000]/60">
         <div class="w-11 h-11 rounded-2xl bg-[#121212] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_20px_rgba(197,160,89,0.2)] p-1">
-          <img src="assets/logo-fne.png" alt="Logo FNE" class="w-full h-full object-contain">
+          <img src="assets/logo-fne.png" alt="Logo" class="w-full h-full object-contain">
         </div>
         <div>
-          <h2 class="text-sm font-black tracking-widest text-[#F3E7C4] uppercase">FNE Elección</h2>
-          <p class="text-[10px] text-[#C5A059] uppercase tracking-widest font-bold">Panel Oficial</p>
+          <h2 class="text-sm font-black tracking-wider text-[#F3E7C4] uppercase">Elección Reina</h2>
+          <p class="text-[10px] text-[#C5A059] uppercase tracking-widest font-bold">Gala Estudiantil</p>
         </div>
       </div>
 
       <!-- NAVEGACIÓN PRINCIPAL -->
       <nav class="p-4 space-y-2">
 
-        <!-- INICIO (BOTÓN DORADO METÁLICO CUANDO ESTÁ ACTIVO) -->
+        <!-- INICIO (ÍCONO CAMBIA A NEGRO AL SELECCIONARSE) -->
         <a routerLink="/dashboard/home"
-           routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
+           routerLinkActive="!bg-gradient-to-b !from-[#FFF3D1] !via-[#C5A059] !to-[#8C6D2D] !text-[#0A0D14] [&>i]:!text-[#0A0D14] font-black shadow-[0_0_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
            [routerLinkActiveOptions]="{ exact: true }"
            (click)="isSidebarOpen.set(false)"
            class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
-          <i class="bi bi-house-door-fill text-lg text-[#C5A059]"></i>
+          <i class="bi bi-house-door-fill text-lg text-[#C5A059] transition-colors"></i>
           <span>Inicio</span>
         </a>
 
         <!-- ACCESO A VOTACIÓN (JURADOS O ALUMNOS) -->
         @if (isJurado() || isAlumno()) {
           <a routerLink="/dashboard/votacion"
-             routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
+             routerLinkActive="!bg-gradient-to-b !from-[#FFF3D1] !via-[#C5A059] !to-[#8C6D2D] !text-[#0A0D14] [&>i]:!text-[#0A0D14] font-black shadow-[0_0_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
              (click)="isSidebarOpen.set(false)"
              class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
-            <i class="bi bi-award-fill text-lg text-[#C5A059]"></i>
+            <i class="bi bi-award-fill text-lg text-[#C5A059] transition-colors"></i>
             <span>{{ isJurado() ? 'Planilla de Jurado' : 'Centro de Votación' }}</span>
           </a>
         }
 
         <!-- MI PERFIL -->
         <a routerLink="/dashboard/profile"
-           routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
+           routerLinkActive="!bg-gradient-to-b !from-[#FFF3D1] !via-[#C5A059] !to-[#8C6D2D] !text-[#0A0D14] [&>i]:!text-[#0A0D14] font-black shadow-[0_0_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
            (click)="isSidebarOpen.set(false)"
            class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
-          <i class="bi bi-person-circle text-lg text-[#C5A059]"></i>
+          <i class="bi bi-person-circle text-lg text-[#C5A059] transition-colors"></i>
           <span>Mi Perfil</span>
         </a>
 
@@ -66,19 +66,19 @@
 
           <!-- NOCHES DE ELECCIÓN -->
           <a routerLink="/dashboard/admin/elections"
-             routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
+             routerLinkActive="!bg-gradient-to-b !from-[#FFF3D1] !via-[#C5A059] !to-[#8C6D2D] !text-[#0A0D14] [&>i]:!text-[#0A0D14] font-black shadow-[0_0_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
              (click)="isSidebarOpen.set(false)"
              class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
-            <i class="bi bi-trophy-fill text-lg text-[#C5A059]"></i>
+            <i class="bi bi-trophy-fill text-lg text-[#C5A059] transition-colors"></i>
             <span>Noches de Elección</span>
           </a>
 
           <!-- PADRÓN DE JURADOS -->
           <a routerLink="/dashboard/admin/users"
-             routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
+             routerLinkActive="!bg-gradient-to-b !from-[#FFF3D1] !via-[#C5A059] !to-[#8C6D2D] !text-[#0A0D14] [&>i]:!text-[#0A0D14] font-black shadow-[0_0_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
              (click)="isSidebarOpen.set(false)"
              class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
-            <i class="bi bi-people-fill text-lg text-[#C5A059]"></i>
+            <i class="bi bi-people-fill text-lg text-[#C5A059] transition-colors"></i>
             <span>Padrón de Jurados</span>
           </a>
         }
@@ -120,19 +120,19 @@
   <!-- CONTENEDOR PRINCIPAL: TRANSPARENTE PARA QUE SE VEA EL FONDO -->
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 bg-transparent">
 
-    <!-- CABECERA MÓVIL (SOLO PARA PANTALLAS CHICAS) -->
+    <!-- CABECERA MÓVIL -->
     <header class="flex items-center justify-between px-5 py-3.5 bg-[#080808]/90 backdrop-blur-md border-b border-[#C5A059]/30 lg:hidden shadow-md">
       <button (click)="toggleSidebar()" class="p-2 rounded-xl bg-[#141414] text-[#F3E7C4] border border-[#C5A059]/40">
         <i class="bi bi-list text-xl"></i>
       </button>
       <span class="text-sm font-black text-[#F3E7C4] tracking-wider flex items-center gap-2">
         <img src="assets/logo-fne.png" alt="Logo" class="w-6 h-6 object-contain">
-        FNE ELECCIÓN
+        ELECCIÓN REINA
       </span>
       <div class="w-8"></div>
     </header>
 
-    <!-- ÁREA DONDE SE CARGAN LAS PÁGINAS (ROUTER OUTLET) -->
+    <!-- ÁREA DONDE SE CARGAN LAS PÁGINAS -->
     <main class="flex-1 overflow-y-auto custom-scrollbar bg-transparent p-4 sm:p-6 lg:p-8">
       <router-outlet></router-outlet>
     </main>

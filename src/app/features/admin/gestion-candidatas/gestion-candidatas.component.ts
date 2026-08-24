@@ -30,6 +30,7 @@ export class GestionCandidatasComponent implements OnInit {
   isEditing = signal(false);
   editingCandidataId = signal<string | null>(null);
   imagePreviews = signal<string[]>([]);
+  isProcessingImages = signal(false);
 
   candidataForm: FormGroup;
 
@@ -37,7 +38,7 @@ export class GestionCandidatasComponent implements OnInit {
   participantesFiltrados = computed(() => {
     let lista = [...this.participantes()];
     if (this.categoriaFiltro() !== 'Todas') {
-      lista = lista.filter(p => p.categoria === this.categoriaFiltro());
+      lista = lista.filter(p => (p.categoria || 'Embajadora') === this.categoriaFiltro());
     }
     return lista.sort((a, b) => (a.numero || 0) - (b.numero || 0));
   });
@@ -53,6 +54,14 @@ export class GestionCandidatasComponent implements OnInit {
       fotosURL: this.fb.array([]),
       nuevasImagenes: this.fb.array([]),
       camposPersonalizados: this.fb.group({})
+    });
+
+    // Recalcular número automáticamente si cambia la categoría durante el alta
+    this.candidataForm.get('categoria')?.valueChanges.subscribe((nuevaCat: CategoriaParticipante) => {
+      if (!this.isEditing() && this.isFormVisible()) {
+        const sigNum = this.calcularSiguienteNumero(nuevaCat);
+        this.candidataForm.patchValue({ numero: sigNum }, { emitEvent: false });
+      }
     });
   }
 
@@ -72,6 +81,14 @@ export class GestionCandidatasComponent implements OnInit {
     });
   }
 
+  // Calcula el próximo número disponible específico para esa categoría
+  calcularSiguienteNumero(categoria: CategoriaParticipante): number {
+    const listaCat = this.participantes().filter(p => (p.categoria || 'Embajadora') === categoria);
+    if (listaCat.length === 0) return 1;
+    const maxNum = Math.max(...listaCat.map(p => p.numero || 0));
+    return maxNum + 1;
+  }
+
   get camposPersonalizadosGroup(): FormGroup {
     return this.candidataForm.get('camposPersonalizados') as FormGroup;
   }
@@ -88,12 +105,13 @@ export class GestionCandidatasComponent implements OnInit {
     this.isEditing.set(false);
     this.editingCandidataId.set(null);
 
-    // Sugerir automáticamente el siguiente número de pasada disponible
-    const siguienteNumero = this.participantes().length + 1;
+    // Determinar categoría por defecto según filtro actual
+    const catInicial: CategoriaParticipante = (this.categoriaFiltro() === 'Embajador') ? 'Embajador' : 'Embajadora';
+    const siguienteNumero = this.calcularSiguienteNumero(catInicial);
 
     this.candidataForm.reset({
       numero: siguienteNumero,
-      categoria: 'Embajadora',
+      categoria: catInicial,
       nombre: '',
       apellido: '',
       dni: '',
@@ -135,17 +153,53 @@ export class GestionCandidatasComponent implements OnInit {
     this.isFormVisible.set(false);
   }
 
-  onFileSelected(event: any): void {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      for (const file of files) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          const result = reader.result as string;
-          this.imagePreviews.update(current => [...current, result]);
-          (this.candidataForm.get('nuevasImagenes') as FormArray).push(this.fb.control(result));
+  // Compresor de fotos con Canvas en el navegador
+  private compressImage(file: File, maxWidth = 800, quality = 0.7): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event: any) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedBase64);
         };
+        img.onerror = err => reject(err);
+      };
+      reader.onerror = err => reject(err);
+    });
+  }
+
+  async onFileSelected(event: any): Promise<void> {
+    const files: FileList = event.target.files;
+    if (files && files.length > 0) {
+      this.isProcessingImages.set(true);
+      try {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const compressed = await this.compressImage(file, 800, 0.7);
+          this.imagePreviews.update(current => [...current, compressed]);
+          (this.candidataForm.get('nuevasImagenes') as FormArray).push(this.fb.control(compressed));
+        }
+      } catch (error) {
+        this.notificationService.showAlertError('Error', 'No se pudieron procesar las imágenes.');
+      } finally {
+        this.isProcessingImages.set(false);
       }
     }
   }
@@ -155,29 +209,51 @@ export class GestionCandidatasComponent implements OnInit {
     previews.splice(index, 1);
     this.imagePreviews.set(previews);
 
+    const fotosUrlArray = this.candidataForm.get('fotosURL') as FormArray;
     const nuevasImagenesArray = this.candidataForm.get('nuevasImagenes') as FormArray;
-    if (index < nuevasImagenesArray.length) {
-      nuevasImagenesArray.removeAt(index);
+
+    if (index < fotosUrlArray.length) {
+      fotosUrlArray.removeAt(index);
+    } else {
+      nuevasImagenesArray.removeAt(index - fotosUrlArray.length);
     }
   }
 
   async onSubmit(): Promise<void> {
     if (this.candidataForm.invalid) {
-      this.notificationService.showAlertWarning('Formulario Incompleto', 'Por favor completá los campos requeridos.');
+      this.notificationService.showAlertWarning('Formulario Incompleto', 'Por favor completá los campos obligatorios.');
       return;
     }
 
     const formValue = this.candidataForm.value;
+    const num = Number(formValue.numero);
+    const cat = formValue.categoria as CategoriaParticipante;
+
+    // Validación contra número duplicado en la misma categoría
+    const existeDuplicado = this.participantes().some(p =>
+      (p.categoria || 'Embajadora') === cat &&
+      p.numero === num &&
+      p.id !== this.editingCandidataId()
+    );
+
+    if (existeDuplicado) {
+      this.notificationService.showAlertWarning(
+        'Número Duplicado',
+        `Ya existe un/a participante con el N° ${num} en la categoría "${cat}". Elegí otro número de pasada.`
+      );
+      return;
+    }
+
     const finalFotosURL = [...formValue.fotosURL, ...formValue.nuevasImagenes];
 
     const data: Omit<Candidata, 'id'> = {
       eleccionId: this.eleccion.id!,
-      numero: Number(formValue.numero),
-      categoria: formValue.categoria,
-      nombre: formValue.nombre,
-      apellido: formValue.apellido,
-      dni: formValue.dni,
-      cursoDivision: formValue.cursoDivision,
+      numero: num,
+      categoria: cat,
+      nombre: formValue.nombre.trim(),
+      apellido: formValue.apellido.trim(),
+      dni: formValue.dni.trim(),
+      cursoDivision: formValue.cursoDivision.trim(),
       fotosURL: finalFotosURL,
       camposPersonalizados: formValue.camposPersonalizados || {},
       puntuacionPorCriterio: {},
@@ -193,31 +269,31 @@ export class GestionCandidatasComponent implements OnInit {
         data.puntuacionPorCriterio = anterior?.puntuacionPorCriterio || {};
 
         await this.candidataService.updateCandidata(this.editingCandidataId()!, data);
-        this.notificationService.showSuccessToast('Participante actualizado/a');
+        this.notificationService.showSuccessToast('Ficha actualizada correctamente');
       } else {
         await this.candidataService.createCandidata(data);
-        this.notificationService.showSuccessToast('Participante inscripto/a');
+        this.notificationService.showSuccessToast('Participante inscripto/a con éxito');
       }
       this.hideForm();
     } catch (error) {
-      this.notificationService.showAlertError('Error', 'No se pudo guardar en la base de datos.');
+      this.notificationService.showAlertError('Error', 'No se pudo guardar la ficha en la base de datos.');
     }
   }
 
   async confirmDelete(candidata: Candidata): Promise<void> {
     if (candidata.cantidadDeVotos > 0) {
-      this.notificationService.showAlertError('Acción Bloqueada', 'No se puede eliminar un participante que ya tiene votos registrados.');
+      this.notificationService.showAlertError('Acción Bloqueada', 'No se puede eliminar un participante que ya tiene votos registrados en la gala.');
       return;
     }
 
     const result = await this.notificationService.showConfirm(
       '¿Eliminar Participante?',
-      `Se eliminará a ${candidata.nombre} ${candidata.apellido} (N° ${candidata.numero}) de la elección.`,
+      `Se eliminará a ${candidata.nombre} ${candidata.apellido} (N° ${candidata.numero}) de la nómina.`,
       'Sí, eliminar'
     );
     if (result.isConfirmed) {
       await this.candidataService.deleteCandidata(candidata.id!);
-      this.notificationService.showSuccessToast('Participante eliminado');
+      this.notificationService.showSuccessToast('Participante eliminado/a');
     }
   }
 }

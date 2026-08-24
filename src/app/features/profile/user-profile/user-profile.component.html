@@ -1,94 +1,119 @@
-<div class="min-h-screen bg-[#050505] flex items-center justify-center p-4">
-  
-  <!-- CONTENEDOR PRINCIPAL: VIDRIO ESMERILADO -->
-  <div class="w-full max-w-4xl backdrop-blur-2xl bg-white/5 border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden animate-fadeIn">
-    
-    <!-- CABECERA ESTILO GALA -->
-    <div class="px-10 py-8 border-b border-white/5 bg-gradient-to-r from-[#C5A059]/15 to-transparent">
-      <h1 class="text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D]">
-        PERFIL DE USUARIO
-      </h1>
-      <p class="text-[10px] uppercase tracking-[0.3em] text-[#F3E7C4]/60 font-bold mt-1">Gestión de credenciales oficiales</p>
+<div class="space-y-6 text-neutral-100 font-sans pb-10 flex justify-center">
+
+  <!-- TARJETA PRINCIPAL: GLASS OSCURO CON BORDE DORADO -->
+  <div class="w-full max-w-4xl backdrop-blur-2xl bg-[#050505]/85 border border-[#C5A059]/40 rounded-3xl sm:rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.9),0_0_30px_rgba(197,160,89,0.15)] overflow-hidden animate-fadeIn transition-all hover:border-[#C5A059]/60">
+
+    <!-- CABECERA DE GALA -->
+    <div class="px-6 sm:px-10 py-6 sm:py-7 border-b border-[#C5A059]/25 bg-gradient-to-r from-[#C5A059]/20 via-black/40 to-transparent flex items-center justify-between">
+      <div class="flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/60 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_20px_rgba(197,160,89,0.25)] flex-shrink-0">
+          <i class="bi bi-person-badge-fill text-[#C5A059]"></i>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] drop-shadow-[0_2px_15px_rgba(197,160,89,0.25)]">
+            Perfil de Usuario
+          </h1>
+          <p class="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-[#F3E7C4] font-bold mt-0.5">Gestión de credenciales y datos oficiales</p>
+        </div>
+      </div>
     </div>
 
-    @if(currentUser(); as user){
-      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="p-10">
-        
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
-          
-          <!-- COLUMNA IZQUIERDA: FOTO (4 de 12 columnas) -->
+    <!-- CUERPO DEL PERFIL -->
+    @if (currentUser(); as user) {
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="p-6 sm:p-10">
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 sm:gap-12 items-center">
+
+          <!-- COLUMNA IZQUIERDA: FOTO DE PERFIL -->
           <div class="md:col-span-5 flex flex-col items-center">
             <div class="relative group">
-              <!-- Marco de la foto con sombra dorada -->
-              <div class="w-56 h-72 rounded-[2rem] overflow-hidden border border-[#C5A059]/40 shadow-[0_0_40px_rgba(197,160,89,0.15)] bg-black/40">
-                <img [src]="previewImg() || 'assets/user-default.jpg'" alt="Avatar" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                
-                <!-- Overlay para cambiar foto -->
-                <div (click)="fileInput.click()" class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                   <div class="w-12 h-12 rounded-full border border-[#F3E7C4] flex items-center justify-center mb-2">
-                     <i class="bi bi-camera text-[#F3E7C4] text-xl"></i>
-                   </div>
-                   <span class="text-[#F3E7C4] text-[10px] font-black tracking-widest">EDITAR FOTO</span>
+
+              <!-- Marco de la foto con resplandor dorado -->
+              <div class="w-48 h-64 sm:w-56 sm:h-72 rounded-3xl overflow-hidden border-2 border-[#C5A059]/50 shadow-[0_0_35px_rgba(197,160,89,0.25)] bg-black/60 relative">
+                <img [src]="previewImg() || 'assets/user-default.jpg'"
+                     alt="Avatar"
+                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+
+                <!-- Overlay táctil para cambiar foto -->
+                <div (click)="fileInput.click()"
+                     class="absolute inset-0 bg-black/75 backdrop-blur-[2px] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <div class="w-12 h-12 rounded-2xl bg-[#0A0A0A] border border-[#C5A059] flex items-center justify-center mb-2 shadow-lg">
+                    <i class="bi bi-camera-fill text-[#C5A059] text-xl"></i>
+                  </div>
+                  <span class="text-[#F3E7C4] text-xs font-black tracking-wider uppercase">Cambiar Foto</span>
                 </div>
               </div>
 
-              <!-- Badge de Rol (Como en tus referencias) -->
-              <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 px-8 py-2 rounded-full bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-[10px] font-bold uppercase tracking-[0.2em] shadow-xl whitespace-nowrap">
-                {{ user.rol || 'ALUMNO' }}
+              <!-- Badge Flotante de Rol -->
+              <div class="absolute -bottom-3.5 left-1/2 -translate-x-1/2 px-6 sm:px-8 py-2 rounded-full bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black uppercase tracking-wider shadow-[0_4px_20px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/70 whitespace-nowrap">
+                {{ user.rol || 'JURADO' }}
               </div>
             </div>
 
             <input type="file" #fileInput hidden (change)="onFileSelected($event)" accept="image/png, image/jpeg">
-            
+
             @if (previewImg()) {
-              <button type="button" (click)="removePhoto()" class="mt-8 text-red-500/60 text-[9px] font-bold uppercase tracking-widest hover:text-red-400 transition-colors">
-                Eliminar foto actual
+              <button type="button"
+                      (click)="removePhoto()"
+                      class="mt-7 text-rose-400 hover:text-rose-300 text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5">
+                <i class="bi bi-trash3"></i>
+                <span>Eliminar foto actual</span>
               </button>
             }
           </div>
 
-          <!-- COLUMNA DERECHA: CAMPOS (7 de 12 columnas) -->
-          <div class="md:col-span-7 flex flex-col gap-6">
-            
-            <!-- Nombre -->
-            <div class="space-y-2">
-              <label class="text-[10px] uppercase font-bold text-[#C5A059] ml-4 tracking-[0.2em]">Nombre</label>
+          <!-- COLUMNA DERECHA: CAMPOS DEL FORMULARIO -->
+          <div class="md:col-span-7 flex flex-col gap-4 sm:gap-5">
+
+            <!-- Campo: Nombre -->
+            <div>
+              <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">Nombre</label>
               <div class="relative">
-                <input formControlName="nombre" type="text" 
-                  class="w-full rounded-full bg-white/5 border border-white/10 px-8 py-4 text-white text-sm focus:outline-none focus:border-[#C5A059]/50 transition-all">
-                <i class="bi bi-person-fill absolute right-6 top-4 text-white/20"></i>
+                <input formControlName="nombre"
+                       type="text"
+                       placeholder="Tu nombre"
+                       class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-2xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
+                <i class="bi bi-person-fill absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 text-base"></i>
               </div>
             </div>
 
-            <!-- Apellido -->
-            <div class="space-y-2">
-              <label class="text-[10px] uppercase font-bold text-[#C5A059] ml-4 tracking-[0.2em]">Apellido</label>
+            <!-- Campo: Apellido -->
+            <div>
+              <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">Apellido</label>
               <div class="relative">
-                <input formControlName="apellido" type="text" 
-                  class="w-full rounded-full bg-white/5 border border-white/10 px-8 py-4 text-white text-sm focus:outline-none focus:border-[#C5A059]/50 transition-all">
-                <i class="bi bi-person-fill absolute right-6 top-4 text-white/20"></i>
+                <input formControlName="apellido"
+                       type="text"
+                       placeholder="Tu apellido"
+                       class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-2xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
+                <i class="bi bi-person-fill absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 text-base"></i>
               </div>
             </div>
 
-            <!-- Email (Píldora oscura bloqueada) -->
-            <div class="space-y-2">
-              <label class="text-[10px] uppercase font-bold text-white/30 ml-4 tracking-[0.2em]">Correo Electrónico Oficial</label>
-              <div class="w-full rounded-full bg-black/40 border border-white/5 px-8 py-4 text-white/30 text-sm italic overflow-hidden text-ellipsis">
-                {{ user.email }}
+            <!-- Campo: Correo Electrónico (Solo Lectura) -->
+            <div>
+              <label class="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1.5">Correo Electrónico (Institucional)</label>
+              <div class="relative">
+                <input type="email"
+                       [value]="user.email"
+                       disabled
+                       class="w-full px-4 py-3 bg-[#0A0A0A]/70 border border-white/5 rounded-2xl text-neutral-400 text-sm italic cursor-not-allowed">
+                <i class="bi bi-lock-fill absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 text-base"></i>
               </div>
             </div>
 
-            <!-- BOTÓN GUARDAR (Estilo Enzo/Gala) -->
-            <div class="pt-6 flex justify-end">
-              <button 
+            <!-- BOTÓN GUARDAR CAMBIOS -->
+            <div class="pt-4 sm:pt-6 flex justify-end">
+              <button
                 type="submit"
                 [disabled]="isSubmitting() || profileForm.pristine"
-                class="px-12 py-4 rounded-2xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-[11px] uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(197,160,89,0.3)] hover:scale-105 active:scale-95 disabled:opacity-20 disabled:grayscale transition-all"
+                class="w-full sm:w-auto px-10 py-3.5 rounded-2xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_0_30px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/70 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center justify-center gap-2"
               >
                 @if (isSubmitting()) {
-                  <span>PROCESANDO...</span>
+                  <span class="inline-block w-4 h-4 border-2 border-[#0A0D14] border-t-transparent rounded-full animate-spin"></span>
+                  <span>Guardando...</span>
                 } @else {
-                  <span>GUARDAR CAMBIOS</span>
+                  <i class="bi bi-check-circle-fill"></i>
+                  <span>Guardar Cambios</span>
                 }
               </button>
             </div>
@@ -98,4 +123,5 @@
       </form>
     }
   </div>
+
 </div>

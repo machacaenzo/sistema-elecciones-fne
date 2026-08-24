@@ -1,32 +1,37 @@
-<!-- OVERLAY OSCURO CON DESENFOQUE SUAVE -->
-<div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-fade-in"
+<!-- OVERLAY GLASS OSCURO -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn"
      (click)="$event.stopPropagation()">
 
-  <!-- CONTENEDOR PRINCIPAL: NEGRO PROFUNDO Y BORDE DORADO -->
-  <div class="relative w-full max-w-5xl max-h-[94vh] overflow-hidden rounded-3xl bg-[#050505] border-2 border-[#C5A059]/40 shadow-[0_0_60px_rgba(197,160,89,0.25)] flex flex-col">
+  <!-- CONTENEDOR PRINCIPAL: NEGRO CARBÓN CON BORDE ORO -->
+  <div class="relative w-full max-w-5xl max-h-[94vh] overflow-hidden rounded-3xl bg-[#050505]/95 backdrop-blur-3xl border-2 border-[#C5A059]/50 shadow-[0_0_90px_rgba(0,0,0,0.95),0_0_40px_rgba(197,160,89,0.25)] flex flex-col font-sans">
 
     <!-- CABECERA DEL MODAL -->
-    <div class="flex items-center justify-between px-8 py-5 border-b border-[#C5A059]/25 bg-[#0D0D0D]">
-      <div class="flex items-center gap-3.5">
-        <div class="w-12 h-12 rounded-2xl bg-[#141414] border border-[#C5A059]/60 flex items-center justify-center text-[#F3E7C4] text-2xl shadow-[0_0_20px_rgba(197,160,89,0.2)]">
-          <i class="bi bi-person-badge"></i>
+    <div class="flex items-center justify-between px-5 sm:px-8 py-4 sm:py-5 border-b border-[#C5A059]/30 bg-gradient-to-r from-[#C5A059]/20 via-black/50 to-transparent">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/60 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_20px_rgba(197,160,89,0.25)] flex-shrink-0">
+          <i class="bi bi-person-badge-fill text-[#C5A059]"></i>
         </div>
         <div>
-          <h2 class="text-xl font-bold text-[#F3E7C4] tracking-wide">Padrón de Participantes</h2>
-          <p class="text-sm text-slate-400 mt-0.5">{{ eleccion.nombre }} &bull; Orden oficial de pasarela</p>
+          <h2 class="text-base sm:text-xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059]">
+            Padrón de Participantes
+          </h2>
+          <p class="text-[11px] sm:text-xs text-neutral-300 mt-0.5">{{ eleccion.nombre }} &bull; Orden oficial de pasarela</p>
         </div>
       </div>
 
-      <!-- Botón Cerrar -->
+      <!-- BOTÓN CERRAR CON ASSETS/BOTON.PNG GIRATORIO -->
       <button type="button"
               (click)="closeModal.emit()"
-              class="w-10 h-10 rounded-2xl bg-[#141414] hover:bg-[#202020] border border-[#C5A059]/30 text-slate-300 hover:text-white flex items-center justify-center text-lg transition-all">
-        <i class="bi bi-x-lg"></i>
+              title="Cerrar ventana"
+              class="group p-1 rounded-full hover:bg-white/10 transition-all duration-300 flex-shrink-0">
+        <img src="assets/BOTON.png"
+             alt="Cerrar"
+             class="w-8 h-8 sm:w-9 sm:h-9 object-contain group-hover:rotate-90 group-hover:scale-110 active:scale-95 transition-transform duration-300">
       </button>
     </div>
 
     <!-- CUERPO PRINCIPAL CON SCROLL -->
-    <div class="p-6 sm:p-8 overflow-y-auto flex-1 custom-scrollbar space-y-6">
+    <div class="p-4 sm:p-8 overflow-y-auto flex-1 custom-scrollbar space-y-5 sm:space-y-6">
 
       <!-- ========================================================= -->
       <!-- VISTA 1: LISTADO Y GRILLA DE PARTICIPANTES                -->
@@ -34,94 +39,97 @@
       @if (!isFormVisible()) {
 
         <!-- Barra superior: Filtros por Categoría y Botón de Inscripción -->
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-2">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pb-2">
 
-          <!-- Filtro por Pestañas (Todas / Embajadoras / Embajadores) -->
-          <div class="flex p-1 bg-[#0F0F0F] rounded-2xl border border-[#C5A059]/30 shadow-inner">
+          <!-- Filtro por Pestañas -->
+          <div class="flex p-1 bg-[#0A0A0A] rounded-2xl border border-[#C5A059]/30 shadow-inner">
             <button type="button"
                     (click)="categoriaFiltro.set('Todas')"
-                    [class]="categoriaFiltro() === 'Todas' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-extrabold shadow-md' : 'text-slate-400 hover:text-[#F3E7C4]'"
-                    class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all">
+                    [class]="categoriaFiltro() === 'Todas' ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black shadow-md' : 'text-neutral-400 hover:text-[#F3E7C4]'"
+                    class="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all">
               Todos ({{ participantes().length }})
             </button>
             <button type="button"
                     (click)="categoriaFiltro.set('Embajadora')"
-                    [class]="categoriaFiltro() === 'Embajadora' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-extrabold shadow-md' : 'text-slate-400 hover:text-[#F3E7C4]'"
-                    class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all">
-              Embajadoras
+                    [class]="categoriaFiltro() === 'Embajadora' ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black shadow-md' : 'text-neutral-400 hover:text-[#F3E7C4]'"
+                    class="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+              <span>Embajadoras</span>
             </button>
             <button type="button"
                     (click)="categoriaFiltro.set('Embajador')"
-                    [class]="categoriaFiltro() === 'Embajador' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-extrabold shadow-md' : 'text-slate-400 hover:text-[#F3E7C4]'"
-                    class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all">
-              Embajadores
+                    [class]="categoriaFiltro() === 'Embajador' ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black shadow-md' : 'text-neutral-400 hover:text-[#F3E7C4]'"
+                    class="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+              <span>Embajadores</span>
             </button>
           </div>
 
-          <!-- Botón Inscribir Participante (Dorado Metálico Grande) -->
+          <!-- Botón Inscribir Participante -->
           <button type="button"
                   (click)="openCreateForm()"
                   [disabled]="eleccion.estado !== 'Configuracion'"
-                  class="flex items-center gap-2.5 px-6 py-3 bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-extrabold text-sm rounded-2xl shadow-[0_4px_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none">
-            <i class="bi bi-person-plus-fill text-base"></i>
+                  class="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider rounded-2xl shadow-[0_0_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/70 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none">
+            <svg class="w-4 h-4 fill-[#0A0D14]" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+            </svg>
             <span>Inscribir Participante</span>
           </button>
         </div>
 
-        <!-- Grilla de Tarjetas de Participantes (Negro Sólido + Dorado) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <!-- Grilla de Tarjetas de Participantes -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
           @for (candidata of participantesFiltrados(); track candidata.id) {
-            <div class="relative group bg-[#0F0F0F] hover:bg-[#141414] border border-[#C5A059]/25 hover:border-[#C5A059]/60 rounded-2xl p-4 transition-all duration-300 flex flex-col justify-between shadow-md">
+            <div class="relative group bg-[#0A0A0A] hover:bg-[#121212] border border-[#C5A059]/30 hover:border-[#C5A059]/80 rounded-3xl p-3.5 sm:p-4 transition-all duration-300 flex flex-col justify-between shadow-md">
 
-              <!-- Badge de Número de Pasada y Categoría -->
-              <div class="absolute top-6 left-6 z-10 flex items-center gap-2">
-                <span class="px-3 py-1 bg-[#C5A059] text-[#0A0D14] font-black text-xs rounded-lg shadow-lg border border-[#FFF3D1]/50">
+              <!-- Badge Flotante de Número y Categoría -->
+              <div class="absolute top-5 left-5 z-10 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-[#C5A059] text-[#0A0D14] font-black text-xs flex items-center justify-center shadow-lg border border-[#FFF3D1]/50">
                   #{{ candidata.numero }}
                 </span>
-                <span class="px-2.5 py-1 bg-black/80 text-[11px] font-bold text-[#F3E7C4] rounded-lg border border-[#C5A059]/40">
+                <span class="px-2.5 py-1 bg-black/85 text-[10px] font-bold text-[#F3E7C4] rounded-lg border border-[#C5A059]/40 backdrop-blur-sm">
                   {{ candidata.categoria }}
                 </span>
               </div>
 
-              <!-- Foto del Participante -->
-              <div class="w-full h-52 rounded-xl overflow-hidden mb-3.5 bg-black relative border border-white/5">
+              <!-- Foto del Participante (Aspect Ratio 3:4 Vertical) -->
+              <div class="w-full aspect-[3/4] rounded-2xl overflow-hidden mb-3 bg-black relative border border-white/5 shadow-inner">
                 <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'"
                      [alt]="candidata.nombre"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
               </div>
 
-              <!-- Datos de la Persona -->
+              <!-- Datos Personales -->
               <div class="space-y-1">
-                <h4 class="text-base font-bold text-white truncate">{{ candidata.nombre }} {{ candidata.apellido }}</h4>
-                <div class="inline-block px-3 py-0.5 rounded-full bg-[#171717] border border-[#C5A059]/30 text-xs font-semibold text-[#F3E7C4]">
-                  {{ candidata.cursoDivision || 'Sin curso asignado' }}
+                <h4 class="text-sm sm:text-base font-bold text-white truncate">{{ candidata.nombre }} {{ candidata.apellido }}</h4>
+                <div class="inline-block px-3 py-0.5 rounded-full bg-[#050505] border border-[#C5A059]/30 text-[11px] font-semibold text-[#F3E7C4]">
+                  {{ candidata.cursoDivision || 'Sin curso' }}
                 </div>
-                <p class="text-xs text-slate-400">DNI: {{ candidata.dni }}</p>
+                <p class="text-[11px] text-neutral-400">DNI: {{ candidata.dni }}</p>
               </div>
 
-              <!-- Botones de Acción (Editar / Eliminar) -->
-              <div class="flex items-center justify-end gap-1.5 mt-4 pt-3 border-t border-[#C5A059]/15">
+              <!-- Botones de Acción -->
+              <div class="flex items-center justify-end gap-2 mt-3 pt-2.5 border-t border-[#C5A059]/20">
                 <button type="button"
                         (click)="openEditForm(candidata)"
                         [disabled]="eleccion.estado !== 'Configuracion'"
-                        class="p-2 text-slate-300 hover:text-[#F3E7C4] hover:bg-[#1A1A1A] rounded-xl transition-colors disabled:opacity-30"
+                        class="p-2 text-neutral-300 hover:text-[#F3E7C4] hover:bg-white/10 rounded-xl transition-all disabled:opacity-30"
                         title="Editar Datos">
                   <i class="bi bi-pencil-square text-base"></i>
                 </button>
                 <button type="button"
                         (click)="confirmDelete(candidata)"
                         [disabled]="eleccion.estado !== 'Configuracion'"
-                        class="p-2 text-slate-300 hover:text-red-400 hover:bg-[#1A1A1A] rounded-xl transition-colors disabled:opacity-30"
+                        class="p-2 text-neutral-300 hover:text-red-400 hover:bg-white/10 rounded-xl transition-all disabled:opacity-30"
                         title="Eliminar">
                   <i class="bi bi-trash3 text-base"></i>
                 </button>
               </div>
             </div>
           } @empty {
-            <div class="col-span-full py-16 text-center text-slate-500 border border-dashed border-[#C5A059]/20 rounded-2xl bg-[#0F0F0F]/50">
-              <i class="bi bi-person-badge text-5xl block mb-2 text-[#C5A059]/30"></i>
-              <p class="text-base font-medium text-slate-300">No hay participantes inscriptos en esta categoría.</p>
-              <p class="text-xs text-slate-500 mt-1">Hacé clic en "Inscribir Participante" para agregar el primero.</p>
+            <div class="col-span-full py-16 text-center text-neutral-400 border border-dashed border-[#C5A059]/30 rounded-3xl bg-[#0A0A0A]/50 p-6">
+              <i class="bi bi-person-badge text-5xl block mb-2 text-[#C5A059]/40"></i>
+              <p class="text-sm font-bold text-neutral-200">No hay participantes inscriptos en esta categoría.</p>
+              <p class="text-xs text-neutral-400 mt-1">Hacé clic en "Inscribir Participante" para cargar el primero.</p>
             </div>
           }
         </div>
@@ -131,89 +139,95 @@
       <!-- VISTA 2: FORMULARIO DE ALTA Y EDICIÓN                     -->
       <!-- ========================================================= -->
       @if (isFormVisible()) {
-        <form [formGroup]="candidataForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <form [formGroup]="candidataForm" (ngSubmit)="onSubmit()" class="space-y-5 sm:space-y-6">
 
-          <div class="flex items-center justify-between pb-4 border-b border-[#C5A059]/25">
-            <button type="button" (click)="hideForm()" class="flex items-center gap-2 text-sm font-semibold text-slate-300 hover:text-[#F3E7C4] transition-colors">
-              <i class="bi bi-arrow-left text-base"></i> Volver a la lista
+          <!-- Barra superior del formulario -->
+          <div class="flex items-center justify-between pb-3 border-b border-[#C5A059]/25">
+            <button type="button" (click)="hideForm()" class="flex items-center gap-2 text-xs sm:text-sm font-bold text-neutral-300 hover:text-[#F3E7C4] transition-colors">
+              <i class="bi bi-arrow-left text-base"></i> Volver a la nómina
             </button>
-            <span class="text-xs font-bold text-[#F3E7C4] uppercase tracking-widest px-4 py-1.5 bg-[#141414] rounded-full border border-[#C5A059]/40 shadow-sm">
-              {{ isEditing() ? 'Modificar Ficha' : 'Nueva Inscripción de Pasarela' }}
+            <span class="text-xs font-black text-[#F3E7C4] uppercase tracking-widest px-3.5 py-1 bg-[#0A0A0A] rounded-full border border-[#C5A059]/40 shadow-sm">
+              {{ isEditing() ? 'Modificar Ficha' : 'Nueva Inscripción' }}
             </span>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
 
-            <!-- Columnas 1 y 2: Formulario de Datos Personales -->
-            <div class="lg:col-span-2 space-y-5">
+            <!-- Columnas 1 y 2: Formulario de Datos -->
+            <div class="lg:col-span-2 space-y-4 sm:space-y-5">
 
-              <!-- N° de Pasarela y Categoría -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25">
+              <!-- Categoría y N° de Pasarela (Auto-calculado) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 sm:p-5 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 shadow-inner">
                 <div>
-                  <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-2">
-                    N° de Pasarela (Orden Oficial)
-                  </label>
-                  <input type="number" formControlName="numero" min="1"
-                         class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all font-bold">
-                </div>
-
-                <div>
-                  <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-2">
+                  <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">
                     Categoría
                   </label>
                   <select formControlName="categoria"
-                          class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all font-medium [&>option]:bg-[#0F0F0F] [&>option]:text-white">
+                          class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all font-bold [&>option]:bg-[#050505] [&>option]:text-white">
                     <option value="Embajadora">Embajadora (Femenino)</option>
                     <option value="Embajador">Embajador (Masculino)</option>
                   </select>
                 </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">
+                    N° de Pasarela (Orden Oficial)
+                  </label>
+                  <input type="number" formControlName="numero" min="1"
+                         class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-[#F3E7C4] text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all font-black">
+                </div>
               </div>
 
-              <!-- Nombre, Apellido, DNI y Curso -->
-              <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 space-y-4">
-                <h3 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-2 flex items-center gap-2">
-                  <i class="bi bi-person-vcard text-[#C5A059]"></i> Datos del Participante
+              <!-- Datos Personales -->
+              <div class="p-4 sm:p-5 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 space-y-4">
+                <h3 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider flex items-center gap-2">
+                  <i class="bi bi-person-vcard-fill text-[#C5A059]"></i> Datos del Participante
                 </h3>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Nombre</label>
-                    <input type="text" formControlName="nombre" placeholder="Ej: Rocío"
-                           class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all">
+                    <label class="block text-xs font-medium text-neutral-300 mb-1">Nombre</label>
+                    <input type="text" formControlName="nombre" placeholder="Ej: Lucía"
+                           class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Apellido</label>
-                    <input type="text" formControlName="apellido" placeholder="Ej: Gómez"
-                           class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all">
+                    <label class="block text-xs font-medium text-neutral-300 mb-1">Apellido</label>
+                    <input type="text" formControlName="apellido" placeholder="Ej: Fernández"
+                           class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
                   </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Documento (DNI)</label>
-                    <input type="text" formControlName="dni" placeholder="Ej: 46123456"
-                           class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all">
+                    <label class="block text-xs font-medium text-neutral-300 mb-1">Documento (DNI)</label>
+                    <input type="text" formControlName="dni" placeholder="Ej: 45123456"
+                           class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Curso y División</label>
+                    <label class="block text-xs font-medium text-neutral-300 mb-1">Curso y División</label>
                     <input type="text" formControlName="cursoDivision" placeholder="Ej: 5to 1ra Humanidades"
-                           class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all">
+                           class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
                   </div>
                 </div>
               </div>
 
-              <!-- Preguntas dinámicas (Información Adicional del Perfil) -->
+              <!-- Preguntas dinámicas del perfil -->
+              <!-- Preguntas dinámicas del perfil (100% dinámico) -->
               @if (eleccion.camposCandidata && eleccion.camposCandidata.length > 0) {
-                <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 space-y-4" [formGroup]="camposPersonalizadosGroup">
-                  <h3 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <i class="bi bi-card-text text-[#C5A059]"></i> Información del Perfil (Para el Locutor y Jurado)
-                  </h3>
+                <div class="p-4 sm:p-5 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 space-y-4" formGroupName="camposPersonalizados">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider flex items-center gap-2">
+                      <i class="bi bi-card-text text-[#C5A059]"></i> Información del Perfil
+                    </h3>
+                    <span class="text-[10px] text-neutral-400">Campos dinámicos</span>
+                  </div>
+
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @for (campo of eleccion.camposCandidata; track campo) {
                       <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1.5">{{ campo }}</label>
+                        <label class="block text-xs font-medium text-neutral-300 mb-1">{{ campo }}</label>
                         <input type="text" [formControlName]="campo" [placeholder]="'Ingresar ' + campo"
-                               class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all">
+                              class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
                       </div>
                     }
                   </div>
@@ -221,32 +235,36 @@
               }
             </div>
 
-            <!-- Columna 3: Galería de Fotos de Estudio -->
-            <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 space-y-4 flex flex-col justify-between">
+            <!-- Columna 3: Galería de Fotos con Compresor Automático -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 space-y-4 flex flex-col justify-between">
               <div>
                 <h3 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1 flex items-center gap-2">
-                  <i class="bi bi-camera text-[#C5A059]"></i> Fotos de Estudio
+                  <i class="bi bi-camera-fill text-[#C5A059]"></i> Fotos de Pasarela
                 </h3>
-                <p class="text-xs text-slate-400 mb-3">Imágenes para la ficha y la pantalla gigante.</p>
+                <p class="text-[11px] text-neutral-400 mb-3">Las fotos se optimizan automáticamente.</p>
 
                 <div class="space-y-3">
-                  <div class="grid grid-cols-2 gap-2.5 max-h-64 overflow-y-auto custom-scrollbar">
+                  <!-- Miniaturas -->
+                  <div class="grid grid-cols-2 gap-2.5 max-h-56 overflow-y-auto custom-scrollbar">
                     @for (preview of imagePreviews(); track $index) {
-                      <div class="relative h-32 rounded-xl overflow-hidden bg-black border border-[#C5A059]/30 group shadow-md">
+                      <div class="relative aspect-[3/4] rounded-xl overflow-hidden bg-black border border-[#C5A059]/40 group shadow-md">
                         <img [src]="preview" alt="Preview" class="w-full h-full object-cover">
                         <button type="button" (click)="removeImage($index)"
-                                class="absolute top-1.5 right-1.5 w-7 h-7 bg-black/80 hover:bg-red-600 text-white rounded-lg text-xs flex items-center justify-center transition-colors">
+                                class="absolute top-1.5 right-1.5 w-7 h-7 bg-black/80 hover:bg-red-600 text-white rounded-lg text-xs flex items-center justify-center transition-colors shadow">
                           <i class="bi bi-x-lg"></i>
                         </button>
                       </div>
                     }
                   </div>
 
+                  <!-- Botón Subir Fotos -->
                   <label for="file-upload-candidata"
-                         class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-[#C5A059]/40 hover:border-[#C5A059] rounded-2xl cursor-pointer bg-[#141414] hover:bg-[#1A1A1A] transition-all text-center group">
-                    <i class="bi bi-cloud-arrow-up text-3xl text-[#C5A059] mb-1.5 group-hover:scale-110 transition-transform"></i>
-                    <span class="text-sm font-semibold text-[#F3E7C4]">Subir fotos</span>
-                    <span class="text-xs text-slate-400 mt-0.5">JPG o PNG en alta resolución</span>
+                         class="flex flex-col items-center justify-center p-5 border-2 border-dashed border-[#C5A059]/40 hover:border-[#C5A059] rounded-2xl cursor-pointer bg-[#050505] hover:bg-[#121212] transition-all text-center group">
+                    <i class="bi bi-cloud-arrow-up text-3xl text-[#C5A059] mb-1 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-xs font-bold text-[#F3E7C4]">
+                      {{ isProcessingImages() ? 'Optimizando fotos...' : 'Subir Fotos' }}
+                    </span>
+                    <span class="text-[10px] text-neutral-400 mt-0.5">JPG o PNG</span>
                   </label>
                   <input id="file-upload-candidata" type="file" (change)="onFileSelected($event)" accept="image/*" multiple hidden>
                 </div>
@@ -255,20 +273,22 @@
 
           </div>
 
-          <!-- Pie del Formulario (Botón Dorado Metálico) -->
-          <div class="flex items-center justify-end gap-4 pt-6 border-t border-[#C5A059]/25">
+          <!-- Pie del Formulario -->
+          <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 sm:pt-6 border-t border-[#C5A059]/30">
             <button type="button" (click)="hideForm()"
-                    class="px-6 py-3.5 rounded-2xl border border-[#C5A059]/30 text-neutral-300 hover:text-white hover:bg-[#1A1A1A] text-sm font-semibold transition-all">
+                    class="px-6 py-3.5 rounded-xl border border-[#C5A059]/40 text-neutral-300 hover:text-white hover:bg-white/10 text-xs font-bold uppercase tracking-wider transition-all text-center">
               Cancelar
             </button>
             <button type="submit"
-                    [disabled]="candidataForm.invalid"
-                    class="px-8 py-3.5 rounded-2xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-extrabold text-sm sm:text-base shadow-[0_4px_30px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/50 hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none">
+                    [disabled]="candidataForm.invalid || isProcessingImages()"
+                    class="px-8 py-3.5 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_0_30px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/70 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none text-center">
               {{ isEditing() ? 'Guardar Cambios' : 'Completar Inscripción' }}
             </button>
           </div>
+
         </form>
       }
+
     </div>
   </div>
 </div>

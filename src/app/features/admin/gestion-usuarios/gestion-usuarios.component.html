@@ -1,49 +1,60 @@
-<div class="min-h-screen p-4 sm:p-8 bg-[#000000] text-neutral-100 space-y-6 font-sans">
+<div class="space-y-6 text-neutral-100 font-sans pb-10">
 
-  <!-- CABECERA PRINCIPAL -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#C5A059]/25 bg-[#000000]">
-    <div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-3">
-        <span class="w-11 h-11 rounded-2xl bg-[#121212] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
-          <i class="bi bi-person-check-fill"></i>
-        </span>
-        Padrón de Jurados y Accesos
-      </h1>
-      <p class="text-xs sm:text-sm text-neutral-400 mt-1">Habilitá cuentas, asigná roles y controlá quiénes pueden calificar en la gala.</p>
+  <!-- ========================================================= -->
+  <!-- CABECERA PRINCIPAL CON TÍTULO DORADO                      -->
+  <!-- ========================================================= -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/60 flex items-center justify-center shadow-[0_0_25px_rgba(197,160,89,0.25)] flex-shrink-0">
+        <i class="bi bi-people-fill text-xl sm:text-2xl text-[#C5A059]"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] drop-shadow-[0_2px_15px_rgba(197,160,89,0.25)]">
+          Padrón de Jurados y Accesos
+        </h1>
+        <p class="text-xs sm:text-sm text-neutral-300 mt-0.5">
+          Habilitá cuentas, asigná roles oficiales y controlá quiénes pueden calificar en la gala.
+        </p>
+      </div>
     </div>
   </div>
 
-  <!-- BARRA DE FILTROS Y BÚSQUEDA -->
-  <div class="p-5 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/30 shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+  <!-- LÍNEA DIVISORIA DORADA -->
+  <div class="h-[1px] w-full bg-gradient-to-r from-transparent via-[#C5A059]/50 to-transparent"></div>
 
-    <!-- Buscador -->
+  <!-- ========================================================= -->
+  <!-- BARRA DE FILTROS Y BÚSQUEDA (GLASS TRANSLÚCIDO)           -->
+  <!-- ========================================================= -->
+  <div class="p-4 sm:p-5 rounded-3xl backdrop-blur-xl bg-black/50 border border-[#C5A059]/35 shadow-[0_10px_30px_rgba(0,0,0,0.6)] flex flex-col md:flex-row items-center justify-between gap-4">
+
+    <!-- Buscador con ícono dorado -->
     <div class="relative w-full md:w-96">
       <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-[#C5A059]"></i>
       <input type="text"
              [value]="searchText()"
              (input)="onSearchChange($event)"
              placeholder="Buscar por nombre, apellido o email..."
-             class="w-full bg-[#141414] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#C5A059]/30 transition-all placeholder:text-neutral-500">
+             class="w-full bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-2xl pl-11 pr-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all placeholder:text-neutral-500">
     </div>
 
     <!-- Filtro por Rol y Toggle de Inactivos -->
-    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+    <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto justify-end">
 
       <!-- Selector de Rol -->
       <select (change)="onRolChange($event)"
-              class="bg-[#141414] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-2xl px-4 py-3 text-xs sm:text-sm text-[#F3E7C4] focus:outline-none font-semibold [&>option]:bg-[#0F0F0F] [&>option]:text-white">
+              class="flex-1 sm:flex-none bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-2xl px-4 py-3 text-xs sm:text-sm text-[#F3E7C4] font-bold focus:outline-none [&>option]:bg-[#0A0A0A] [&>option]:text-white">
         <option value="">Todos los Roles</option>
         <option value="Jurado">Jurados</option>
         <option value="Administrador">Administradores</option>
-        <option value="Alumno">Alumnos</option>
         <option value="Docente">Docentes</option>
+        <option value="Alumno">Alumnos</option>
       </select>
 
       <!-- Botón Toggle: Mostrar Inactivos -->
       <button type="button"
               (click)="toggleShowInactive()"
-              [class]="showInactive() ? 'bg-[#C5A059]/20 border-[#C5A059] text-[#F3E7C4]' : 'bg-[#141414] border-[#C5A059]/30 text-neutral-400'"
-              class="flex items-center gap-2 px-4 py-3 rounded-2xl border text-xs sm:text-sm font-semibold transition-all">
+              [class]="showInactive() ? 'bg-[#C5A059]/20 border-[#C5A059] text-[#F3E7C4] shadow-[0_0_15px_rgba(197,160,89,0.2)]' : 'bg-[#050505] border-[#C5A059]/30 text-neutral-400'"
+              class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border text-xs sm:text-sm font-semibold transition-all">
         <i class="bi" [ngClass]="showInactive() ? 'bi-check-circle-fill text-[#C5A059]' : 'bi-circle'"></i>
         <span>Mostrar Deshabilitados</span>
       </button>
@@ -54,29 +65,31 @@
   @if (isLoading()) {
     <div class="py-20 flex flex-col items-center justify-center text-neutral-400 space-y-4">
       <div class="w-12 h-12 border-4 border-[#C5A059]/20 border-t-[#C5A059] rounded-full animate-spin"></div>
-      <p class="text-sm tracking-widest uppercase font-bold text-[#F3E7C4]">Cargando padrón...</p>
+      <p class="text-xs uppercase tracking-widest font-bold text-[#F3E7C4]">Cargando padrón oficial...</p>
     </div>
   } @else {
 
-    <!-- GRILLA DE USUARIOS (TARJETAS EN NEGRO PURO Y ORO) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+    <!-- ========================================================= -->
+    <!-- GRILLA DE USUARIOS (TARJETAS GLASS NEGRO Y ORO)           -->
+    <!-- ========================================================= -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
       @for (user of filteredUsers(); track user.uid) {
 
-        <div class="relative group p-5 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/25 hover:border-[#C5A059]/60 transition-all duration-300 flex flex-col justify-between shadow-md"
-             [class.opacity-50]="!user.EsActivo">
+        <div class="relative group p-4 sm:p-5 rounded-3xl backdrop-blur-2xl bg-[#050505]/80 hover:bg-[#0A0A0A] border border-[#C5A059]/30 hover:border-[#C5A059]/70 transition-all duration-300 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.8)]"
+             [class.opacity-40]="!user.EsActivo">
 
-          <!-- Cabecera de la Tarjeta: Avatar y Acciones -->
+          <!-- Cabecera de la Tarjeta: Avatar y Botones de Control -->
           <div>
-            <div class="flex items-center justify-between gap-3 mb-4">
+            <div class="flex items-center justify-between gap-3 mb-3.5">
               <img [src]="user.fotoURL || 'assets/user-default.jpg'"
                    [alt]="user.nombre"
-                   class="w-14 h-14 rounded-2xl object-cover border-2 border-[#C5A059]/40 bg-[#141414] shadow-sm">
+                   class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover border-2 border-[#C5A059]/50 bg-black shadow-md">
 
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-1.5">
                 <!-- Botón Editar -->
                 <button type="button"
                         (click)="openEditModal(user)"
-                        class="p-2 rounded-xl bg-[#141414] hover:bg-[#202020] text-slate-300 hover:text-[#F3E7C4] border border-white/5 transition-colors"
+                        class="p-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 text-neutral-300 hover:text-[#F3E7C4] border border-[#C5A059]/30 transition-all hover:scale-105"
                         title="Editar Usuario">
                   <i class="bi bi-pencil"></i>
                 </button>
@@ -84,28 +97,28 @@
                 <!-- Botón Habilitar / Deshabilitar -->
                 <button type="button"
                         (click)="toggleUserStatus(user)"
-                        [class]="user.EsActivo ? 'text-emerald-400 hover:bg-emerald-500/20' : 'text-rose-400 hover:bg-rose-500/20'"
-                        class="p-2 rounded-xl bg-[#141414] border border-white/5 transition-colors"
+                        [class]="user.EsActivo ? 'text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/30' : 'text-rose-400 hover:bg-rose-500/20 border-rose-500/30'"
+                        class="p-2 rounded-xl bg-[#0A0A0A] border transition-all hover:scale-105"
                         [title]="user.EsActivo ? 'Deshabilitar acceso' : 'Habilitar acceso'">
-                  <i class="bi" [ngClass]="user.EsActivo ? 'bi-toggle-on text-lg text-emerald-400' : 'bi-toggle-off text-lg text-rose-400'"></i>
+                  <i class="bi" [ngClass]="user.EsActivo ? 'bi-toggle-on text-lg' : 'bi-toggle-off text-lg'"></i>
                 </button>
               </div>
             </div>
 
             <!-- Datos del Usuario -->
-            <div class="space-y-1">
-              <h3 class="text-base font-bold text-white truncate">{{ user.nombre }} {{ user.apellido }}</h3>
+            <div class="space-y-0.5">
+              <h3 class="text-sm sm:text-base font-bold text-white truncate">{{ user.nombre }} {{ user.apellido }}</h3>
               <p class="text-xs text-neutral-400 truncate">{{ user.email }}</p>
             </div>
           </div>
 
           <!-- Badges de Rol y Estado -->
-          <div class="flex items-center justify-between gap-2 mt-5 pt-3 border-t border-[#C5A059]/15 text-xs">
-            <span class="px-3 py-1 rounded-xl bg-[#141414] border border-[#C5A059]/40 font-bold text-[#F3E7C4]">
+          <div class="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-[#C5A059]/20 text-xs">
+            <span class="px-3 py-1 rounded-full bg-[#0A0A0A] border border-[#C5A059]/40 font-bold text-[#F3E7C4] text-[11px] shadow-sm">
               {{ user.rol }}
             </span>
 
-            <span class="inline-flex items-center gap-1.5 font-semibold"
+            <span class="inline-flex items-center gap-1.5 font-semibold text-[11px]"
                   [class]="user.EsActivo ? 'text-emerald-400' : 'text-rose-400'">
               <span class="w-1.5 h-1.5 rounded-full" [ngClass]="user.EsActivo ? 'bg-emerald-400' : 'bg-rose-400'"></span>
               {{ user.EsActivo ? 'Habilitado' : 'Suspendido' }}
@@ -115,104 +128,114 @@
         </div>
 
       } @empty {
-        <div class="col-span-full py-20 text-center text-neutral-500 border border-dashed border-[#C5A059]/20 rounded-3xl bg-[#0A0A0A]">
-          <i class="bi bi-person-x text-5xl block mb-2 text-[#C5A059]/30"></i>
-          <p class="text-base font-medium text-neutral-300">No se encontraron usuarios con esos filtros.</p>
-          <p class="text-xs text-neutral-500 mt-1">Probá cambiando la búsqueda o activá "Mostrar Deshabilitados".</p>
+        <div class="col-span-full py-16 text-center text-neutral-500 border border-dashed border-[#C5A059]/30 rounded-3xl bg-[#050505]/80 p-6">
+          <i class="bi bi-person-x text-5xl block mb-2 text-[#C5A059]/40"></i>
+          <p class="text-sm font-bold text-neutral-200">No se encontraron usuarios con esos filtros.</p>
+          <p class="text-xs text-neutral-400 mt-1">Probá cambiando la búsqueda o activá "Mostrar Deshabilitados".</p>
         </div>
       }
     </div>
 
   }
 
-  <!-- ========================================================================= -->
-  <!-- MODAL DE EDICIÓN DE USUARIO (NEGRO PURO Y ORO)                            -->
-  <!-- ========================================================================= -->
+  <!-- ========================================================= -->
+  <!-- MODAL DE EDICIÓN CON ASSETS/BOTON.PNG                     -->
+  <!-- ========================================================= -->
   @if (isModalVisible()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-fade-in"
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn"
          (click)="$event.stopPropagation()">
 
-      <div class="relative w-full max-w-lg overflow-hidden rounded-3xl bg-[#050505] border-2 border-[#C5A059]/50 shadow-[0_0_60px_rgba(197,160,89,0.25)] flex flex-col">
+      <!-- CONTENEDOR MODAL -->
+      <div class="relative w-full max-w-lg overflow-hidden rounded-3xl bg-[#050505]/95 backdrop-blur-3xl border-2 border-[#C5A059]/50 shadow-[0_0_90px_rgba(0,0,0,0.95),0_0_40px_rgba(197,160,89,0.25)] flex flex-col">
 
         <!-- CABECERA MODAL -->
-        <div class="flex items-center justify-between px-8 py-5 border-b border-[#C5A059]/25 bg-[#0D0D0D]">
+        <div class="flex items-center justify-between px-6 sm:px-8 py-4 sm:py-5 border-b border-[#C5A059]/30 bg-gradient-to-r from-[#C5A059]/20 via-black/50 to-transparent">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-[#141414] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-lg">
-              <i class="bi bi-person-gear"></i>
+            <div class="w-10 h-10 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/60 flex items-center justify-center text-[#F3E7C4] text-lg shadow-sm">
+              <i class="bi bi-person-gear text-[#C5A059]"></i>
             </div>
-            <h2 class="text-lg font-bold text-[#F3E7C4] tracking-wide">Editar Usuario / Jurado</h2>
+            <div>
+              <h2 class="text-base sm:text-lg font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059]">
+                Editar Usuario / Jurado
+              </h2>
+              <p class="text-[11px] text-neutral-300">Modificá el rol y estado de acceso a la gala</p>
+            </div>
           </div>
 
+          <!-- BOTÓN CERRAR CON ASSETS/BOTON.PNG GIRATORIO -->
           <button type="button"
                   (click)="closeModal()"
-                  class="w-9 h-9 rounded-xl bg-[#141414] hover:bg-[#202020] border border-[#C5A059]/30 text-neutral-400 hover:text-white flex items-center justify-center transition-all">
-            <i class="bi bi-x-lg text-sm"></i>
+                  title="Cerrar ventana"
+                  class="group p-1 rounded-full hover:bg-white/10 transition-all duration-300 flex-shrink-0">
+            <img src="assets/BOTON.png"
+                 alt="Cerrar"
+                 class="w-8 h-8 object-contain group-hover:rotate-90 group-hover:scale-110 active:scale-95 transition-transform duration-300">
           </button>
         </div>
 
         <!-- FORMULARIO -->
-        <form [formGroup]="userForm" (ngSubmit)="saveChanges()" class="p-6 sm:p-8 space-y-5">
+        <form [formGroup]="userForm" (ngSubmit)="saveChanges()" class="p-5 sm:p-8 space-y-4 sm:space-y-5">
 
           <!-- Avatar Uploader -->
-          <div class="flex items-center gap-4 p-4 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25">
+          <div class="flex items-center gap-4 p-4 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 shadow-inner">
             <img [src]="imagePreview() || 'assets/user-default.jpg'"
                  alt="Preview"
-                 class="w-16 h-16 rounded-2xl object-cover border-2 border-[#C5A059]/40 bg-[#171717]">
+                 class="w-14 h-14 rounded-2xl object-cover border-2 border-[#C5A059]/50 bg-black">
 
             <div class="space-y-1">
               <label for="avatar-file-upload"
-                     class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#171717] hover:bg-[#222222] border border-[#C5A059]/40 text-xs font-bold text-[#F3E7C4] cursor-pointer transition-all">
+                     class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#050505] hover:bg-white/10 border border-[#C5A059]/40 text-xs font-bold text-[#F3E7C4] cursor-pointer transition-all hover:scale-105">
                 <i class="bi bi-camera text-sm"></i> Cambiar Foto
               </label>
               <input id="avatar-file-upload" type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
-              <p class="text-[11px] text-neutral-500">JPG o PNG cuadrado.</p>
+              <p class="text-[10px] text-neutral-400">JPG o PNG cuadrado.</p>
             </div>
           </div>
 
           <!-- Campos de Texto -->
-          <div class="space-y-4">
+          <div class="space-y-3.5 sm:space-y-4">
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">Nombre</label>
                 <input type="text" formControlName="nombre"
-                       class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                       class="w-full px-4 py-2.5 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
               </div>
               <div>
                 <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">Apellido</label>
                 <input type="text" formControlName="apellido"
-                       class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                       class="w-full px-4 py-2.5 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
               </div>
             </div>
 
             <div>
               <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">Rol en el Evento</label>
               <select formControlName="rol"
-                      class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-2.5 text-sm text-[#F3E7C4] font-bold focus:outline-none [&>option]:bg-[#0F0F0F] [&>option]:text-white">
+                      class="w-full px-4 py-2.5 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-[#F3E7C4] text-sm font-bold focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all [&>option]:bg-[#0A0A0A] [&>option]:text-white">
                 <option value="Jurado">Jurado (Puntuación en Gala)</option>
                 <option value="Administrador">Administrador (Control Total)</option>
-                <option value="Alumno">Alumno (Voto Popular)</option>
                 <option value="Docente">Docente</option>
+                <option value="Alumno">Alumno</option>
               </select>
             </div>
 
             <div>
               <label class="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1.5">Correo Electrónico (No editable)</label>
               <input type="email" formControlName="email"
-                     class="w-full bg-[#101010] border border-white/5 rounded-xl px-4 py-2.5 text-sm text-neutral-400 cursor-not-allowed">
+                     class="w-full px-4 py-2.5 bg-[#050505]/50 border border-white/5 rounded-xl text-xs sm:text-sm text-neutral-400 cursor-not-allowed">
             </div>
 
           </div>
 
           <!-- Pie del Modal -->
-          <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#C5A059]/20">
+          <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-[#C5A059]/30">
             <button type="button" (click)="closeModal()"
-                    class="px-5 py-2.5 rounded-xl border border-[#C5A059]/30 text-neutral-300 hover:text-white hover:bg-[#141414] text-xs font-semibold transition-all">
+                    class="px-5 py-2.5 rounded-xl border border-[#C5A059]/40 text-neutral-300 hover:text-white hover:bg-white/10 text-xs font-bold uppercase tracking-wider transition-all text-center">
               Cancelar
             </button>
             <button type="submit"
                     [disabled]="userForm.invalid"
-                    class="px-7 py-2.5 rounded-2xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs shadow-[0_4px_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none">
+                    class="px-7 py-2.5 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/70 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none text-center">
               Guardar Cambios
             </button>
           </div>

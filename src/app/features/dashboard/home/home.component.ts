@@ -12,8 +12,7 @@ import { User } from '../../../core/models/user.model';
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit {
   authService = inject(AuthService);
@@ -37,18 +36,18 @@ export class HomeComponent implements OnInit {
   }
 
   private cargarDatosGala(): void {
-    // 1. Cargar la Elección (Permitido para Alumnos y Admins)
+    // 1. Cargar la Elección
     this.firestoreService.getCollection<Eleccion>('elecciones').subscribe(elecciones => {
       if (elecciones.length > 0) {
         const activa = elecciones.find(e => e.estado === 'Activa') || elecciones[0];
         this.eleccionActiva.set(activa);
 
         if (activa && activa.id) {
-          // 2. Cargar Participantes (Permitido para Alumnos y Admins)
+          // 2. Cargar Participantes
           this.firestoreService.getCollectionByFilter<Candidata>('candidatas', 'eleccionId', activa.id)
             .subscribe(candidatas => {
-              const chicas = candidatas.filter(c => c.categoria === 'Embajadora' || !c.categoria);
-              const chicos = candidatas.filter(c => c.categoria === 'Embajador');
+              const chicas = candidatas.filter((c: any) => c.categoria === 'Embajadora' || !c.categoria);
+              const chicos = candidatas.filter((c: any) => c.categoria === 'Embajador' || c.categoria === 'Paje');
 
               this.embajadorasCount.set(chicas.length);
               this.embajadoresCount.set(chicos.length);
@@ -60,12 +59,12 @@ export class HomeComponent implements OnInit {
       }
     });
 
-    // 3. Cargar Jurados (SOLO si es Administrador, para respetar las reglas de Firebase sin romper nada)
+    // 3. Cargar Jurados (Solo si es Admin)
     if (this.isAdmin()) {
-  this.firestoreService.getCollection<User>('users').subscribe(users => {
-    const jurados = users.filter(u => u.rol === 'Jurado');
-    this.juradosCount.set(jurados.length);
-  });
-}
+      this.firestoreService.getCollection<User>('users').subscribe(users => {
+        const jurados = users.filter(u => u.rol === 'Jurado');
+        this.juradosCount.set(jurados.length);
+      });
+    }
   }
 }

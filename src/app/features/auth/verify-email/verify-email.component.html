@@ -1,40 +1,40 @@
 <main class="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-cover bg-center bg-no-repeat"
       style="background-image: url('assets/FONDO.jpg');">
   
-  <!-- CAPA OSCURA Y DESENFOQUE CINEMATOGRÁFICO -->
-  <div class="absolute inset-0 bg-slate-950/75 backdrop-blur-[3px]"></div>
+  <!-- CAPA OSCURA DE CINE -->
+  <div class="absolute inset-0 bg-black/80 backdrop-blur-[3px]"></div>
 
   <!-- DESTELLO DORADO AMBIENTAL -->
-  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/15 rounded-full blur-[100px] pointer-events-none"></div>
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#C5A059]/15 rounded-full blur-[100px] pointer-events-none"></div>
 
   <div class="w-full max-w-md relative z-10">
     
-    <!-- TARJETA DE VIDRIO OSCURO DE GALA -->
-    <section class="backdrop-blur-2xl bg-black/40 border border-amber-400/30 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-black/95 text-center transition-all duration-300 hover:border-amber-400/50 hover:shadow-amber-500/10">
+    <!-- TARJETA EN NEGRO Y ORO (ESTILO GALA ENZO) -->
+    <section class="backdrop-blur-2xl bg-[#050505]/90 border border-[#C5A059]/40 rounded-3xl p-8 sm:p-10 shadow-[0_0_60px_rgba(197,160,89,0.25)] text-center transition-all duration-300 hover:border-[#C5A059]/70">
       
       <!-- ICONO DE CORREO EN DISCO DE VIDRIO ESMERILADO -->
-      <div class="relative inline-flex items-center justify-center w-24 h-24 rounded-full bg-white/[0.12] backdrop-blur-md border border-amber-400/50 shadow-[0_0_35px_rgba(245,158,11,0.35)] mb-5">
-        <div class="absolute inset-0 rounded-full bg-amber-400/20 blur-md pointer-events-none"></div>
-        <i class="bi bi-envelope-check-fill text-4xl text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.6)]"></i>
+      <div class="relative inline-flex items-center justify-center w-24 h-24 rounded-full bg-white/[0.12] backdrop-blur-md border border-[#C5A059]/50 shadow-[0_0_35px_rgba(197,160,89,0.35)] mb-5">
+        <div class="absolute inset-0 rounded-full bg-[#C5A059]/20 blur-md pointer-events-none"></div>
+        <i class="bi bi-envelope-check-fill text-4xl text-[#C5A059] drop-shadow-[0_0_10px_rgba(197,160,89,0.6)]"></i>
       </div>
 
       <!-- TEXTOS -->
-      <h1 class="text-2xl font-bold text-white tracking-tight">¡Un último paso!</h1>
-      <p class="text-xs text-amber-400 font-semibold uppercase tracking-widest mt-1 mb-4">Verificación de Cuenta</p>
+      <h1 class="text-2xl font-black text-white tracking-wide">¡Un último paso!</h1>
+      <p class="text-xs text-[#F3E7C4] font-bold uppercase tracking-widest mt-1 mb-4">Verificación de Cuenta</p>
       
-      <p class="text-sm text-slate-300 leading-relaxed mb-6">
+      <p class="text-sm text-neutral-300 leading-relaxed mb-6">
         Hemos enviado un enlace de confirmación a tu correo electrónico. Por favor, hacé clic en el enlace para activar tu cuenta y poder ingresar al escrutinio.
       </p>
 
-      <!-- BOTÓN REENVIAR (DORADO GALA) -->
+      <!-- BOTÓN REENVIAR: DORADO METÁLICO (ESTILO ENZO) -->
       <button 
         type="button" 
         (click)="resendVerification()" 
         [disabled]="isSending()"
-        class="w-full py-3.5 px-4 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-black font-extrabold rounded-xl shadow-[0_0_25px_rgba(245,158,11,0.35)] hover:shadow-[0_0_35px_rgba(245,158,11,0.55)] hover:brightness-110 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 text-sm tracking-wide mb-4"
+        class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black uppercase tracking-wider shadow-[0_4px_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 mb-4"
       >
         @if (isSending()) {
-          <span class="inline-block w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+          <span class="inline-block w-4 h-4 border-2 border-[#0A0D14] border-t-transparent rounded-full animate-spin"></span>
           <span>Reenviando enlace...</span>
         } @else {
           <i class="bi bi-arrow-repeat text-base"></i>
@@ -43,8 +43,8 @@
       </button>
 
       <!-- VOLVER AL LOGIN -->
-      <div class="pt-3 border-t border-white/10">
-        <a routerLink="/login" class="inline-flex items-center gap-2 text-xs text-amber-400 font-semibold hover:text-amber-300 transition-colors">
+      <div class="pt-3 border-t border-[#C5A059]/20">
+        <a routerLink="/login" class="inline-flex items-center gap-2 text-xs text-[#F3E7C4] font-bold hover:underline transition-colors">
           <i class="bi bi-arrow-left"></i>
           <span>Volver a Iniciar Sesión</span>
         </a>
@@ -53,7 +53,7 @@
     </section>
 
     <!-- PIE INSTITUCIONAL -->
-    <p class="text-center text-xs text-slate-400/80 mt-5 tracking-wide">
+    <p class="text-center text-xs text-neutral-500 mt-5 tracking-wide">
       Fiesta Nacional de los Estudiantes &bull; San Salvador de Jujuy
     </p>
 

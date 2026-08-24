@@ -1,9 +1,9 @@
-<div class="min-h-screen p-4 sm:p-8 bg-[#000000] text-neutral-100 space-y-8 font-sans">
+<div class="space-y-8 bg-transparent text-neutral-100 font-sans">
 
   <!-- CABECERA INSTITUCIONAL DE GALA -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#C5A059]/25 bg-[#000000]">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#C5A059]/25 bg-transparent">
     <div>
-      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#121212] border border-[#C5A059]/40 text-xs font-bold text-[#F3E7C4] mb-2 shadow-sm">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#121212]/80 backdrop-blur-md border border-[#C5A059]/40 text-xs font-bold text-[#F3E7C4] mb-2 shadow-sm">
         <i class="bi bi-stars text-[#C5A059]"></i>
         <span>SISTEMA OFICIAL DE ELECCIÓN Y PROCLAMACIÓN</span>
       </div>
@@ -11,31 +11,31 @@
         Bienvenido/a, {{ currentUser()?.nombre }} {{ currentUser()?.apellido }}
       </h1>
       <p class="text-sm text-neutral-400 mt-1">
-        Panel de Control &bull; Rol actual: <span class="text-[#F3E7C4] font-semibold">{{ currentUser()?.rol }}</span>
+        Panel General &bull; Rol: <span class="text-[#F3E7C4] font-semibold">{{ currentUser()?.rol }}</span>
       </p>
     </div>
 
     <!-- Badge del Evento Activo -->
     @if (eleccionActiva(); as eleccion) {
-      <div class="px-5 py-3 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/30 shadow-md flex items-center gap-3.5">
+      <div class="px-5 py-3 rounded-2xl bg-[#0F0F0F]/85 backdrop-blur-xl border border-[#C5A059]/40 shadow-lg flex items-center gap-3.5">
         <div class="w-10 h-10 rounded-xl bg-[#171717] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-lg">
-          <i class="bi bi-calendar-event"></i>
+          <i class="bi bi-calendar-event text-[#C5A059]"></i>
         </div>
         <div>
-          <p class="text-xs text-neutral-400 font-medium">Evento en Curso</p>
+          <p class="text-[11px] text-neutral-400 font-medium">Evento en Curso</p>
           <p class="text-sm font-extrabold text-[#F3E7C4] truncate max-w-xs">{{ eleccion.nombre }}</p>
         </div>
       </div>
     }
   </div>
 
-  <!-- GRILLA DE MÉTRICAS EN VIVO DE LA NOCHE (5 TARJETAS NEGRAS + ORO) -->
+  <!-- GRILLA DE MÉTRICAS EN VIVO DE LA NOCHE (5 TARJETAS DE VIDRIO OSCURO + ORO) -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 
     <!-- 1. EMBAJADORAS -->
-    <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md flex items-center gap-4 hover:border-[#C5A059]/60 transition-all">
+    <div class="p-5 rounded-2xl bg-[#0F0F0F]/85 backdrop-blur-xl border border-[#C5A059]/30 shadow-lg flex items-center gap-4 hover:border-[#C5A059]/70 hover:-translate-y-1 transition-all duration-300">
       <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
-        <i class="bi bi-crown"></i>
+        <i class="bi bi-crown text-[#C5A059]"></i>
       </div>
       <div>
         <p class="text-2xl font-black text-white">{{ embajadorasCount() }}</p>
@@ -43,21 +43,21 @@
       </div>
     </div>
 
-    <!-- 2. EMBAJADORES -->
-    <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md flex items-center gap-4 hover:border-[#C5A059]/60 transition-all">
+    <!-- 2. EMBAJADORES / PAJES -->
+    <div class="p-5 rounded-2xl bg-[#0F0F0F]/85 backdrop-blur-xl border border-[#C5A059]/30 shadow-lg flex items-center gap-4 hover:border-[#C5A059]/70 hover:-translate-y-1 transition-all duration-300">
       <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
-        <i class="bi bi-person-badge"></i>
+        <i class="bi bi-person-badge text-[#C5A059]"></i>
       </div>
       <div>
         <p class="text-2xl font-black text-white">{{ embajadoresCount() }}</p>
-        <p class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mt-0.5">Embajadores</p>
+        <p class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mt-0.5">Pajes / Chicos 10</p>
       </div>
     </div>
 
     <!-- 3. JURADOS -->
-    <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md flex items-center gap-4 hover:border-[#C5A059]/60 transition-all">
+    <div class="p-5 rounded-2xl bg-[#0F0F0F]/85 backdrop-blur-xl border border-[#C5A059]/30 shadow-lg flex items-center gap-4 hover:border-[#C5A059]/70 hover:-translate-y-1 transition-all duration-300">
       <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
-        <i class="bi bi-people-fill"></i>
+        <i class="bi bi-people-fill text-[#C5A059]"></i>
       </div>
       <div>
         <p class="text-2xl font-black text-white">{{ juradosCount() }}</p>
@@ -66,9 +66,9 @@
     </div>
 
     <!-- 4. VOTOS EMITIDOS -->
-    <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md flex items-center gap-4 hover:border-[#C5A059]/60 transition-all">
+    <div class="p-5 rounded-2xl bg-[#0F0F0F]/85 backdrop-blur-xl border border-[#C5A059]/30 shadow-lg flex items-center gap-4 hover:border-[#C5A059]/70 hover:-translate-y-1 transition-all duration-300">
       <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
-        <i class="bi bi-check2-circle"></i>
+        <i class="bi bi-check2-circle text-[#C5A059]"></i>
       </div>
       <div>
         <p class="text-2xl font-black text-white">{{ totalVotosCount() }}</p>
@@ -76,10 +76,10 @@
       </div>
     </div>
 
-    <!-- 5. ESTADO DE LA NOCHE -->
-    <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md flex items-center gap-4 hover:border-[#C5A059]/60 transition-all">
+    <!-- 5. ESTADO DE LA URNA -->
+    <div class="p-5 rounded-2xl bg-[#0F0F0F]/85 backdrop-blur-xl border border-[#C5A059]/30 shadow-lg flex items-center gap-4 hover:border-[#C5A059]/70 hover:-translate-y-1 transition-all duration-300">
       <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
-        <i class="bi bi-soundwave"></i>
+        <i class="bi bi-soundwave text-[#C5A059]"></i>
       </div>
       <div>
         <p class="text-sm font-black text-white">
@@ -94,7 +94,7 @@
   <!-- SECCIÓN DE ACCESOS Y DETALLES DEL EVENTO -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <!-- COLUMNA IZQUIERDA: ACCESOS RÁPIDOS DE CONTROL (2 COLUMNAS) -->
+    <!-- COLUMNA IZQUIERDA: ACCESOS RÁPIDOS DE CONTROL -->
     <div class="lg:col-span-2 space-y-5">
       <div class="flex items-center gap-2.5">
         <i class="bi bi-grid-fill text-[#C5A059] text-lg"></i>
@@ -106,10 +106,10 @@
         <!-- Tarjeta 1: Noches de Elección (Admin) -->
         @if (isAdmin()) {
           <a routerLink="/dashboard/admin/elections"
-             class="group p-6 rounded-2xl bg-[#0F0F0F] hover:bg-[#141414] border border-[#C5A059]/25 hover:border-[#C5A059]/60 transition-all duration-300 flex flex-col justify-between shadow-md">
+             class="group p-6 rounded-2xl bg-[#0F0F0F]/85 backdrop-blur-xl border border-[#C5A059]/30 hover:border-[#C5A059]/70 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between shadow-lg">
             <div>
               <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-2xl mb-4 group-hover:scale-110 transition-transform">
-                <i class="bi bi-trophy-fill"></i>
+                <i class="bi bi-trophy-fill text-[#C5A059]"></i>
               </div>
               <h3 class="text-base font-bold text-white group-hover:text-[#F3E7C4] transition-colors">Noches de Elección</h3>
               <p class="text-xs text-neutral-400 mt-1">Configurar eventos, abrir la votación y cargar participantes.</p>
@@ -121,10 +121,10 @@
 
           <!-- Tarjeta 2: Padrón de Jurados -->
           <a routerLink="/dashboard/admin/users"
-             class="group p-6 rounded-2xl bg-[#0F0F0F] hover:bg-[#141414] border border-[#C5A059]/25 hover:border-[#C5A059]/60 transition-all duration-300 flex flex-col justify-between shadow-md">
+             class="group p-6 rounded-2xl bg-[#0F0F0F]/85 backdrop-blur-xl border border-[#C5A059]/30 hover:border-[#C5A059]/70 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between shadow-lg">
             <div>
               <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-2xl mb-4 group-hover:scale-110 transition-transform">
-                <i class="bi bi-person-check-fill"></i>
+                <i class="bi bi-person-check-fill text-[#C5A059]"></i>
               </div>
               <h3 class="text-base font-bold text-white group-hover:text-[#F3E7C4] transition-colors">Padrón de Jurados</h3>
               <p class="text-xs text-neutral-400 mt-1">Habilitar cuentas de jurados para la noche de gala.</p>
@@ -138,11 +138,11 @@
         <!-- Tarjeta 3: Pantalla de Proclamación / Escenario -->
         @if (eleccionActiva()?.id) {
           <a [routerLink]="['/dashboard/resultados', eleccionActiva()?.id]"
-             class="group p-6 rounded-2xl bg-[#0F0F0F] hover:bg-[#141414] border border-[#C5A059]/40 hover:border-[#C5A059]/80 transition-all duration-300 flex flex-col justify-between shadow-md sm:col-span-2">
-            <div class="flex items-center justify-between">
+             class="group p-6 rounded-2xl bg-[#0F0F0F]/85 backdrop-blur-xl border border-[#C5A059]/40 hover:border-[#C5A059]/80 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between shadow-lg sm:col-span-2">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-2xl mb-3 group-hover:scale-110 transition-transform">
-                  <i class="bi bi-award-fill"></i>
+                  <i class="bi bi-award-fill text-[#C5A059]"></i>
                 </div>
                 <h3 class="text-base font-bold text-white group-hover:text-[#F3E7C4] transition-colors">
                   Pantalla de Proclamación / Escenario
@@ -150,8 +150,8 @@
                 <p class="text-xs text-neutral-400 mt-1">Conectar al proyector para revelar los ganadores y coronar a la Embajadora.</p>
               </div>
 
-              <!-- Botón Dorado Metálico -->
-              <span class="hidden sm:inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#000000] font-black text-xs rounded-xl shadow-[0_4px_20px_rgba(197,160,89,0.3)]">
+              <!-- Botón Dorado Metálico Enzo -->
+              <span class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 group-hover:scale-105 transition-all">
                 <i class="bi bi-display text-sm"></i> Modo Escenario
               </span>
             </div>
@@ -161,18 +161,22 @@
         <!-- Tarjeta 4: Planilla de Votación (Jurados / Alumnos) -->
         @if (isJurado() || currentUser()?.rol === 'Alumno') {
           <a routerLink="/dashboard/votacion"
-             class="group p-6 rounded-2xl bg-[#0F0F0F] hover:bg-[#141414] border border-[#C5A059]/40 hover:border-[#C5A059]/80 transition-all duration-300 flex flex-col justify-between shadow-md sm:col-span-2">
-            <div>
-              <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-2xl mb-4 group-hover:scale-110 transition-transform">
-                <i class="bi bi-pencil-square"></i>
+             class="group p-6 rounded-2xl bg-[#0F0F0F]/85 backdrop-blur-xl border border-[#C5A059]/40 hover:border-[#C5A059]/80 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between shadow-lg sm:col-span-2">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div class="w-12 h-12 rounded-2xl bg-[#171717] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-2xl mb-3 group-hover:scale-110 transition-transform">
+                  <i class="bi bi-pencil-square text-[#C5A059]"></i>
+                </div>
+                <h3 class="text-base font-bold text-white group-hover:text-[#F3E7C4] transition-colors">
+                  {{ isJurado() ? 'Abrir Planilla de Jurado' : 'Ingresar a Votar' }}
+                </h3>
+                <p class="text-xs text-neutral-400 mt-1">Puntuación en pasarela para Embajadoras y Embajadores.</p>
               </div>
-              <h3 class="text-base font-bold text-white group-hover:text-[#F3E7C4] transition-colors">
-                {{ isJurado() ? 'Abrir Planilla de Jurado' : 'Ingresar a Votar' }}
-              </h3>
-              <p class="text-xs text-neutral-400 mt-1">Puntuación en pasarela para Embajadoras y Embajadores.</p>
-            </div>
-            <div class="mt-4 flex items-center gap-2 text-xs font-bold text-[#F3E7C4]">
-              <span>Comenzar Evaluación</span> <i class="bi bi-arrow-right"></i>
+
+              <!-- Botón Dorado Metálico Enzo -->
+              <span class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 group-hover:scale-105 transition-all">
+                <i class="bi bi-check2-circle text-sm"></i> Calificar Ahora
+              </span>
             </div>
           </a>
         }
@@ -187,7 +191,7 @@
         <h2 class="text-lg font-bold text-white uppercase tracking-wider">Datos de la Gala</h2>
       </div>
 
-      <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 shadow-md space-y-4">
+      <div class="p-6 rounded-2xl bg-[#0F0F0F]/85 backdrop-blur-xl border border-[#C5A059]/30 shadow-lg space-y-4">
         @if (eleccionActiva(); as eleccion) {
           <div>
             <p class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Evento</p>
@@ -198,7 +202,7 @@
             <p class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Fecha de la Noche</p>
             <p class="text-sm font-semibold text-[#F3E7C4] mt-0.5">
               <i class="bi bi-calendar3 mr-1.5"></i>
-              {{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd/MM/yyyy' }}
+              {{ ((eleccion.fechaInicio)?.toDate()) | date:'dd/MM/yyyy' }}
             </p>
           </div>
 

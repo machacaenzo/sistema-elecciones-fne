@@ -132,7 +132,7 @@
     </div>
 
     <!-- PIE DE MODAL (BOTÓN PRINCIPAL DE GALA) -->
-    @if (eleccion.estado === 'Activa' && eleccion.fechaFin.toDate() > today && !haVotado) {
+    @if (eleccion.estado === 'Activa' && (eleccion.fechaFin?.toDate() ?? today) >= today && !haVotado) {
       <div class="px-6 py-4 sm:px-8 sm:py-5 border-t border-amber-400/20 bg-slate-950/90 flex justify-center">
         <button 
           (click)="onVotarClick()"

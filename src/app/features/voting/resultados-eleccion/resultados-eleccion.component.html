@@ -1,327 +1,227 @@
-<!-- ESTADO DE CARGA -->
-@if (isLoading()) {
-  <div class="min-h-screen bg-[#000000] flex flex-col items-center justify-center text-neutral-400 space-y-4 font-sans">
-    <div class="w-12 h-12 border-4 border-[#C5A059]/20 border-t-[#C5A059] rounded-full animate-spin"></div>
-    <p class="text-sm tracking-widest uppercase font-bold text-[#F3E7C4]">Sumando los puntajes finales...</p>
-  </div>
-} @else {
-  @if (eleccion(); as eleccion) {
-    <!-- CONTENEDOR DEL ESCENARIO (NEGRO PURO, CERO AZUL) -->
-    <div id="stageContainer" class="min-h-screen bg-[#000000] text-neutral-100 p-4 sm:p-8 space-y-6 font-sans overflow-y-auto custom-scrollbar">
+<div class="min-h-screen bg-transparent text-white font-sans relative overflow-x-hidden animate-fadeIn">
+  
+  <!-- LUZ DE ESCENARIO SUTIL -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-[#C5A059]/5 rounded-full blur-[150px] pointer-events-none"></div>
 
-      <!-- CABECERA DEL ESCENARIO -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#C5A059]/25 bg-[#000000]">
-        <div>
-          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#121212] border border-[#C5A059]/40 text-xs font-bold text-[#F3E7C4] mb-2 shadow-sm">
-            <i class="bi bi-trophy-fill text-[#C5A059]"></i>
-            <span>PROCLAMACIÓN OFICIAL EN VIVO</span>
+  @if (isLoading()) {
+    <div class="h-screen flex flex-col items-center justify-center gap-4">
+      <div class="w-12 h-12 border-2 border-[#C5A059]/20 border-t-[#C5A059] rounded-full animate-spin"></div>
+      <p class="text-[#F3E7C4] text-[10px] font-black tracking-[0.4em] uppercase">Sincronizando Podio...</p>
+    </div>
+  } @else {
+    @if (eleccion(); as eleccion) {
+      <div id="stageContainer" class="p-6 md:p-10 relative z-10 max-w-6xl mx-auto flex flex-col min-h-screen">
+        
+        <!-- CABECERA -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 border-b border-white/10 pb-8">
+          <div>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-[#C5A059]/30 backdrop-blur-xl mb-3">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059] animate-pulse shadow-[0_0_10px_#C5A059]"></span>
+              <span class="text-[10px] font-black text-[#F3E7C4] uppercase tracking-[0.3em]">Proclamación Oficial</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black tracking-tighter uppercase drop-shadow-2xl">{{ eleccion.nombre }}</h1>
           </div>
-          <h1 class="text-2xl sm:text-3xl font-black text-white tracking-wide">
-            {{ eleccion.nombre }}
-          </h1>
-          <p class="text-xs sm:text-sm text-neutral-400 mt-1">
-            Gala de Coronación &bull; Fecha: <span class="text-[#F3E7C4] font-medium">{{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd/MM/yyyy' }}</span>
-          </p>
-        </div>
 
-        <!-- Botón de Pantalla Completa (Proyector) -->
-        <div class="flex items-center gap-3">
-          <button type="button"
-                  (click)="toggleFullscreen()"
-                  class="flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#0F0F0F] hover:bg-[#1A1A1A] border border-[#C5A059]/40 text-[#F3E7C4] text-xs sm:text-sm font-bold shadow-[0_0_15px_rgba(197,160,89,0.15)] transition-all hover:scale-105 active:scale-95"
-                  title="Activar Pantalla Completa para Proyector">
-            <i class="bi bi-arrows-fullscreen text-sm"></i>
-            <span>Modo Escenario (Pantalla Completa)</span>
+          <button (click)="toggleFullscreen()" class="px-8 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-widest hover:bg-white/10 transition-all shadow-xl">
+             Pantalla Escenario
           </button>
-        </div>
+        </header>
+
+        @if (isAdmin() || eleccion.estado === 'Publicada') {
+          
+          <!-- SELECTOR DE TANDAS CON FOTOS (REY Y REYNA) -->
+          <div class="flex justify-center mb-24"> <!-- mb-24 para dar espacio y que no se encime -->
+            <div class="flex p-2 bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-2xl">
+              
+              <!-- Tab Embajadoras -->
+              <button (click)="tabActiva.set('Embajadora')" 
+                      [class]="tabActiva() === 'Embajadora' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-black shadow-lg scale-105' : 'text-white/40 hover:text-white'"
+                      class="flex items-center gap-3 px-8 py-3.5 rounded-[2rem] transition-all duration-500 group">
+                <img src="assets/REYNA.png" class="w-7 h-7 object-contain transition-transform group-hover:scale-110" [class.brightness-0]="tabActiva() === 'Embajadora'">
+                <span class="text-[10px] font-black uppercase tracking-[0.2em]">Embajadoras</span>
+              </button>
+
+              <!-- Tab Embajadores -->
+              <button (click)="tabActiva.set('Embajador')" 
+                      [class]="tabActiva() === 'Embajador' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-black shadow-lg scale-105' : 'text-white/40 hover:text-white'"
+                      class="flex items-center gap-3 px-8 py-3.5 rounded-[2rem] transition-all duration-500 group">
+                <img src="assets/REY.png" class="w-7 h-7 object-contain transition-transform group-hover:scale-110" [class.brightness-0]="tabActiva() === 'Embajador'">
+                <span class="text-[10px] font-black uppercase tracking-[0.2em]">Embajadores</span>
+              </button>
+
+              <!-- Tab Auditoría -->
+              <button (click)="tabActiva.set('Matriz')" 
+                      [class]="tabActiva() === 'Matriz' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-black shadow-lg scale-105' : 'text-white/40 hover:text-white'"
+                      class="flex items-center gap-3 px-8 py-3.5 rounded-[2rem] transition-all duration-500 group">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/></svg>
+                <span class="text-[10px] font-black uppercase tracking-[0.2em]">Auditoría</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- VISTA PODIOS (REDUCIDA Y ESPACIADA) -->
+          @if (tabActiva() === 'Embajadora' || tabActiva() === 'Embajador') {
+            <div class="flex-1 flex flex-col justify-center gap-20">
+              
+              <!-- EL PODIO TOP 3 (ACHICADO) -->
+              <div class="flex flex-col md:flex-row items-end justify-center gap-8 max-w-5xl mx-auto h-full px-4">
+                
+                <!-- 2do PUESTO -->
+                @if (tabActiva() === 'Embajadora' ? podioFemenino()[1] : podioMasculino()[1]; as seg) {
+                  <div class="w-full md:w-[240px] animate-slideUp order-2 md:order-1" style="animation-delay: 200ms;">
+                    <div class="relative backdrop-blur-2xl bg-white/[0.03] border border-white/10 rounded-[2.5rem] p-5 text-center shadow-2xl">
+                      <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full bg-slate-300 text-black text-[9px] font-black uppercase tracking-widest shadow-xl">
+                        {{ tabActiva() === 'Embajadora' ? getPuestoFemeninoNombre(1) : getPuestoMasculinoNombre(1) }}
+                      </div>
+                      <div class="w-full aspect-[3/4] rounded-2xl overflow-hidden mb-5 border border-white/5">
+                        <img [src]="seg.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-full h-full object-cover">
+                      </div>
+                      <h3 class="text-sm font-black uppercase truncate text-white/90">{{ seg.nombre }} {{ seg.apellido }}</h3>
+                      <div class="mt-2 text-2xl font-black text-slate-300">{{ seg.puntuacionTotal }}</div>
+                    </div>
+                    <div class="h-12 w-full bg-gradient-to-t from-black/40 to-transparent mt-3 rounded-b-3xl"></div>
+                  </div>
+                }
+
+                <!-- 1er LUGAR: EL MONUMENTO CON CORONA REAL DINÁMICA -->
+@if (tabActiva() === 'Embajadora' ? podioFemenino()[0] : podioMasculino()[0]; as gan) {
+  <div class="w-full md:w-[380px] z-20 animate-slideUp order-1 md:order-2">
+    <div class="relative backdrop-blur-3xl bg-black/40 border-2 border-[#C5A059] rounded-[4rem] p-8 text-center shadow-[0_0_80px_rgba(197,160,89,0.35)] scale-110">
+      
+      <!-- CONTENEDOR DE CORONA REAL (REY o REYNA según la tanda) -->
+      <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-32 h-32 z-30 pointer-events-none animate-float">
+        @if (tabActiva() === 'Embajadora') {
+          <!-- Imagen Corona Reina -->
+          <img src="assets/REYNA.png" 
+               alt="Corona Real" 
+               class="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(197,160,89,1)] brightness-110">
+        } @else {
+          <!-- Imagen Corona Rey -->
+          <img src="assets/REY.png" 
+               alt="Corona Real" 
+               class="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(197,160,89,1)] brightness-110">
+        }
       </div>
 
-      <!-- SEGURIDAD: SOLO ADMIN O ELECCIÓN PUBLICADA PUEDEN VER -->
-      @if (isAdmin() || eleccion.estado === 'Publicada') {
+      <!-- Foto del Ganador -->
+      <div class="w-full aspect-[3/4] rounded-[2.5rem] overflow-hidden border-2 border-[#C5A059]/40 mb-8 shadow-2xl relative flex items-center justify-center">
+        <img [src]="gan.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-full h-full object-cover object-center">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#C5A059]/10 to-transparent pointer-events-none"></div>
+      </div>
 
-        <!-- SELECTOR DE PESTAÑAS DEL ESCENARIO -->
-        <div class="flex flex-wrap items-center justify-between gap-4">
-
-          <div class="flex p-1 bg-[#0F0F0F] rounded-2xl border border-[#C5A059]/30 shadow-inner">
-
-            <!-- Pestaña Embajadoras -->
-            <button type="button"
-                    (click)="tabActiva.set('Embajadora')"
-                    [class]="tabActiva() === 'Embajadora' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#000000] font-black shadow-md' : 'text-neutral-400 hover:text-[#F3E7C4]'"
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all">
-              <i class="bi bi-crown"></i>
-              <span>Podio Embajadoras</span>
-            </button>
-
-            <!-- Pestaña Embajadores -->
-            <button type="button"
-                    (click)="tabActiva.set('Embajador')"
-                    [class]="tabActiva() === 'Embajador' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#000000] font-black shadow-md' : 'text-neutral-400 hover:text-[#F3E7C4]'"
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all">
-              <i class="bi bi-person-badge"></i>
-              <span>Podio Embajadores</span>
-            </button>
-
-            <!-- Pestaña Tabla de Puntajes -->
-            <button type="button"
-                    (click)="tabActiva.set('Matriz')"
-                    [class]="tabActiva() === 'Matriz' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#000000] font-black shadow-md' : 'text-neutral-400 hover:text-[#F3E7C4]'"
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all">
-              <i class="bi bi-table"></i>
-              <span>Tabla de Puntajes</span>
-            </button>
-          </div>
-
-          @if (eleccion.estado !== 'Publicada' && isAdmin()) {
-            <span class="text-xs font-semibold text-[#F3E7C4] px-3.5 py-1.5 bg-[#141414] rounded-xl border border-[#C5A059]/40">
-              <i class="bi bi-eye-slash-fill mr-1 text-[#C5A059]"></i> Vista Privada: Resultados no publicados al público
-            </span>
-          }
-        </div>
-
-        <!-- ================================================================= -->
-        <!-- VISTA 1: PODIO DE EMBAJADORAS (CHICAS)                            -->
-        <!-- ================================================================= -->
-        @if (tabActiva() === 'Embajadora') {
-          <div class="space-y-6">
-
-            <div class="text-center py-2">
-              <h2 class="text-xl sm:text-2xl font-black text-[#F3E7C4] uppercase tracking-widest">
-                Corte de Honor de la Embajadora
-              </h2>
-              <p class="text-xs text-neutral-400 mt-1">Ganadoras oficiales elegidas por el jurado</p>
-            </div>
-
-            <!-- Grilla del Podio Femenino Dinámico -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-center">
-              @for (candidata of podioFemenino(); track candidata.id; let i = $index) {
-
-                <div class="relative group rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 shadow-xl"
-                     [class]="i === 0
-                       ? 'bg-[#121212] border-2 border-[#C5A059] shadow-[0_0_40px_rgba(197,160,89,0.3)] md:scale-105 order-first'
-                       : 'bg-[#0F0F0F] border border-[#C5A059]/30'">
-
-                  <!-- Badge Superior de Título Ganado -->
-                  <div class="flex items-center justify-between gap-2 mb-3">
-                    <span class="px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider"
-                          [class]="i === 0 ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#000000] shadow-md' : 'bg-[#1A1A1A] text-[#F3E7C4] border border-[#C5A059]/40'">
-                      {{ getPuestoFemeninoNombre(i) }}
-                    </span>
-
-                    @if (i === 0) {
-                      <i class="bi bi-crown-fill text-xl text-[#C5A059] animate-bounce"></i>
-                    }
-                  </div>
-
-                  <!-- Foto de la Ganadora -->
-                  <div class="w-full h-64 rounded-2xl overflow-hidden mb-4 bg-black relative border border-white/5">
-                    <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'"
-                         [alt]="candidata.nombre"
-                         class="w-full h-full object-cover">
-
-                    <!-- Número de Pasarela -->
-                    <span class="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 text-[#F3E7C4] font-black text-xs border border-[#C5A059]/40 backdrop-blur-sm">
-                      #{{ candidata.numero }}
-                    </span>
-                  </div>
-
-                  <!-- Datos y Puntaje Final -->
-                  <div class="text-center space-y-1.5">
-                    <h3 class="text-base font-black text-white truncate">{{ candidata.nombre }} {{ candidata.apellido }}</h3>
-                    <p class="text-xs font-semibold text-[#F3E7C4]">{{ candidata.cursoDivision }}</p>
-
-                    <div class="pt-2 border-t border-[#C5A059]/20 flex items-center justify-between text-xs">
-                      <span class="text-neutral-400">Puntaje Total:</span>
-                      <span class="text-sm font-black text-[#F3E7C4]">{{ candidata.puntuacionTotal }} pts</span>
-                    </div>
-                  </div>
-
-                </div>
-
-              } @empty {
-                <div class="col-span-full py-16 text-center text-neutral-500 border border-dashed border-[#C5A059]/20 rounded-3xl bg-[#0F0F0F]">
-                  <i class="bi bi-crown text-4xl block mb-2 text-[#C5A059]/30"></i>
-                  <p class="text-base font-medium text-neutral-300">Aún no se registraron votos suficientes para proclamar a las Embajadoras.</p>
-                </div>
-              }
-            </div>
-
-          </div>
-        }
-
-        <!-- ================================================================= -->
-        <!-- VISTA 2: PODIO DE EMBAJADORES (CHICOS)                            -->
-        <!-- ================================================================= -->
-        @if (tabActiva() === 'Embajador') {
-          <div class="space-y-6">
-
-            <div class="text-center py-2">
-              <h2 class="text-xl sm:text-2xl font-black text-[#F3E7C4] uppercase tracking-widest">
-                Corte de Honor del Embajador
-              </h2>
-              <p class="text-xs text-neutral-400 mt-1">Ganadores oficiales elegidos por el jurado</p>
-            </div>
-
-            <!-- Grilla del Podio Masculino Dinámico -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-center">
-              @for (candidato of podioMasculino(); track candidato.id; let i = $index) {
-
-                <div class="relative group rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 shadow-xl"
-                     [class]="i === 0
-                       ? 'bg-[#121212] border-2 border-[#C5A059] shadow-[0_0_40px_rgba(197,160,89,0.3)] md:scale-105 order-first'
-                       : 'bg-[#0F0F0F] border border-[#C5A059]/30'">
-
-                  <!-- Badge Superior de Título Ganado -->
-                  <div class="flex items-center justify-between gap-2 mb-3">
-                    <span class="px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider"
-                          [class]="i === 0 ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#000000] shadow-md' : 'bg-[#1A1A1A] text-[#F3E7C4] border border-[#C5A059]/40'">
-                      {{ getPuestoMasculinoNombre(i) }}
-                    </span>
-
-                    @if (i === 0) {
-                      <i class="bi bi-stars text-xl text-[#C5A059]"></i>
-                    }
-                  </div>
-
-                  <!-- Foto del Ganador -->
-                  <div class="w-full h-64 rounded-2xl overflow-hidden mb-4 bg-black relative border border-white/5">
-                    <img [src]="candidato.fotosURL?.[0] || 'assets/user-default.jpg'"
-                         [alt]="candidato.nombre"
-                         class="w-full h-full object-cover">
-
-                    <span class="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 text-[#F3E7C4] font-black text-xs border border-[#C5A059]/40 backdrop-blur-sm">
-                      #{{ candidato.numero }}
-                    </span>
-                  </div>
-
-                  <!-- Datos y Puntaje Final -->
-                  <div class="text-center space-y-1.5">
-                    <h3 class="text-base font-black text-white truncate">{{ candidato.nombre }} {{ candidato.apellido }}</h3>
-                    <p class="text-xs font-semibold text-[#F3E7C4]">{{ candidato.cursoDivision }}</p>
-
-                    <div class="pt-2 border-t border-[#C5A059]/20 flex items-center justify-between text-xs">
-                      <span class="text-neutral-400">Puntaje Total:</span>
-                      <span class="text-sm font-black text-[#F3E7C4]">{{ candidato.puntuacionTotal }} pts</span>
-                    </div>
-                  </div>
-
-                </div>
-
-              } @empty {
-                <div class="col-span-full py-16 text-center text-neutral-500 border border-dashed border-[#C5A059]/20 rounded-3xl bg-[#0F0F0F]">
-                  <i class="bi bi-person-badge text-4xl block mb-2 text-[#C5A059]/30"></i>
-                  <p class="text-base font-medium text-neutral-300">Aún no se registraron votos suficientes para proclamar a los Embajadores.</p>
-                </div>
-              }
-            </div>
-
-          </div>
-        }
-
-        <!-- ================================================================= -->
-        <!-- VISTA 3: TABLA DE PUNTAJES DETALLADA (AUDITORÍA / PROFESORES)    -->
-        <!-- ================================================================= -->
-        @if (tabActiva() === 'Matriz') {
-          <div class="space-y-8">
-
-            <!-- TABLA DE EMBAJADORAS -->
-            <div class="space-y-3">
-              <h3 class="text-sm font-bold text-[#F3E7C4] uppercase tracking-wider flex items-center gap-2">
-                <i class="bi bi-crown text-[#C5A059]"></i> Desglose de Puntajes: Embajadoras (Chicas)
-              </h3>
-
-              <div class="rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 overflow-hidden shadow-md">
-                <div class="overflow-x-auto">
-                  <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr class="bg-[#141414] border-b border-[#C5A059]/20 text-neutral-300 uppercase font-bold">
-                        <th class="py-3.5 px-4">Posición</th>
-                        <th class="py-3.5 px-4">N°</th>
-                        <th class="py-3.5 px-4">Participante</th>
-                        <th class="py-3.5 px-4">Curso</th>
-                        @for (crit of eleccion.criteriosFemeninos || eleccion.criterios; track crit) {
-                          <th class="py-3.5 px-4 text-center">{{ crit }}</th>
-                        }
-                        <th class="py-3.5 px-4 text-right">Puntaje Total</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[#222222]">
-                      @for (c of rankingEmbajadoras(); track c.id; let i = $index) {
-                        <tr class="hover:bg-[#1A1A1A] transition-colors">
-                          <td class="py-3.5 px-4 font-bold text-[#F3E7C4]">{{ i + 1 }}° Lugar</td>
-                          <td class="py-3.5 px-4 text-neutral-400">#{{ c.numero }}</td>
-                          <td class="py-3.5 px-4 font-bold text-white">{{ c.nombre }} {{ c.apellido }}</td>
-                          <td class="py-3.5 px-4 text-neutral-400">{{ c.cursoDivision }}</td>
-                          @for (crit of eleccion.criteriosFemeninos || eleccion.criterios; track crit) {
-                            <td class="py-3.5 px-4 text-center text-neutral-200 font-medium">{{ c.puntuacionPorCriterio?.[crit] || 0 }}</td>
-                          }
-                          <td class="py-3.5 px-4 text-right font-black text-sm text-[#F3E7C4]">{{ c.puntuacionTotal }} pts</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <!-- TABLA DE EMBAJADORES -->
-            <div class="space-y-3">
-              <h3 class="text-sm font-bold text-[#F3E7C4] uppercase tracking-wider flex items-center gap-2">
-                <i class="bi bi-person-badge text-[#C5A059]"></i> Desglose de Puntajes: Embajadores (Chicos)
-              </h3>
-
-              <div class="rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 overflow-hidden shadow-md">
-                <div class="overflow-x-auto">
-                  <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr class="bg-[#141414] border-b border-[#C5A059]/20 text-neutral-300 uppercase font-bold">
-                        <th class="py-3.5 px-4">Posición</th>
-                        <th class="py-3.5 px-4">N°</th>
-                        <th class="py-3.5 px-4">Participante</th>
-                        <th class="py-3.5 px-4">Curso</th>
-                        @for (crit of eleccion.criteriosMasculinos || eleccion.criterios; track crit) {
-                          <th class="py-3.5 px-4 text-center">{{ crit }}</th>
-                        }
-                        <th class="py-3.5 px-4 text-right">Puntaje Total</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[#222222]">
-                      @for (c of rankingEmbajadores(); track c.id; let i = $index) {
-                        <tr class="hover:bg-[#1A1A1A] transition-colors">
-                          <td class="py-3.5 px-4 font-bold text-[#F3E7C4]">{{ i + 1 }}° Lugar</td>
-                          <td class="py-3.5 px-4 text-neutral-400">#{{ c.numero }}</td>
-                          <td class="py-3.5 px-4 font-bold text-white">{{ c.nombre }} {{ c.apellido }}</td>
-                          <td class="py-3.5 px-4 text-neutral-400">{{ c.cursoDivision }}</td>
-                          @for (crit of eleccion.criteriosMasculinos || eleccion.criterios; track crit) {
-                            <td class="py-3.5 px-4 text-center text-neutral-200 font-medium">{{ c.puntuacionPorCriterio?.[crit] || 0 }}</td>
-                          }
-                          <td class="py-3.5 px-4 text-right font-black text-sm text-[#F3E7C4]">{{ c.puntuacionTotal }} pts</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        }
-
-      } @else {
-
-        <!-- PANTALLA DE ESPERA SI AÚN NO SE PUBLICÓ -->
-        <div class="py-24 flex flex-col items-center justify-center text-center space-y-4 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/25 shadow-xl">
-          <div class="w-16 h-16 rounded-3xl bg-[#141414] border border-[#C5A059]/40 flex items-center justify-center text-3xl text-[#C5A059] shadow-lg">
-            <i class="bi bi-hourglass-split"></i>
-          </div>
-          <h2 class="text-xl font-bold text-white tracking-wide">Resultados en Espera</h2>
-          <p class="text-sm text-neutral-400 max-w-md">
-            Los resultados oficiales de esta gala se proclamarán en el escenario al finalizar la votación.
-          </p>
-        </div>
-
-      }
+      <!-- Datos del Ganador -->
+      <h3 class="text-2xl font-black uppercase tracking-tight text-white">{{ gan.nombre }} {{ gan.apellido }}</h3>
+      
+      <div class="inline-block px-8 py-2 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-black font-black text-2xl mt-5 shadow-2xl">
+        {{ gan.puntuacionTotal }} <span class="text-xs">PTS</span>
+      </div>
+      
+      <p class="text-[#F3E7C4] text-[11px] font-black uppercase tracking-[0.5em] mt-6">
+        {{ tabActiva() === 'Embajadora' ? getPuestoFemeninoNombre(0) : getPuestoMasculinoNombre(0) }}
+      </p>
 
     </div>
-  }
+    <!-- Reflejo en el suelo -->
+    <div class="h-24 w-full bg-gradient-to-t from-[#C5A059]/20 to-transparent mt-5 rounded-b-[4rem]"></div>
+  </div>
 }
+
+                <!-- 3er PUESTO -->
+                @if (tabActiva() === 'Embajadora' ? podioFemenino()[2] : podioMasculino()[2]; as ter) {
+                  <div class="w-full md:w-[240px] animate-slideUp order-3" style="animation-delay: 600ms;">
+                    <div class="relative backdrop-blur-2xl bg-white/[0.03] border border-white/10 rounded-[2.5rem] p-5 text-center shadow-2xl">
+                      <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full bg-amber-800 text-white text-[9px] font-black uppercase tracking-widest shadow-xl">
+                        {{ tabActiva() === 'Embajadora' ? getPuestoFemeninoNombre(2) : getPuestoMasculinoNombre(2) }}
+                      </div>
+                      <div class="w-full aspect-[3/4] rounded-2xl overflow-hidden border border-white/5 mb-5 shadow-inner">
+                        <img [src]="ter.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-full h-full object-cover">
+                      </div>
+                      <h3 class="text-sm font-black uppercase truncate text-white/90">{{ ter.nombre }} {{ ter.apellido }}</h3>
+                      <div class="mt-2 text-2xl font-black text-amber-600">{{ ter.puntuacionTotal }}</div>
+                    </div>
+                    <div class="h-12 w-full bg-gradient-to-t from-black/40 to-transparent mt-3 rounded-b-3xl"></div>
+                  </div>
+                }
+              </div>
+
+              <!-- RESTO DE LA CORTE -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto pb-20">
+                @for (c of (tabActiva() === 'Embajadora' ? podioFemenino().slice(3) : podioMasculino().slice(3)); track c.id; let i = $index) {
+                  <div class="backdrop-blur-xl bg-white/[0.03] border border-white/10 p-4 rounded-[2rem] flex items-center gap-5 transition-all hover:border-[#C5A059]/40 group shadow-xl">
+                    <div class="w-14 h-14 rounded-xl overflow-hidden border border-white/10 shrink-0">
+                      <img [src]="c.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-full h-full object-cover transition-transform group-hover:scale-110">
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-[8px] font-black text-[#C5A059] uppercase tracking-widest mb-1">{{ tabActiva() === 'Embajadora' ? getPuestoFemeninoNombre(i+3) : getPuestoMasculinoNombre(i+3) }}</p>
+                      <h4 class="text-[11px] font-bold uppercase truncate text-white">{{ c.nombre }}</h4>
+                      <p class="text-sm font-black text-[#F3E7C4]">{{ c.puntuacionTotal }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+
+            </div>
+          }
+
+          <!-- VISTA MATRIZ AUDITORÍA -->
+         <!-- VISTA MATRIZ AUDITORÍA (CORREGIDA) -->
+@if (tabActiva() === 'Matriz') {
+  <div class="space-y-16 animate-fadeIn pb-32">
+    
+    @for (grupo of matrizData(); track grupo.titulo) {
+      <div class="space-y-6">
+        <!-- Título del Grupo -->
+        <h3 class="text-[11px] font-black text-[#C5A059] tracking-[0.6em] uppercase flex items-center gap-6">
+          <div class="h-[1px] flex-1 bg-white/10"></div> 
+          {{ grupo.titulo }} 
+          <div class="h-[1px] flex-1 bg-white/10"></div>
+        </h3>
+
+        <!-- Tabla de Cristal -->
+        <div class="rounded-3xl bg-black/40 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-2xl">
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left text-[11px]">
+              <thead>
+                <tr class="bg-white/5 border-b border-white/5 text-[#F3E7C4] font-black uppercase tracking-widest">
+                  <th class="py-6 px-10">Ranking</th>
+                  <th class="py-6 px-10">Participante</th>
+                  @for (crit of grupo.criterios; track crit) {
+                    <th class="py-6 px-2 text-center opacity-60 font-medium">{{ crit }}</th>
+                  }
+                  <th class="py-6 px-10 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/5 text-white/80">
+                @for (c of grupo.candidatas; track c.id; let i = $index) {
+                  <tr class="hover:bg-white/[0.04] transition-colors group">
+                    <td class="py-5 px-10 font-black text-[#C5A059]">{{ i + 1 }}°</td>
+                    <td class="py-5 px-10 font-bold uppercase tracking-tight">
+                      {{ c.nombre }} {{ c.apellido }}
+                    </td>
+                    
+                    @for (crit of grupo.criterios; track crit) {
+                      <td class="py-5 px-2 text-center text-white/40 group-hover:text-white transition-all">
+                        {{ c.puntuacionPorCriterio?.[crit] || 0 }}
+                      </td>
+                    }
+                    
+                    <td class="py-5 px-10 text-right font-black text-lg text-[#F3E7C4]">
+                      {{ c.puntuacionTotal }} <span class="text-[9px]">pts</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+}
+
+        }
+      </div>
+    }
+  }
+</div>

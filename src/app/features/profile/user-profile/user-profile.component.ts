@@ -75,10 +75,10 @@ export class UserProfileComponent {
         fotoURL: formValue.fotoURL
       });
       await this.authService.refreshUserProfile();
-      this.notificationService.showAlertSuccess('Éxito', 'Perfil actualizado');
+      this.notificationService.showAlertSuccess('¡Perfil Actualizado!', 'Los cambios se guardaron con éxito.');
       this.profileForm.markAsPristine();
     } catch (e) {
-      this.notificationService.showAlertError('Error', 'No se pudo actualizar');
+      this.notificationService.showAlertError('Error', 'No se pudieron guardar los cambios.');
     } finally {
       this.isSubmitting.set(false);
     }

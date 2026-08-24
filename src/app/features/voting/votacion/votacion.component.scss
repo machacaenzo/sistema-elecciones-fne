@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  overflow-x: hidden;
+  // Eliminamos cualquier background aquí para que use el del dashboard.component.html
+  background: transparent !important;
+}
+
+// Animaciones de Entrada
+.animate-fadeIn { animation: fadeIn 0.8s ease-out forwards; }
+@keyframes fadeIn { from { opacity: 0; filter: blur(10px); } to { opacity: 1; filter: blur(0); } }
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+// Slider Personalizado (Cristal y Oro)
+.custom-gold-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  outline: none;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    background: radial-gradient(circle, #F3E7C4 0%, #C5A059 100%);
+    border-radius: 50%;
+    border: 3px solid #0A0D14;
+    box-shadow: 0 0 15px rgba(197, 160, 89, 0.6);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  &:active::-webkit-slider-thumb { transform: scale(1.3); }
+}
+
+// Scrollbars de Gala
+.custom-scrollbar {
+  &::-webkit-scrollbar { width: 3px; height: 3px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, transparent, #C5A059, transparent);
+    border-radius: 10px;
+  }
+}
+
+.no-scrollbar-at-bottom::-webkit-scrollbar { height: 0px; }
+
+// Para que los inputs no tengan el fondo blanco de navegador
+input { background-color: transparent !important; }

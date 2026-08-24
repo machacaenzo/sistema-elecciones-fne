@@ -1,293 +1,255 @@
-<div class="min-h-screen p-4 sm:p-8 bg-[#000000] text-neutral-100 space-y-6 font-sans">
+<!-- CONTENEDOR SIN FONDO NEGRO PARA QUE SE VEA EL FONDO DEL DASHBOARD -->
+<div class="w-full min-h-screen bg-transparent text-neutral-100 font-sans p-4 sm:p-8 animate-fadeIn">
 
-  <!-- CABECERA -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#C5A059]/25 bg-[#000000]">
-    <div>
-      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#121212] border border-[#C5A059]/40 text-xs font-bold text-[#F3E7C4] mb-2 shadow-sm">
-        <i class="bi bi-award-fill text-[#C5A059]"></i>
-        <span>PLANILLA OFICIAL DE JURADOS</span>
-      </div>
-      <h1 class="text-2xl sm:text-3xl font-black text-white tracking-wide">
-        Centro de Votación
-      </h1>
-      <p class="text-xs sm:text-sm text-neutral-400 mt-1">
-        Seleccioná la noche de gala para explorar la nómina o ingresar a calificar.
-      </p>
-    </div>
-  </div>
+  <!-- ========================================================= -->
+  <!-- PANTALLA 1: LISTADO DE ELECCIONES (VIP PASS TRANSPARENTE) -->
+  <!-- ========================================================= -->
+  @if (!isVotingMode()) {
+    <header class="mb-16 text-center">
+       <h1 class="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-[#F3E7C4] to-[#C5A059] tracking-tighter uppercase drop-shadow-2xl">Centro de Votación</h1>
+       <p class="text-[10px] tracking-[0.8em] text-[#C5A059] font-black uppercase opacity-80 mt-2">Mesa de Escrutinio Oficial</p>
+    </header>
 
-  <!-- LISTADO DE EVENTOS DE GALA (TARJETAS EN NEGRO Y ORO) -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-    @for (eleccion of todasLasElecciones(); track eleccion.id) {
-      <div class="p-6 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/30 hover:border-[#C5A059]/70 shadow-[0_10px_30px_rgba(0,0,0,0.8)] transition-all duration-300 flex flex-col justify-between space-y-5">
-
-        <!-- Datos de la Elección -->
-        <div>
-          <div class="flex items-center justify-between gap-2 mb-3">
-            <span class="px-3 py-1 rounded-full bg-[#171717] border border-[#C5A059]/40 text-[11px] font-bold text-[#F3E7C4]">
-              <i class="bi bi-calendar3 mr-1"></i>
-              {{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd/MM/yyyy' }}
-            </span>
-
-            @if (haVotado(eleccion.id!)) {
-              <span class="px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-xs font-bold flex items-center gap-1">
-                <i class="bi bi-check-circle-fill"></i> Ya Votaste
-              </span>
-            } @else if (eleccion.estado === 'Activa') {
-              <span class="px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/50 text-xs font-bold animate-pulse">
-                Votación Abierta
-              </span>
-            } @else if (eleccion.estado === 'Configuracion') {
-              <span class="px-3 py-1 rounded-full bg-[#171717] text-neutral-400 border border-neutral-700 text-xs font-medium">
-                Próximamente
-              </span>
-            } @else {
-              <span class="px-3 py-1 rounded-full bg-amber-950/80 text-amber-300 border border-[#C5A059]/40 text-xs font-bold">
-                Finalizada
-              </span>
-            }
-          </div>
-
-          <h3 class="text-lg font-black text-white line-clamp-2">{{ eleccion.nombre }}</h3>
-        </div>
-
-        <!-- Botonera -->
-        <div class="flex items-center gap-2 pt-4 border-t border-[#C5A059]/15">
-          <!-- Explorar Candidatos -->
-          <button type="button"
-                  (click)="openDetalleMode(eleccion)"
-                  class="flex-1 py-2.5 px-4 rounded-xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#C5A059]/30 text-xs font-bold text-[#F3E7C4] transition-all flex items-center justify-center gap-1.5">
-            <i class="bi bi-people-fill"></i>
-            <span>Explorar Nómina</span>
-          </button>
-
-          <!-- Votar Ahora (Dorado Metálico) -->
-          @if (!haVotado(eleccion.id!) && eleccion.estado === 'Activa') {
-            <button type="button"
-                    (click)="openVotingMode(eleccion)"
-                    class="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 hover:scale-105 transition-all flex items-center justify-center gap-1.5">
-              <i class="bi bi-pencil-square"></i>
-              <span>Votar Ahora</span>
-            </button>
-          }
-
-          <!-- Ver Resultados -->
-          @if (eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada') {
-            <button type="button"
-                    (click)="openResultadosMode(eleccion)"
-                    class="py-2.5 px-4 rounded-xl bg-[#141414] hover:bg-[#1F1F1F] border border-[#C5A059]/30 text-xs font-bold text-[#F3E7C4] transition-all flex items-center justify-center gap-1.5">
-              <i class="bi bi-trophy-fill text-[#C5A059]"></i>
-              <span>Resultados</span>
-            </button>
-          }
-        </div>
-
-      </div>
-    } @empty {
-      <div class="col-span-full py-24 text-center text-neutral-500 border border-dashed border-[#C5A059]/20 rounded-3xl bg-[#0A0A0A]">
-        <i class="bi bi-calendar-x text-5xl block mb-2 text-[#C5A059]/30"></i>
-        <p class="text-base font-medium text-neutral-300">No hay elecciones disponibles en este momento.</p>
-      </div>
-    }
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- MODAL DE VOTACIÓN (ASISTENTE PASO A PASO EN NEGRO Y ORO)                  -->
-  <!-- ========================================================================= -->
-  @if (isVotingMode() && selectedEleccion(); as eleccion) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-fade-in"
-         (click)="$event.stopPropagation()">
-
-      <div class="relative w-full max-w-5xl max-h-[94vh] overflow-hidden rounded-3xl bg-[#050505] border-2 border-[#C5A059]/40 shadow-[0_0_60px_rgba(197,160,89,0.25)] flex flex-col">
-
-        <!-- Cabecera Modal -->
-        <div class="flex items-center justify-between px-8 py-5 border-b border-[#C5A059]/25 bg-[#0D0D0D]">
-          <div>
-            <h2 class="text-xl font-bold text-[#F3E7C4]">
-              {{ isReviewMode() ? 'Resumen de tu Planilla' : 'Puntuación: ' + eleccion.nombre }}
-            </h2>
-            <p class="text-xs text-neutral-400 mt-0.5">
-              {{ isReviewMode() ? 'Revisá tus puntajes antes del envío definitivo.' : 'Calificá a cada participante en su pasada oficial.' }}
-            </p>
-          </div>
-
-          <button type="button" (click)="closeVotingMode()" class="w-10 h-10 rounded-2xl bg-[#141414] hover:bg-[#202020] border border-[#C5A059]/30 text-neutral-400 hover:text-white flex items-center justify-center text-lg transition-all">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div>
-
-        <!-- Cuerpo del Asistente -->
-        <div class="p-6 sm:p-8 overflow-y-auto flex-1 custom-scrollbar">
-          @if (isVotingLoading()) {
-            <div class="py-20 flex flex-col items-center justify-center text-neutral-400 space-y-4">
-              <div class="w-12 h-12 border-4 border-[#C5A059]/20 border-t-[#C5A059] rounded-full animate-spin"></div>
-              <p class="text-sm font-bold text-[#F3E7C4]">Cargando planilla de jurado...</p>
+    <div class="max-w-5xl mx-auto space-y-6">
+      @for (eleccion of todasLasElecciones(); track eleccion.id) {
+        <div class="group relative overflow-hidden rounded-[2.5rem] transition-all duration-500 hover:scale-[1.01] shadow-2xl">
+          <!-- Efecto Cristal Esmerilado muy suave -->
+          <div class="backdrop-blur-xl bg-white/[0.03] border border-white/10 p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+            
+            <div class="flex items-center gap-8">
+              <!-- Fecha Estilo VIP -->
+              <div class="w-18 h-18 rounded-3xl bg-gradient-to-br from-black/60 to-black/20 border border-[#C5A059]/40 flex flex-col items-center justify-center shadow-2xl shrink-0 p-3">
+                <span class="text-[10px] font-black text-[#C5A059] uppercase">{{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'MMM' }}</span>
+                <span class="text-3xl font-black text-white">{{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd' }}</span>
+              </div>
+              <div>
+                <h3 class="text-2xl md:text-3xl font-black text-white group-hover:text-[#F3E7C4] transition-colors tracking-tight">{{ eleccion.nombre }}</h3>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="w-2 h-2 rounded-full bg-[#C5A059] animate-pulse"></span>
+                  <span class="text-[9px] font-bold text-[#C5A059] uppercase tracking-[0.3em]">{{ eleccion.estado }}</span>
+                </div>
+              </div>
             </div>
-          } @else {
-            <form [formGroup]="votacionForm" (ngSubmit)="onSubmit()" class="space-y-6">
 
-              <!-- VISTA DE PUNTUACIÓN PASO A PASO -->
-              @if (!isReviewMode()) {
+            <div class="flex items-center gap-4">
+              <!-- BOTÓN VER NÓMINA (Explorar) -->
+              <button (click)="openDetalleMode(eleccion)" 
+                      class="px-8 py-3.5 rounded-full border border-white/20 hover:bg-white/10 text-white text-[11px] font-black transition-all uppercase tracking-widest backdrop-blur-md">
+                Ver Nómina
+              </button>
 
-                <!-- Barra de Progreso Dorada -->
-                <div class="space-y-2 pb-2">
-                  <div class="flex items-center justify-between text-xs font-bold text-[#F3E7C4]">
-                    <span>Participante {{ currentStep() + 1 }} de {{ candidatas().length }}</span>
-                    <span>{{ wizardProgress() | number:'1.0-0' }}% Completado</span>
-                  </div>
-                  <div class="w-full h-2 rounded-full bg-[#171717] overflow-hidden border border-[#C5A059]/30">
-                    <div class="h-full bg-gradient-to-r from-[#C5A059] to-[#F3E7C4] transition-all duration-300" [style.width.%]="wizardProgress()"></div>
-                  </div>
-                </div>
-
-                <div formArrayName="evaluaciones">
-                  @for (candidata of candidatas(); track candidata.id; let i = $index) {
-                    @if (currentStep() === i) {
-                      <div [formGroupName]="i" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                        <!-- Columna 1: Foto y Número de Pasada -->
-                        <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 flex flex-col items-center justify-between space-y-3">
-                          <div class="relative w-full h-64 rounded-xl overflow-hidden bg-black border border-[#C5A059]/30">
-                            <img [src]="candidata.fotosURL?.[carouselImageIndex()] || 'assets/user-default.jpg'"
-                                 [alt]="candidata.nombre"
-                                 class="w-full h-full object-cover">
-
-                            <span class="absolute top-3 left-3 px-3 py-1 rounded-lg bg-[#C5A059] text-[#0A0D14] font-black text-sm border border-[#FFF3D1]/50 shadow-md">
-                              #{{ candidata.numero }}
-                            </span>
-
-                            @if (candidata.fotosURL && candidata.fotosURL.length > 1) {
-                              <div class="absolute inset-x-2 bottom-2 flex justify-between">
-                                <button type="button" (click)="previousImage()" [disabled]="carouselImageIndex() === 0" class="p-1.5 rounded-lg bg-black/70 text-white disabled:opacity-30">
-                                  <i class="bi bi-chevron-left"></i>
-                                </button>
-                                <button type="button" (click)="nextImage()" [disabled]="carouselImageIndex() === (candidata.fotosURL?.length || 0) - 1" class="p-1.5 rounded-lg bg-black/70 text-white disabled:opacity-30">
-                                  <i class="bi bi-chevron-right"></i>
-                                </button>
-                              </div>
-                            }
-                          </div>
-
-                          <div class="text-center">
-                            <h3 class="text-lg font-black text-white">{{ candidata.nombre }} {{ candidata.apellido }}</h3>
-                            <span class="text-xs text-[#F3E7C4] font-semibold">{{ candidata.cursoDivision }}</span>
-                          </div>
-                        </div>
-
-                        <!-- Columna 2: Datos Adicionales -->
-                        <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 space-y-3">
-                          <h4 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-2">Información del Perfil</h4>
-
-                          @if (candidata.camposPersonalizados && eleccion.camposCandidata) {
-                            <div class="space-y-3">
-                              @for (campo of eleccion.camposCandidata; track campo) {
-                                <div class="p-3 rounded-xl bg-[#171717] border border-[#C5A059]/20">
-                                  <span class="block text-[11px] font-bold text-[#F3E7C4]">{{ campo }}</span>
-                                  <span class="text-xs text-neutral-300">{{ candidata.camposPersonalizados?.[campo] || 'No especificado' }}</span>
-                                </div>
-                              }
-                            </div>
-                          } @else {
-                            <p class="text-xs text-neutral-500 italic">Sin datos adicionales cargados.</p>
-                          }
-                        </div>
-
-                        <!-- Columna 3: Sliders de Puntuación Dorados -->
-                        <div class="p-5 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 space-y-4">
-                          <div class="flex items-center justify-between border-b border-[#C5A059]/20 pb-2">
-                            <h4 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider">Criterios de Pasarela</h4>
-                            <span class="text-sm font-black text-[#F3E7C4]">{{ calculateTotalScore(i) }} pts</span>
-                          </div>
-
-                          <div class="space-y-4">
-                            @for (criterio of getCriteriosParaCandidata(candidata, eleccion); track criterio) {
-                              <div class="space-y-1.5">
-                                <div class="flex justify-between text-xs font-semibold">
-                                  <span class="text-neutral-300">{{ criterio }}</span>
-                                  <span class="text-[#F3E7C4] font-bold">{{ getEvaluacionGroup(i, criterio)?.value }} / 10</span>
-                                </div>
-                                <input type="range" min="1" max="10" step="1"
-                                       [formControlName]="criterio"
-                                       (input)="updateSliderValue(i, criterio, $event)"
-                                       class="w-full accent-[#C5A059] bg-[#171717] rounded-lg h-2 cursor-pointer">
-                              </div>
-                            }
-                          </div>
-                        </div>
-
-                      </div>
-                    }
-                  }
-                </div>
-
+              @if (!haVotado(eleccion.id!) && eleccion.estado === 'Activa') {
+                <button (click)="openVotingMode(eleccion)" 
+                        class="px-10 py-3.5 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-[#0A0D14] text-[11px] font-black shadow-[0_10px_30px_rgba(197,160,89,0.3)] hover:scale-105 active:scale-95 transition-all uppercase tracking-widest">
+                  Ingresar a Votar
+                </button>
               }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
 
-              <!-- VISTA DE RESUMEN FINAL ANTES DE ENVIAR -->
-              @if (isReviewMode()) {
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" formArrayName="evaluaciones">
-                  @for (candidata of candidatas(); track candidata.id; let i = $index) {
-                    <div [formGroupName]="i" class="p-4 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/30 flex items-center justify-between gap-3 shadow-md">
-                      <div class="flex items-center gap-3">
-                        <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'"
-                             alt="Avatar"
-                             class="w-12 h-12 rounded-xl object-cover border border-[#C5A059]/40">
-                        <div>
-                          <p class="text-sm font-bold text-white">#{{ candidata.numero }} {{ candidata.nombre }}</p>
-                          <p class="text-xs text-[#F3E7C4] font-semibold">{{ calculateTotalScore(i) }} Puntos</p>
-                        </div>
-                      </div>
+  <!-- ========================================================= -->
+  <!-- MODAL DE VOTACIÓN (PANTALLA COMPLETA)                    -->
+  <!-- ========================================================= -->
+  @if (isVotingMode() && selectedEleccion(); as eleccion) {
+    <div class="fixed inset-0 z-[60] flex flex-col bg-black/40 backdrop-blur-3xl animate-fadeIn overflow-hidden">
+      
+      <!-- HEADER MESA DE CONTROL -->
+      <nav class="px-10 py-6 border-b border-white/10 bg-black/40 flex items-center justify-between">
+        <div class="flex items-center gap-5">
+          <img src="assets/logo-fne.png" class="w-10 h-10 object-contain" alt="FNE">
+          <div>
+            <h2 class="text-sm font-black text-[#F3E7C4] tracking-[0.3em] uppercase">ESCRUTINIO: {{ eleccion.nombre }}</h2>
+            <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest">Jurado: {{ authService.currentUser()?.nombre }}</p>
+          </div>
+        </div>
+        <button (click)="closeVotingMode()" class="group active:scale-90 transition-transform">
+          <img src="assets/BOTON.png" class="w-10 h-10 object-contain group-hover:rotate-90 transition-all duration-500">
+        </button>
+      </nav>
 
-                      <button type="button" (click)="goToStep(i)" class="p-2 rounded-xl bg-[#171717] text-[#F3E7C4] hover:bg-[#222222] border border-[#C5A059]/30" title="Editar Puntajes">
-                        <i class="bi bi-pencil"></i>
-                      </button>
+      <div class="flex-1 overflow-hidden flex flex-col relative">
+        
+        <!-- PANTALLA A: TANDA (REYES) -->
+        @if (!categoriaSeleccionada()) {
+          <div class="flex-1 flex flex-col items-center justify-center p-6 gap-12">
+            <h2 class="text-3xl md:text-4xl font-black text-white tracking-[0.4em] uppercase drop-shadow-2xl">SELECCIONAR TANDA OFICIAL</h2>
+            <div class="flex flex-col md:flex-row gap-10 w-full max-w-5xl px-6">
+              <!-- REY -->
+              <button (click)="categoriaSeleccionada.set('Embajador')" class="flex-1 group relative aspect-[4/5] max-h-[400px] rounded-[3.5rem] overflow-hidden border-2 border-white/10 hover:border-[#C5A059] transition-all duration-700 shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-black/20">
+                <img src="assets/REY.png" class="absolute inset-0 w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-1000">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                <span class="absolute bottom-10 left-0 w-full text-2xl font-black text-white uppercase tracking-widest">Embajadores</span>
+              </button>
+              <!-- REYNA -->
+              <button (click)="categoriaSeleccionada.set('Embajadora')" class="flex-1 group relative aspect-[4/5] max-h-[400px] rounded-[3.5rem] overflow-hidden border-2 border-white/10 hover:border-[#C5A059] transition-all duration-700 shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-black/20">
+                <img src="assets/REYNA.png" class="absolute inset-0 w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-1000">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                <span class="absolute bottom-10 left-0 w-full text-2xl font-black text-white uppercase tracking-widest">Embajadoras</span>
+              </button>
+            </div>
+          </div>
+        } 
+        
+        <!-- PANTALLA B: CALIFICACIÓN -->
+        @else if (!isReviewMode()) {
+          <!-- CAROUSEL SUPERIOR -->
+          <div class="w-full bg-black/40 border-b border-white/5 py-5 px-8 shrink-0">
+            <div class="flex items-center gap-6">
+              <button (click)="categoriaSeleccionada.set(null)" class="p-3 rounded-2xl bg-white/5 text-[#F3E7C4] hover:bg-[#C5A059] hover:text-black transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+              </button>
+              <div class="flex-1 flex gap-5 overflow-x-auto pb-2 custom-scrollbar no-scrollbar-at-bottom">
+                @for (c of getCandidatasFiltradas(); track c.id) {
+                  <button (click)="selectCandidate(c)" 
+                          class="relative w-28 h-36 md:w-32 md:h-44 rounded-2xl overflow-hidden shrink-0 border-2 transition-all duration-500 shadow-2xl"
+                          [class]="currentStep() === candidatas().indexOf(c) ? 'border-[#C5A059] scale-105 shadow-[0_0_20px_#C5A059]' : 'border-transparent opacity-40 hover:opacity-100'">
+                    <img [src]="c.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/40">
+                       <span class="text-4xl font-black text-white drop-shadow-[0_0_15px_black]">#{{ formatNumero(c.numero) }}</span>
                     </div>
-                  }
-                </div>
-              }
-
-              <!-- BOTONERA INFERIOR DEL ASISTENTE -->
-              <div class="flex items-center justify-between pt-6 border-t border-[#C5A059]/25">
-                @if (!isReviewMode()) {
-                  <button type="button" (click)="previousStep()" [disabled]="currentStep() === 0" class="px-5 py-2.5 rounded-xl border border-[#C5A059]/30 text-neutral-300 hover:text-white disabled:opacity-30 text-xs font-bold">
-                    <i class="bi bi-arrow-left mr-1"></i> Anterior
-                  </button>
-
-                  @if (currentStep() < candidatas().length - 1) {
-                    <button type="button" (click)="nextStep()" class="px-6 py-2.5 bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs rounded-xl shadow-md hover:scale-105 transition-all">
-                      Siguiente <i class="bi bi-arrow-right ml-1"></i>
-                    </button>
-                  } @else {
-                    <button type="button" (click)="enterReviewMode()" class="px-6 py-2.5 bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs rounded-xl shadow-md hover:scale-105 transition-all">
-                      Ver Resumen <i class="bi bi-check2-circle ml-1"></i>
-                    </button>
-                  }
-                } @else {
-                  <button type="button" (click)="goToStep(candidatas().length - 1)" class="px-5 py-2.5 rounded-xl border border-[#C5A059]/30 text-neutral-300 hover:text-white text-xs font-bold">
-                    <i class="bi bi-arrow-left mr-1"></i> Volver a Evaluar
-                  </button>
-
-                  <button type="submit" [disabled]="votacionForm.invalid" class="px-8 py-3 bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-sm rounded-2xl shadow-[0_4px_30px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/50 hover:scale-105 transition-all">
-                    Confirmar y Enviar Voto Oficial
                   </button>
                 }
               </div>
+            </div>
+          </div>
 
+          <!-- PANEL DE PUNTUACIÓN (CÁPSULA) -->
+          <div class="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar">
+            <form [formGroup]="votacionForm" class="h-full flex flex-col justify-center">
+              <div formArrayName="evaluaciones">
+                @for (c of candidatas(); track c.id; let i = $index) {
+                  @if (currentStep() === i) {
+                    <div [formGroupName]="i" class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center animate-fadeIn">
+                      
+                      <!-- FOTO -->
+                      <div class="lg:col-span-5 flex flex-col items-center gap-8">
+                        <div class="relative w-[300px] h-[400px] md:w-[360px] md:h-[480px] rounded-[3.5rem] overflow-hidden border-2 border-white/20 bg-black/40 shadow-2xl relative animate-float">
+                           <div class="w-full h-full overflow-x-auto flex snap-x snap-mandatory no-scrollbar-at-bottom">
+                             @for (foto of c.fotosURL; track $index) {
+                               <img [src]="foto" class="w-full h-full object-cover shrink-0 snap-start">
+                             } @empty {
+                               <img src="assets/user-default.jpg" class="w-full h-full object-cover">
+                             }
+                           </div>
+                           <div class="absolute bottom-8 right-8 w-24 h-24 rounded-full border-4 border-[#C5A059] bg-black/80 backdrop-blur-xl flex items-center justify-center shadow-2xl">
+                              <span class="text-4xl font-black text-[#F3E7C4]">#{{ formatNumero(c.numero) }}</span>
+                           </div>
+                        </div>
+                        <div class="text-center">
+                          <h3 class="text-4xl font-black text-white uppercase tracking-tighter">{{ c.nombre }} {{ c.apellido }}</h3>
+                          <p class="text-[11px] font-black text-[#C5A059] uppercase tracking-[0.5em] mt-2 italic">{{ c.cursoDivision }}</p>
+                        </div>
+                      </div>
+
+                      <!-- SLIDERS -->
+                      <div class="lg:col-span-7">
+                        <div class="backdrop-blur-3xl bg-white/[0.03] border border-white/10 rounded-[3.5rem] p-8 md:p-12 shadow-2xl space-y-10">
+                          <div class="flex items-center justify-between border-b border-white/10 pb-6">
+                             <span class="text-xs font-black uppercase text-white/40 tracking-[0.3em]">Planilla de Puntajes</span>
+                             <div class="text-right">
+                                <span class="block text-[8px] font-black text-[#C5A059] uppercase tracking-[0.4em]">Acumulado</span>
+                                <span class="text-5xl font-black text-[#F3E7C4] tabular-nums">{{ calculateTotalScore(i) }}<span class="text-sm font-bold ml-1">pts</span></span>
+                             </div>
+                          </div>
+
+                          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                            @for (crit of getCriteriosParaCandidata(c, eleccion); track crit) {
+                              <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                  <span class="text-[11px] font-black uppercase text-neutral-300 tracking-widest">{{ crit }}</span>
+                                  <span class="text-3xl font-black text-[#F3E7C4] tabular-nums">{{ getEvaluacionValue(i, crit) }}</span>
+                                </div>
+                                <input type="range" min="0" max="10" step="1" [formControlName]="crit" (input)="updateSliderValue(i, crit, $event)"
+                                       class="custom-gold-slider w-full cursor-pointer">
+                              </div>
+                            }
+                          </div>
+
+                          <div class="pt-6">
+                             <button (click)="enterReviewMode()" class="w-full py-5 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-[#0A0D14] font-black uppercase text-[11px] tracking-[0.4em] shadow-[0_15px_50px_rgba(197,160,89,0.3)] hover:scale-[1.02] active:scale-95 transition-all">
+                               Finalizar Calificación
+                             </button>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  }
+                }
+              </div>
             </form>
-          }
-        </div>
+          </div>
+        }
+
+        <!-- PANTALLA C: RESUMEN -->
+        @else {
+          <div class="flex-1 overflow-y-auto p-10 md:p-20 custom-scrollbar pb-32">
+            <div class="max-w-4xl mx-auto space-y-12">
+              <div class="text-center">
+                <h2 class="text-4xl md:text-6xl font-black uppercase tracking-[0.4em] text-transparent bg-clip-text bg-gradient-to-b from-white to-[#C5A059]">Auditoría</h2>
+                <p class="text-[10px] text-[#C5A059] font-black mt-4 tracking-[0.6em]">VERIFICAR PUNTAJES ANTES DE FIRMAR</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @for (c of getCandidatasFiltradas(); track c.id) {
+                  <div class="bg-white/[0.04] border border-white/10 p-6 rounded-[2.5rem] flex items-center justify-between group hover:bg-[#C5A059]/10 transition-all shadow-xl backdrop-blur-md">
+                    <div class="flex items-center gap-5">
+                      <div class="w-16 h-16 rounded-2xl overflow-hidden border border-white/20">
+                        <img [src]="c.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-full h-full object-cover">
+                      </div>
+                      <div>
+                        <p class="text-[10px] font-black text-[#C5A059] uppercase">#{{ formatNumero(c.numero) }}</p>
+                        <p class="text-base font-black text-white uppercase">{{ c.nombre }}</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-5">
+                       <span class="text-2xl font-black text-[#F3E7C4]">{{ calculateTotalScore(candidatas().indexOf(c)) }} <span class="text-[10px]">pts</span></span>
+                       <button (click)="selectCandidate(c)" class="p-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg>
+                       </button>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- En la Pantalla C (Auditoría y Firma), actualiza el botón -->
+<div class="flex flex-col items-center gap-6 pt-10 pb-20">
+  <button (click)="onSubmit()" 
+          class="px-24 py-6 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-[#0A0D14] font-black uppercase text-base tracking-[0.4em] shadow-[0_0_80px_rgba(197,160,89,0.5)] animate-pulse active:scale-95 transition-all">
+    Firmar Acta: {{ categoriaSeleccionada() }}es
+  </button>
+  
+  <button (click)="isReviewMode.set(false)" 
+          class="text-[10px] font-black uppercase text-white/30 hover:text-[#F3E7C4] transition-colors tracking-[0.4em]">
+    ← Volver a la mesa de calificación
+  </button>
+</div>
+            </div>
+          </div>
+        }
       </div>
     </div>
   }
 
-  <!-- MODAL DE DETALLE / EXPLORAR -->
+  <!-- ========================================================= -->
+  <!-- MODAL DE DETALLE (NÓMINA) - FIX COMPLETO                 -->
+  <!-- ========================================================= -->
   @if (isDetalleMode() && selectedEleccionParaDetalle(); as eleccion) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md" (click)="closeDetalleMode()">
-      <app-detalle-eleccion
-        [eleccion]="eleccion"
-        [haVotado]="haVotado(eleccion.id!)"
-        (closeModal)="closeDetalleMode()"
-        (iniciarVotacion)="handleIniciarVotacion(eleccion)">
-      </app-detalle-eleccion>
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn" 
+         (click)="closeDetalleMode()">
+      <!-- Detalle Eleccion Component -->
+      <div class="w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden" (click)="$event.stopPropagation()">
+        <app-detalle-eleccion 
+          [eleccion]="eleccion" 
+          [haVotado]="haVotado(eleccion.id!)" 
+          (closeModal)="closeDetalleMode()" 
+          (iniciarVotacion)="handleIniciarVotacion(eleccion)">
+        </app-detalle-eleccion>
+      </div>
     </div>
   }
 

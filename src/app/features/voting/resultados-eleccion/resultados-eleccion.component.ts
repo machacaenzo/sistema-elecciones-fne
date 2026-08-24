@@ -123,4 +123,23 @@ export class ResultadosEleccionComponent implements OnInit {
       document.exitFullscreen().catch(err => console.error(err));
     }
   }
+
+  // Define los grupos para la matriz de forma limpia en el TS
+matrizData = computed(() => {
+  const e = this.eleccion();
+  if (!e) return [];
+  
+  return [
+    {
+      titulo: 'EMBAJADORAS',
+      candidatas: this.rankingEmbajadoras(),
+      criterios: e.criteriosFemeninos || e.criterios || []
+    },
+    {
+      titulo: 'EMBAJADORES',
+      candidatas: this.rankingEmbajadores(),
+      criterios: e.criteriosMasculinos || e.criterios || []
+    }
+  ];
+});
 }

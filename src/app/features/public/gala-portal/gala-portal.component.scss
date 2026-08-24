@@ -1,4 +1,38 @@
-/* Contenedor fijo de fondo (Sin bloquear clics) */
+:host {
+  display: block;
+  background: transparent !important;
+}
+
+// Animación de entrada suave
+.animate-fadeIn {
+  animation: fadeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+// Scrollbars finas
+.custom-scrollbar {
+  &::-webkit-scrollbar { width: 4px; height: 4px; }
+  &::-webkit-scrollbar-thumb {
+    background: #C5A059;
+    border-radius: 10px;
+  }
+}
+
+/* ========================================================= */
+/* CONTENEDOR DE PARTICULAS Y BOKEH DORADO                   */
+/* ========================================================= */
 .gold-particles-container {
   position: fixed;
   inset: 0;
@@ -7,7 +41,6 @@
   z-index: 1;
 }
 
-/* Partícula base dorada suave */
 .gold-particle {
   position: absolute;
   top: -30px;
@@ -17,39 +50,20 @@
   animation: cascadeGold linear infinite;
 }
 
-/* Partículas grandes tipo Bokeh (desenfocadas y muy suaves) */
 .bokeh-lg {
   background: radial-gradient(circle, rgba(197, 160, 89, 0.35) 0%, rgba(140, 109, 45, 0.15) 60%, transparent 100%);
   filter: blur(3px);
 }
 
-/* Animación de caída lenta con leve vaivén lateral */
 @keyframes cascadeGold {
-  0% {
-    transform: translateY(0) translateX(0) scale(0.6);
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.55;
-  }
-  50% {
-    transform: translateY(50vh) translateX(25px) scale(1);
-    opacity: 0.45;
-  }
-  80% {
-    opacity: 0.35;
-  }
-  100% {
-    transform: translateY(105vh) translateX(-20px) scale(0.5);
-    opacity: 0;
-  }
+  0% { transform: translateY(0) translateX(0) scale(0.6); opacity: 0; }
+  20% { opacity: 0.55; }
+  50% { transform: translateY(50vh) translateX(25px) scale(1); opacity: 0.45; }
+  80% { opacity: 0.35; }
+  100% { transform: translateY(105vh) translateX(-20px) scale(0.5); opacity: 0; }
 }
 
-/* ========================================================= */
-/* DISTRIBUCIÓN DE TAMAÑOS: PEQUEÑAS, MEDIANAS Y GRANDES     */
-/* ========================================================= */
-
-/* Pequeñas (4px - 6px) */
+/* Distribución de partículas */
 .p1  { left: 3%;  width: 4px;  height: 4px;  animation-duration: 11s; animation-delay: 0s; }
 .p2  { left: 14%; width: 6px;  height: 6px;  animation-duration: 14s; animation-delay: 3s; }
 .p3  { left: 25%; width: 5px;  height: 5px;  animation-duration: 10s; animation-delay: 6s; }
@@ -60,7 +74,6 @@
 .p8  { left: 83%; width: 6px;  height: 6px;  animation-duration: 10s; animation-delay: 4s; }
 .p9  { left: 94%; width: 5px;  height: 5px;  animation-duration: 12s; animation-delay: 8s; }
 
-/* Medianas (8px - 14px) */
 .p10 { left: 8%;  width: 10px; height: 10px; animation-duration: 16s; animation-delay: 2s; }
 .p11 { left: 19%; width: 12px; height: 12px; animation-duration: 13s; animation-delay: 9s; }
 .p12 { left: 31%; width: 8px;  height: 8px;  animation-duration: 17s; animation-delay: 4s; }
@@ -71,7 +84,6 @@
 .p17 { left: 87%; width: 13px; height: 13px; animation-duration: 15s; animation-delay: 1.5s; }
 .p18 { left: 97%; width: 9px;  height: 9px;  animation-duration: 17s; animation-delay: 5.5s; }
 
-/* Grandes Esferas Bokeh Suaves (18px - 26px) */
 .p19 { left: 6%;  width: 22px; height: 22px; animation-duration: 20s; animation-delay: 1s; }
 .p20 { left: 22%; width: 18px; height: 18px; animation-duration: 22s; animation-delay: 7s; }
 .p21 { left: 39%; width: 26px; height: 26px; animation-duration: 19s; animation-delay: 11s; }

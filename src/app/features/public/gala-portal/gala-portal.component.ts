@@ -31,6 +31,7 @@ export class GalaPortalComponent implements OnInit, OnDestroy {
   candidatas = signal<Candidata[]>([]);
   isLoading = signal(true);
 
+  // Categoría activa: 'Embajadora' o 'Embajador'
   categoriaActiva = signal<CategoriaParticipante>('Embajadora');
 
   // Reloj de Cuenta Regresiva
@@ -47,7 +48,9 @@ export class GalaPortalComponent implements OnInit, OnDestroy {
   selectedCandidata = signal<Candidata | null>(null);
   selectedPhotoIndex = signal(0);
   isFichaModalOpen = signal(false);
+  private modalPhotoInterval: any = null;
 
+  // Filtros
   participantesFiltrados = computed(() => {
     const lista = this.candidatas().filter(c => (c.categoria || 'Embajadora') === this.categoriaActiva());
     return lista.sort((a, b) => (a.numero || 0) - (b.numero || 0));
@@ -56,28 +59,13 @@ export class GalaPortalComponent implements OnInit, OnDestroy {
   embajadorasCount = computed(() => this.candidatas().filter(c => (c.categoria || 'Embajadora') === 'Embajadora').length);
   embajadoresCount = computed(() => this.candidatas().filter(c => c.categoria === 'Embajador').length);
 
-  podioEmbajadoras = computed(() => {
-    const chicas = this.candidatas().filter(c => (c.categoria || 'Embajadora') === 'Embajadora');
-    const ordenadas = [...chicas].sort((a, b) => (b.puntuacionTotal || 0) - (a.puntuacionTotal || 0));
-    const cantPuestos = this.eleccion()?.puestosFemeninos?.length || 3;
-    return ordenadas.slice(0, cantPuestos);
-  });
-
-  podioEmbajadores = computed(() => {
-    const chicos = this.candidatas().filter(c => c.categoria === 'Embajador');
-    const ordenados = [...chicos].sort((a, b) => (b.puntuacionTotal || 0) - (a.puntuacionTotal || 0));
-    const cantPuestos = this.eleccion()?.puestosMasculinos?.length || 2;
-    return ordenados.slice(0, cantPuestos);
-  });
-
   ngOnInit(): void {
     this.cargarDatosGala();
   }
 
   ngOnDestroy(): void {
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-    }
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    this.detenerPaseModal();
   }
 
   cargarDatosGala(): void {
@@ -88,7 +76,6 @@ export class GalaPortalComponent implements OnInit, OnDestroy {
           const activa = elecciones.find(e => e.estado === 'Activa' || e.estado === 'Publicada') || elecciones[0];
           this.eleccion.set(activa);
 
-          // Iniciar el reloj de cuenta regresiva
           const fechaRef = (activa.fechaEvento || activa.fechaInicio)?.toDate();
           if (fechaRef) {
             this.iniciarCountdown(fechaRef);
@@ -141,23 +128,58 @@ export class GalaPortalComponent implements OnInit, OnDestroy {
     this.timerInterval = setInterval(actualizar, 1000);
   }
 
-  getPuestoFemenino(index: number): string {
-    return this.eleccion()?.puestosFemeninos?.[index] || `Puesto ${index + 1}`;
-  }
-
+  // =========================================================
+  // MODAL DE FICHA CON GALERÍA AUTOMÁTICA
+  // =========================================================
   openFicha(candidata: Candidata): void {
     this.selectedCandidata.set(candidata);
     this.selectedPhotoIndex.set(0);
     this.isFichaModalOpen.set(true);
+    this.iniciarPaseModal(candidata);
   }
 
   closeFicha(): void {
+    this.detenerPaseModal();
     this.isFichaModalOpen.set(false);
     this.selectedCandidata.set(null);
   }
 
+  iniciarPaseModal(candidata: Candidata): void {
+    this.detenerPaseModal();
+    const total = candidata.fotosURL?.length || 0;
+    if (total > 1) {
+      this.modalPhotoInterval = setInterval(() => {
+        this.selectedPhotoIndex.update(idx => (idx + 1) % total);
+      }, 3500);
+    }
+  }
+
+  detenerPaseModal(): void {
+    if (this.modalPhotoInterval) {
+      clearInterval(this.modalPhotoInterval);
+      this.modalPhotoInterval = null;
+    }
+  }
+
   selectPhoto(index: number): void {
     this.selectedPhotoIndex.set(index);
+    if (this.selectedCandidata()) {
+      this.iniciarPaseModal(this.selectedCandidata()!);
+    }
+  }
+
+  nextModalPhoto(): void {
+    const total = this.selectedCandidata()?.fotosURL?.length || 0;
+    if (total > 1) {
+      this.selectedPhotoIndex.update(i => (i + 1) % total);
+    }
+  }
+
+  prevModalPhoto(): void {
+    const total = this.selectedCandidata()?.fotosURL?.length || 0;
+    if (total > 1) {
+      this.selectedPhotoIndex.update(i => (i - 1 + total) % total);
+    }
   }
 
   getNumeroFormat(num?: number): string {

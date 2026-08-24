@@ -4,13 +4,23 @@ import { publicGuard } from './core/guards/public.guard';
 import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
-  // --- RUTA PÚBLICA PRINCIPAL (Cualquiera entra con QR o link sin login) ---
+  // --- PORTAL PÚBLICO PRINCIPAL ---
   {
     path: '',
     loadComponent: () => import('./features/public/gala-portal/gala-portal.component').then(c => c.GalaPortalComponent)
   },
 
-  // --- Rutas de Autenticación ---
+  // --- PODIO PÚBLICO DE CORONACIÓN (NUEVO) ---
+  {
+    path: 'podio',
+    loadComponent: () => import('./features/public/podio-publico/podio-publico.component').then(c => c.PodioPublicoComponent)
+  },
+  {
+    path: 'podio/:id',
+    loadComponent: () => import('./features/public/podio-publico/podio-publico.component').then(c => c.PodioPublicoComponent)
+  },
+
+  // --- RUTAS DE LOGIN Y REGISTRO ---
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login.component').then(c => c.LoginComponent),
@@ -31,7 +41,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/verify-email/verify-email.component').then(c => c.VerifyEmailComponent)
   },
 
-  // --- Panel Privado (Dashboard / Admin / Jurados) ---
+  // --- PANEL PRIVADO (DASHBOARD / ADMIN / JURADOS) ---
   {
     path: 'dashboard',
     loadComponent: () => import('./features/dashboard/dashboard.component').then(c => c.DashboardComponent),
@@ -69,6 +79,5 @@ export const routes: Routes = [
     ]
   },
 
-  // Redirección si la ruta no existe
   { path: '**', redirectTo: '' }
 ];

@@ -38,14 +38,6 @@
           <span>Inicio</span>
         </a>
 
-        <!-- ACCESO DIRECTO AL PORTAL PÚBLICO (NUEVO) -->
-        <a routerLink="/"
-           (click)="isSidebarOpen.set(false)"
-           class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/80 border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
-          <i class="bi bi-globe2 text-lg text-[#C5A059] transition-colors"></i>
-          <span>Ver Portal Público</span>
-        </a>
-
         <!-- ACCESO A VOTACIÓN (JURADOS) -->
         @if (isJurado()) {
           <a routerLink="/dashboard/votacion"
@@ -68,7 +60,7 @@
 
         <!-- SECCIÓN DE ADMINISTRACIÓN -->
         @if (isAdmin()) {
-          <div class="pt-6 pb-2 px-3">
+          <div class="pt-5 pb-1 px-3">
             <p class="text-[10px] font-black text-[#C5A059] uppercase tracking-widest">Gestión de Gala</p>
           </div>
 
@@ -90,6 +82,20 @@
             <span>Padrón de Jurados</span>
           </a>
         }
+
+        <!-- DIVISOR HACIA ACCESOS EXTERNOS -->
+        <div class="pt-5 pb-1 px-3 border-t border-[#C5A059]/15 mt-3">
+          <p class="text-[9px] font-bold text-neutral-500 uppercase tracking-widest">Vista Externa</p>
+        </div>
+
+        <!-- ACCESO AL PORTAL PÚBLICO (AL FINAL DE TODO PARA NO TOCARLO POR ERROR) -->
+        <a routerLink="/"
+           (click)="isSidebarOpen.set(false)"
+           class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414]/60 border border-transparent hover:border-[#C5A059]/20 text-xs font-semibold transition-all group">
+          <i class="bi bi-globe2 text-sm text-neutral-500 group-hover:text-[#C5A059] transition-colors"></i>
+          <span>Portal Público</span>
+        </a>
+
       </nav>
     </div>
 
@@ -125,23 +131,27 @@
          (click)="isSidebarOpen.set(false)"></div>
   }
 
-  <!-- CONTENEDOR PRINCIPAL: TRANSPARENTE PARA QUE SE VEA EL FONDO -->
+  <!-- CONTENEDOR PRINCIPAL -->
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 bg-transparent">
 
-    <!-- CABECERA MÓVIL (CON BOTÓN DE ACCESO AL PORTAL PÚBLICO) -->
-    <header class="flex items-center justify-between px-5 py-3.5 bg-[#080808]/90 backdrop-blur-md border-b border-[#C5A059]/30 lg:hidden shadow-md">
-      <button (click)="toggleSidebar()" class="p-2 rounded-xl bg-[#141414] text-[#F3E7C4] border border-[#C5A059]/40">
-        <i class="bi bi-list text-xl"></i>
+    <!-- CABECERA MÓVIL (LA FLOR FNE ES EL BOTÓN PARA ABRIR/CERRAR EL MENÚ) -->
+    <!-- CABECERA MÓVIL (SOLO LA FLOR FNE COMO BOTÓN DE APERTURA) -->
+    <header class="flex items-center justify-between px-4 py-3 bg-[#080808]/90 backdrop-blur-md border-b border-[#C5A059]/30 lg:hidden shadow-md">
+
+      <!-- Botón Único con la Flor FNE -->
+      <button type="button"
+              (click)="toggleSidebar()"
+              class="p-2 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/50 shadow-[0_0_15px_rgba(197,160,89,0.25)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+              title="Abrir Menú">
+        <img src="assets/logo-fne.png" alt="Flor FNE" class="w-7 h-7 object-contain drop-shadow-[0_0_6px_rgba(197,160,89,0.4)]">
       </button>
-      <span class="text-sm font-black text-[#F3E7C4] tracking-wider flex items-center gap-2">
-        <img src="assets/logo-fne.png" alt="Logo" class="w-6 h-6 object-contain">
+
+      <span class="text-xs sm:text-sm font-black text-[#F3E7C4] tracking-wider uppercase">
         ELECCIÓN REINA
       </span>
 
-      <!-- Botón de acceso al portal en celular -->
-      <a routerLink="/" class="p-2 rounded-xl bg-[#141414] text-[#F3E7C4] border border-[#C5A059]/40 flex items-center justify-center shadow-sm" title="Ver Portal Público">
-        <i class="bi bi-globe2 text-base text-[#C5A059]"></i>
-      </a>
+      <!-- Espacio de equilibrio -->
+      <div class="w-11"></div>
     </header>
 
     <!-- ÁREA DONDE SE CARGAN LAS PÁGINAS -->

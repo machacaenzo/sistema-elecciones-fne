@@ -1,0 +1,79 @@
+:host {
+  display: block;
+  background: transparent !important;
+}
+
+// Animaciones cinemáticas
+.animate-fadeIn {
+  animation: fadeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideUp {
+  opacity: 0;
+  transform: translateY(60px);
+  animation: slideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; filter: blur(10px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+@keyframes slideUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// Levitación de Corona Centrada
+.animate-floatCrown {
+  animation: floatCrown 4.5s ease-in-out infinite;
+}
+
+@keyframes floatCrown {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(-1deg); }
+}
+
+/* Partículas doradas */
+.gold-particles-container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gold-particle {
+  position: absolute;
+  top: -30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(243, 231, 196, 0.8) 10%, rgba(197, 160, 89, 0.4) 60%, transparent 100%);
+  opacity: 0;
+  animation: cascadeGold linear infinite;
+}
+
+.bokeh-lg {
+  background: radial-gradient(circle, rgba(197, 160, 89, 0.35) 0%, rgba(140, 109, 45, 0.15) 60%, transparent 100%);
+  filter: blur(3px);
+}
+
+@keyframes cascadeGold {
+  0% { transform: translateY(0) translateX(0) scale(0.6); opacity: 0; }
+  20% { opacity: 0.55; }
+  50% { transform: translateY(50vh) translateX(25px) scale(1); opacity: 0.45; }
+  80% { opacity: 0.35; }
+  100% { transform: translateY(105vh) translateX(-20px) scale(0.5); opacity: 0; }
+}
+
+.p1  { left: 4%;  width: 4px;  height: 4px;  animation-duration: 11s; animation-delay: 0s; }
+.p2  { left: 16%; width: 6px;  height: 6px;  animation-duration: 14s; animation-delay: 3s; }
+.p3  { left: 28%; width: 5px;  height: 5px;  animation-duration: 10s; animation-delay: 6s; }
+.p4  { left: 40%; width: 4px;  height: 4px;  animation-duration: 12s; animation-delay: 1s; }
+.p5  { left: 52%; width: 6px;  height: 6px;  animation-duration: 15s; animation-delay: 5s; }
+.p6  { left: 64%; width: 5px;  height: 5px;  animation-duration: 11s; animation-delay: 2s; }
+.p7  { left: 76%; width: 4px;  height: 4px;  animation-duration: 13s; animation-delay: 7s; }
+.p8  { left: 88%; width: 6px;  height: 6px;  animation-duration: 10s; animation-delay: 4s; }
+.p9  { left: 95%; width: 5px;  height: 5px;  animation-duration: 12s; animation-delay: 8s; }
+
+.p19 { left: 8%;  width: 22px; height: 22px; animation-duration: 20s; animation-delay: 1s; }
+.p21 { left: 45%; width: 26px; height: 26px; animation-duration: 19s; animation-delay: 8s; }
+.p23 { left: 82%; width: 24px; height: 24px; animation-duration: 23s; animation-delay: 4s; }

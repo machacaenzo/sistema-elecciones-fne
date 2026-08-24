@@ -1,113 +1,173 @@
-<div class="min-h-[85vh] w-full flex items-center justify-center p-4 sm:p-10 animate-fadeIn">
+<div class="space-y-6 text-neutral-100 font-sans pb-10 flex justify-center animate-fadeIn">
 
-  <!-- CONTENEDOR TIPO HOLOGRAMA (SIN FONDO SÓLIDO) -->
-  <div class="w-full max-w-5xl backdrop-blur-xl bg-white/[0.03] border-2 border-[#C5A059]/30 rounded-[3.5rem] shadow-[0_0_50px_rgba(197,160,89,0.1)] overflow-hidden relative">
+  <!-- ========================================================================= -->
+  <!-- TARJETA PRINCIPAL: CREDENCIAL VIP HOLOGRÁFICA                             -->
+  <!-- ========================================================================= -->
+  <div class="w-full max-w-4xl backdrop-blur-3xl bg-[#050505]/90 border-2 border-[#C5A059]/40 rounded-3xl sm:rounded-[3.5rem] shadow-[0_0_90px_rgba(0,0,0,0.95),0_0_50px_rgba(197,160,89,0.2)] overflow-hidden relative transition-all hover:border-[#C5A059]/70">
 
-    <!-- RESPLANDOR DORADO DE FONDO (SUTIL) -->
-    <div class="absolute -top-20 -right-20 w-80 h-80 bg-[#C5A059]/10 rounded-full blur-[100px] pointer-events-none"></div>
+    <!-- RESPLANDORES AMBIENTALES -->
+    <div class="absolute -top-24 -right-24 w-80 h-80 bg-[#C5A059]/15 rounded-full blur-[110px] pointer-events-none"></div>
+    <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-[#C5A059]/10 rounded-full blur-[110px] pointer-events-none"></div>
 
-    <!-- CABECERA FLOTANTE -->
-    <div class="px-10 py-12 border-b border-[#C5A059]/20 flex flex-col items-center text-center">
-      <h1 class="text-4xl md:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] drop-shadow-sm">
-        PERFIL DE EMBAJADOR
-      </h1>
-      <div class="flex items-center gap-4 mt-3">
-        <div class="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#C5A059]"></div>
-        <p class="text-[10px] uppercase tracking-[0.5em] text-[#F3E7C4] font-black opacity-70">Identidad Real del Escrutinio</p>
-        <div class="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#C5A059]"></div>
+    <!-- CABECERA INSTITUCIONAL -->
+    <div class="px-6 sm:px-10 py-6 sm:py-7 border-b border-[#C5A059]/25 bg-gradient-to-r from-[#C5A059]/20 via-black/50 to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/60 flex items-center justify-center p-1.5 shadow-[0_0_25px_rgba(197,160,89,0.3)] flex-shrink-0">
+          <img src="assets/logo-fne.png" alt="Logo FNE" class="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(197,160,89,0.5)]">
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] drop-shadow-[0_2px_15px_rgba(197,160,89,0.25)]">
+            Credencial Oficial de Escrutinio
+          </h1>
+          <p class="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-[#F3E7C4] font-bold mt-0.5">
+            Gala Estudiantil &bull; Identidad Digital
+          </p>
+        </div>
       </div>
+
+      <!-- Estado Oficial -->
+      @if (currentUser(); as u) {
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0A0A0A] border border-[#C5A059]/40 shadow-sm self-start sm:self-center">
+          <span class="w-2 h-2 rounded-full" [ngClass]="u.EsActivo ? 'bg-emerald-400 shadow-[0_0_10px_#10B981] animate-pulse' : 'bg-rose-400'"></span>
+          <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider" [ngClass]="u.EsActivo ? 'text-emerald-400' : 'text-rose-400'">
+            {{ u.EsActivo ? 'Habilitado Oficial' : 'Pendiente' }}
+          </span>
+        </div>
+      }
     </div>
 
+    <!-- CUERPO DE LA CREDENCIAL -->
     @if (currentUser(); as user) {
-      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="p-8 md:p-16">
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="p-6 sm:p-10 md:p-12">
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
 
-          <!-- LADO IZQUIERDO: RETRATO FLOTANTE -->
-          <div class="lg:col-span-5 flex flex-col items-center">
-            <div class="relative group">
+          <!-- COLUMNA IZQUIERDA: AVATAR MEDIANO CON CORONA SOBRE EL ARO + BOTÓN SUTIL -->
+          <div class="md:col-span-5 flex flex-col items-center">
 
-              <!-- Aura de Luz tras la foto -->
-              <div class="absolute inset-0 bg-[#C5A059]/20 blur-[40px] rounded-full scale-75 group-hover:scale-110 transition-transform duration-1000"></div>
+            <!-- CONTENEDOR DEL AVATAR CON CORONA -->
+            <div class="relative group mt-10 mb-2">
 
-              <!-- El Marco de Cristal Editorial -->
-              <div class="relative w-60 h-80 sm:w-72 sm:h-96 rounded-[3rem] overflow-hidden border-2 border-[#C5A059]/50 shadow-[0_0_40px_rgba(0,0,0,0.5)] bg-black/20 backdrop-blur-md">
-                <img [src]="previewImg() || 'assets/user-default.jpg'" alt="Perfil"
-                     class="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110">
-
-                <!-- Botón Editar (Solo aparece al pasar el mouse) -->
-                <div (click)="fileInput.click()" class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#F3E7C4" class="mb-2 animate-bounce" viewBox="0 0 16 16">
-                    <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
-                    <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/>
-                  </svg>
-                  <span class="text-[#F3E7C4] text-[9px] font-black tracking-[0.4em]">CAMBIAR IMAGEN</span>
+              <!-- CORONA FLOTANTE REAL (UBICADA DIRECTAMENTE SOBRE EL ARO SUPERIOR) -->
+              <div class="absolute -top-11 inset-x-0 mx-auto w-16 h-16 sm:w-20 sm:h-20 z-30 pointer-events-none flex items-center justify-center">
+                <div class="w-full h-full animate-floatCrown">
+                  @if (tipoCorona() === 'REYNA') {
+                    <img src="assets/REYNA.png" alt="Corona Reina" class="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(197,160,89,1)] brightness-110">
+                  } @else {
+                    <img src="assets/REY.png" alt="Corona Rey" class="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(197,160,89,1)] brightness-110">
+                  }
                 </div>
               </div>
 
-              <!-- Placa Metálica Inferior -->
-              <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 px-12 py-3 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
-                <span class="text-[#0A0D14] text-xs font-black uppercase tracking-[0.3em] italic">{{ user.rol || 'JURADO' }}</span>
+              <!-- Halo Luminoso Trasero -->
+              <div class="absolute inset-0 bg-gradient-to-tr from-[#C5A059]/30 to-[#F3E7C4]/20 blur-[20px] rounded-full scale-95 group-hover:scale-105 transition-transform duration-700"></div>
+
+              <!-- AVATAR CIRCULAR MEDIANO Y PROPORCIONADO -->
+              <div class="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-[#C5A059] shadow-[0_0_35px_rgba(0,0,0,0.9),0_0_20px_rgba(197,160,89,0.3)] bg-[#0A0A0A] p-1">
+                <img [src]="previewImg() || 'assets/user-default.jpg'"
+                     alt="Foto de Perfil"
+                     class="w-full h-full object-cover rounded-full transition-transform duration-700 group-hover:scale-105">
+
+                <!-- Overlay táctil para cambiar foto -->
+                <div (click)="fileInput.click()"
+                     class="absolute inset-0 bg-black/75 backdrop-blur-[2px] rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer z-10">
+                  <i class="bi bi-camera-fill text-[#C5A059] text-lg mb-0.5"></i>
+                  <span class="text-[#F3E7C4] text-[8px] font-black tracking-widest uppercase">Cambiar</span>
+                </div>
+              </div>
+
+              <!-- Placa Metálica Inferior con el Rol -->
+              <div class="absolute -bottom-3 inset-x-0 mx-auto w-max px-5 py-1 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#FFF3D1] to-[#8C6D2D] border border-[#FFF3D1]/80 shadow-[0_4px_20px_rgba(197,160,89,0.5)] z-20">
+                <span class="text-[#0A0D14] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em] italic block">
+                  {{ user.rol === 'Administrador' ? 'ADMINISTRADOR' : (user.rol === 'Jurado' ? 'JURADO OFICIAL' : 'PENDIENTE') }}
+                </span>
               </div>
             </div>
+
+            <!-- BOTÓN SUTIL ÚNICO PARA ALTERNAR CORONA -->
+            <button type="button"
+                    (click)="toggleCorona()"
+                    title="Alternar entre Corona de Rey o Reina"
+                    class="mt-6 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-[10px] font-bold uppercase tracking-wider transition-all hover:scale-105 shadow-sm cursor-pointer">
+              <img [src]="tipoCorona() === 'REYNA' ? 'assets/REY.png' : 'assets/REYNA.png'" class="w-3.5 h-3.5 object-contain">
+              <span>Cambiar a {{ tipoCorona() === 'REYNA' ? 'Rey' : 'Reina' }}</span>
+            </button>
 
             <input type="file" #fileInput hidden (change)="onFileSelected($event)" accept="image/*">
 
             @if (previewImg()) {
-              <button type="button" (click)="removePhoto()" class="mt-12 text-[#C5A059]/50 text-[10px] font-bold uppercase tracking-[0.2em] hover:text-red-500 transition-all">
-                Remover Imagen Actual
+              <button type="button"
+                      (click)="removePhoto()"
+                      class="mt-3 text-rose-400/70 hover:text-rose-400 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center gap-1">
+                <i class="bi bi-trash3 text-[10px]"></i>
+                <span>Remover imagen</span>
               </button>
             }
           </div>
 
-          <!-- LADO DERECHO: CAMPOS DE CRISTAL -->
-          <div class="lg:col-span-7 flex flex-col gap-10">
+          <!-- COLUMNA DERECHA: CAMPOS DE CREDENCIAL -->
+          <div class="md:col-span-7 flex flex-col gap-4 sm:gap-5">
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <div class="space-y-1">
+              <h2 class="text-sm font-bold text-[#F3E7C4] uppercase tracking-wider">Información de la Cuenta</h2>
+              <p class="text-xs text-neutral-400">Datos registrados para las actas oficiales de votación</p>
+            </div>
+
+            <!-- Fila: Nombre y Apellido -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
               <!-- Nombre -->
-              <div class="space-y-3 group">
-                <label class="text-[10px] uppercase font-black text-[#C5A059] ml-6 tracking-[0.4em] opacity-80 group-focus-within:opacity-100 transition-opacity">Nombre de Gala</label>
-                <input formControlName="nombre" type="text"
-                  class="w-full rounded-full bg-white/[0.05] border border-white/10 px-8 py-5 text-white text-lg focus:outline-none focus:border-[#C5A059]/60 focus:bg-white/[0.08] transition-all shadow-inner">
+              <div class="space-y-1.5">
+                <label class="block text-[10px] font-black text-[#C5A059] uppercase tracking-[0.25em] ml-2">Nombre Oficial</label>
+                <div class="relative">
+                  <input formControlName="nombre"
+                         type="text"
+                         placeholder="Ej: Sofía"
+                         class="w-full px-5 py-3.5 bg-[#0A0A0A] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-2xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all shadow-inner">
+                  <i class="bi bi-person-fill absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500"></i>
+                </div>
               </div>
 
               <!-- Apellido -->
-              <div class="space-y-3 group">
-                <label class="text-[10px] uppercase font-black text-[#C5A059] ml-6 tracking-[0.4em] opacity-80">Apellido de Gala</label>
-                <input formControlName="apellido" type="text"
-                  class="w-full rounded-full bg-white/[0.05] border border-white/10 px-8 py-5 text-white text-lg focus:outline-none focus:border-[#C5A059]/60 focus:bg-white/[0.08] transition-all shadow-inner">
+              <div class="space-y-1.5">
+                <label class="block text-[10px] font-black text-[#C5A059] uppercase tracking-[0.25em] ml-2">Apellido Oficial</label>
+                <div class="relative">
+                  <input formControlName="apellido"
+                         type="text"
+                         placeholder="Ej: Valdiviezo"
+                         class="w-full px-5 py-3.5 bg-[#0A0A0A] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-2xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all shadow-inner">
+                  <i class="bi bi-person-fill absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500"></i>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Correo Electrónico Institucional (Bloqueado) -->
+            <div class="space-y-1.5">
+              <label class="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.25em] ml-2">Identificación Digital (Email)</label>
+              <div class="w-full px-5 py-3.5 bg-[#0A0A0A]/60 border border-white/10 rounded-2xl text-neutral-400 text-xs sm:text-sm italic flex items-center justify-between shadow-inner">
+                <span class="truncate">{{ user.email }}</span>
+                <i class="bi bi-shield-check text-[#C5A059] text-base flex-shrink-0 ml-2"></i>
               </div>
             </div>
 
-            <!-- Email (Lectura - Ultra Transparente) -->
-            <div class="space-y-3">
-              <label class="text-[10px] uppercase font-black text-white/30 ml-6 tracking-[0.4em]">Identificación Digital</label>
-              <div class="w-full rounded-full bg-black/30 border border-white/5 px-8 py-5 text-white/40 text-sm italic flex justify-between items-center backdrop-blur-sm">
-                <span>{{ user.email }}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="opacity-20 text-[#C5A059]">
-                  <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
-                </svg>
-              </div>
-            </div>
+            <!-- BOTÓN GUARDAR CON HAZ DE LUZ DESLIZANTE -->
+            <div class="pt-4 sm:pt-6 flex justify-end">
+              <button type="submit"
+                      [disabled]="isSubmitting() || profileForm.pristine"
+                      class="relative w-full sm:w-auto px-12 py-4 rounded-2xl overflow-hidden group shadow-[0_0_35px_rgba(197,160,89,0.35)] transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none cursor-pointer">
 
-            <!-- BOTÓN GUARDAR (EL "SOL" DEL DISEÑO) -->
-            <div class="pt-10 flex justify-end">
-              <button
-                type="submit"
-                [disabled]="isSubmitting() || profileForm.pristine"
-                class="relative px-16 py-5 rounded-full overflow-hidden group shadow-[0_20px_50px_rgba(197,160,89,0.2)] transition-all active:scale-95 disabled:opacity-20 disabled:grayscale"
-              >
-                <!-- Fondo Dorado Metálico -->
-                <div class="absolute inset-0 bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] group-hover:scale-110 transition-transform duration-500"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-[#8C6D2D] via-[#FFF3D1] to-[#8C6D2D] group-hover:scale-105 transition-transform duration-500"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
 
-                <!-- Brillo que recorre el botón -->
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
-
-                <span class="relative text-[#0A0D14] font-black text-xs uppercase tracking-[0.4em] flex items-center gap-4">
+                <span class="relative text-[#0A0D14] font-black text-xs uppercase tracking-[0.25em] flex items-center justify-center gap-2">
                   @if (isSubmitting()) {
-                    <span class="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
+                    <span class="inline-block w-4 h-4 border-2 border-[#0A0D14] border-t-transparent rounded-full animate-spin"></span>
+                    <span>SINCRONIZANDO...</span>
+                  } @else {
+                    <i class="bi bi-stars text-sm"></i>
+                    <span>GUARDAR CREDENCIAL</span>
                   }
-                  {{ isSubmitting() ? 'SINCRONIZANDO' : 'GUARDAR CAMBIOS' }}
                 </span>
               </button>
             </div>
@@ -117,4 +177,5 @@
       </form>
     }
   </div>
+
 </div>

@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  background: transparent !important; // Hereda el fondo cinematográfico del Dashboard
+}
+
+// Animación de entrada con desenfoque suave
+.animate-fadeIn {
+  animation: fadeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+// Levitación continua de la corona sin desfasarse
+.animate-floatCrown {
+  animation: floatCrown 4.5s ease-in-out infinite;
+}
+
+@keyframes floatCrown {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-2deg);
+  }
+}
+
+input:focus {
+  outline: none !important;
+}

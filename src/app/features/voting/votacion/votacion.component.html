@@ -18,7 +18,7 @@
       @for (eleccion of todasLasElecciones(); track eleccion.id) {
         <div class="group relative overflow-hidden rounded-[2.5rem] transition-all duration-300 hover:scale-[1.01] shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
 
-          <div class="backdrop-blur-xl bg-[#050505]/85 border border-[#C5A059]/30 hover:border-[#C5A059]/70 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 transition-all">
+          <div class="backdrop-blur-xl bg-white/[0.03] border border-white/10 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 transition-all">
 
             <div class="flex items-center gap-6">
               <!-- Fecha Estilo VIP -->
@@ -68,10 +68,10 @@
   <!-- MODAL DE VOTACIÓN (PANTALLA COMPLETA DE ESCRUTINIO)       -->
   <!-- ========================================================= -->
   @if (isVotingMode() && selectedEleccion(); as eleccion) {
-    <div class="fixed inset-0 z-[60] flex flex-col bg-black/85 backdrop-blur-3xl animate-fadeIn overflow-hidden">
+    <div class="fixed inset-0 z-[60] flex flex-col bg-black/40 backdrop-blur-3xl animate-fadeIn overflow-hidden">
 
       <!-- HEADER MESA DE CONTROL -->
-      <nav class="px-6 sm:px-10 py-4 sm:py-5 border-b border-[#C5A059]/30 bg-[#050505]/90 flex items-center justify-between">
+      <nav class="px-6 sm:px-10 py-4 sm:py-5 border-b border-white/10 bg-black/40 flex items-center justify-between">
         <div class="flex items-center gap-4">
           <img src="assets/logo-fne.png" class="w-9 h-9 object-contain" alt="FNE">
           <div>
@@ -157,7 +157,7 @@
         @else if (!isReviewMode()) {
 
           <!-- BARRA SUPERIOR: BOTÓN TANDAS + MINIATURAS CON PUNTOS -->
-          <div class="w-full bg-[#050505]/95 border-b border-[#C5A059]/30 py-3 sm:py-4 px-4 sm:px-8 shrink-0 shadow-lg">
+          <div class="w-full bg-black/40 border-b border-white/5 py-3 sm:py-4 px-4 sm:px-8 shrink-0 shadow-lg">
             <div class="flex items-center gap-4">
 
               <!-- Botón para volver a las 2 coronas grandes -->

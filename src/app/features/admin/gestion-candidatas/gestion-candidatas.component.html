@@ -1,146 +1,274 @@
-<div class="modal-content neumorphic-panel-outset" (click)="$event.stopPropagation()">
-  <div class="modal-header">
-    <div class="header-text">
-      <h2 class="modal-title">Gestionar Candidatas</h2>
-      <p class="modal-subtitle">{{ eleccion.nombre }}</p>
-    </div>
-    <button type="button" mat-icon-button class="modal-close-button" (click)="closeModal.emit()" matTooltip="Cerrar">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
+<!-- OVERLAY OSCURO CON DESENFOQUE SUAVE -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-fade-in"
+     (click)="$event.stopPropagation()">
 
-  <div class="modal-body">
-    <!-- Vista de Lista de Candidatas (Sin cambios) -->
-    @if(!isFormVisible()){
-      <div class="view-mode">
-        <div class="actions-header">
-          <button class="neumorphic-button-outset primary"
+  <!-- CONTENEDOR PRINCIPAL: NEGRO PROFUNDO Y BORDE DORADO -->
+  <div class="relative w-full max-w-5xl max-h-[94vh] overflow-hidden rounded-3xl bg-[#050505] border-2 border-[#C5A059]/40 shadow-[0_0_60px_rgba(197,160,89,0.25)] flex flex-col">
+
+    <!-- CABECERA DEL MODAL -->
+    <div class="flex items-center justify-between px-8 py-5 border-b border-[#C5A059]/25 bg-[#0D0D0D]">
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-2xl bg-[#141414] border border-[#C5A059]/60 flex items-center justify-center text-[#F3E7C4] text-2xl shadow-[0_0_20px_rgba(197,160,89,0.2)]">
+          <i class="bi bi-person-badge"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-[#F3E7C4] tracking-wide">Padrón de Participantes</h2>
+          <p class="text-sm text-slate-400 mt-0.5">{{ eleccion.nombre }} &bull; Orden oficial de pasarela</p>
+        </div>
+      </div>
+
+      <!-- Botón Cerrar -->
+      <button type="button"
+              (click)="closeModal.emit()"
+              class="w-10 h-10 rounded-2xl bg-[#141414] hover:bg-[#202020] border border-[#C5A059]/30 text-slate-300 hover:text-white flex items-center justify-center text-lg transition-all">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- CUERPO PRINCIPAL CON SCROLL -->
+    <div class="p-6 sm:p-8 overflow-y-auto flex-1 custom-scrollbar space-y-6">
+
+      <!-- ========================================================= -->
+      <!-- VISTA 1: LISTADO Y GRILLA DE PARTICIPANTES                -->
+      <!-- ========================================================= -->
+      @if (!isFormVisible()) {
+
+        <!-- Barra superior: Filtros por Categoría y Botón de Inscripción -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-2">
+
+          <!-- Filtro por Pestañas (Todas / Embajadoras / Embajadores) -->
+          <div class="flex p-1 bg-[#0F0F0F] rounded-2xl border border-[#C5A059]/30 shadow-inner">
+            <button type="button"
+                    (click)="categoriaFiltro.set('Todas')"
+                    [class]="categoriaFiltro() === 'Todas' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-extrabold shadow-md' : 'text-slate-400 hover:text-[#F3E7C4]'"
+                    class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all">
+              Todos ({{ participantes().length }})
+            </button>
+            <button type="button"
+                    (click)="categoriaFiltro.set('Embajadora')"
+                    [class]="categoriaFiltro() === 'Embajadora' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-extrabold shadow-md' : 'text-slate-400 hover:text-[#F3E7C4]'"
+                    class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all">
+              Embajadoras
+            </button>
+            <button type="button"
+                    (click)="categoriaFiltro.set('Embajador')"
+                    [class]="categoriaFiltro() === 'Embajador' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-extrabold shadow-md' : 'text-slate-400 hover:text-[#F3E7C4]'"
+                    class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all">
+              Embajadores
+            </button>
+          </div>
+
+          <!-- Botón Inscribir Participante (Dorado Metálico Grande) -->
+          <button type="button"
                   (click)="openCreateForm()"
                   [disabled]="eleccion.estado !== 'Configuracion'"
-                  [matTooltip]="eleccion.estado !== 'Configuracion' ? 'No se pueden inscribir candidatas ahora' : 'Inscribir Nueva Candidata'">
-            <mat-icon>person_add</mat-icon>
-            <span>Inscribir Candidata</span>
+                  class="flex items-center gap-2.5 px-6 py-3 bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-extrabold text-sm rounded-2xl shadow-[0_4px_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none">
+            <i class="bi bi-person-plus-fill text-base"></i>
+            <span>Inscribir Participante</span>
           </button>
         </div>
 
-        <div class="table-container neumorphic-panel-inset">
-          <table mat-table [dataSource]="dataSource" class="candidates-table">
-            <ng-container matColumnDef="foto">
-              <th mat-header-cell *matHeaderCellDef> Foto Principal </th>
-              <td mat-cell *matCellDef="let candidata">
-                <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'" alt="Foto" class="candidate-avatar">
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="nombreCompleto">
-              <th mat-header-cell *matHeaderCellDef> Nombre y Apellido </th>
-              <td mat-cell *matCellDef="let candidata" class="candidate-name">{{ candidata.nombre }} {{ candidata.apellido }}</td>
-            </ng-container>
-            <ng-container matColumnDef="dni">
-              <th mat-header-cell *matHeaderCellDef> DNI </th>
-              <td mat-cell *matCellDef="let candidata">{{ candidata.dni }}</td>
-            </ng-container>
-            <ng-container matColumnDef="acciones">
-              <th mat-header-cell *matHeaderCellDef class="text-right"> Acciones </th>
-              <td mat-cell *matCellDef="let candidata" class="text-right">
-                <button mat-icon-button (click)="openEditForm(candidata)" class="action-button edit" matTooltip="Editar"
-                        [disabled]="eleccion.estado !== 'Configuracion'">
-                  <mat-icon>edit</mat-icon>
+        <!-- Grilla de Tarjetas de Participantes (Negro Sólido + Dorado) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          @for (candidata of participantesFiltrados(); track candidata.id) {
+            <div class="relative group bg-[#0F0F0F] hover:bg-[#141414] border border-[#C5A059]/25 hover:border-[#C5A059]/60 rounded-2xl p-4 transition-all duration-300 flex flex-col justify-between shadow-md">
+
+              <!-- Badge de Número de Pasada y Categoría -->
+              <div class="absolute top-6 left-6 z-10 flex items-center gap-2">
+                <span class="px-3 py-1 bg-[#C5A059] text-[#0A0D14] font-black text-xs rounded-lg shadow-lg border border-[#FFF3D1]/50">
+                  #{{ candidata.numero }}
+                </span>
+                <span class="px-2.5 py-1 bg-black/80 text-[11px] font-bold text-[#F3E7C4] rounded-lg border border-[#C5A059]/40">
+                  {{ candidata.categoria }}
+                </span>
+              </div>
+
+              <!-- Foto del Participante -->
+              <div class="w-full h-52 rounded-xl overflow-hidden mb-3.5 bg-black relative border border-white/5">
+                <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'"
+                     [alt]="candidata.nombre"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              </div>
+
+              <!-- Datos de la Persona -->
+              <div class="space-y-1">
+                <h4 class="text-base font-bold text-white truncate">{{ candidata.nombre }} {{ candidata.apellido }}</h4>
+                <div class="inline-block px-3 py-0.5 rounded-full bg-[#171717] border border-[#C5A059]/30 text-xs font-semibold text-[#F3E7C4]">
+                  {{ candidata.cursoDivision || 'Sin curso asignado' }}
+                </div>
+                <p class="text-xs text-slate-400">DNI: {{ candidata.dni }}</p>
+              </div>
+
+              <!-- Botones de Acción (Editar / Eliminar) -->
+              <div class="flex items-center justify-end gap-1.5 mt-4 pt-3 border-t border-[#C5A059]/15">
+                <button type="button"
+                        (click)="openEditForm(candidata)"
+                        [disabled]="eleccion.estado !== 'Configuracion'"
+                        class="p-2 text-slate-300 hover:text-[#F3E7C4] hover:bg-[#1A1A1A] rounded-xl transition-colors disabled:opacity-30"
+                        title="Editar Datos">
+                  <i class="bi bi-pencil-square text-base"></i>
                 </button>
-                <button mat-icon-button (click)="confirmDelete(candidata)" class="action-button warn" matTooltip="Eliminar"
-                        [disabled]="eleccion.estado !== 'Configuracion'">
-                  <mat-icon>delete</mat-icon>
+                <button type="button"
+                        (click)="confirmDelete(candidata)"
+                        [disabled]="eleccion.estado !== 'Configuracion'"
+                        class="p-2 text-slate-300 hover:text-red-400 hover:bg-[#1A1A1A] rounded-xl transition-colors disabled:opacity-30"
+                        title="Eliminar">
+                  <i class="bi bi-trash3 text-base"></i>
                 </button>
-              </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
-          @if(dataSource.data.length === 0){
-            <div class="no-results-message">
-              <h3>Sin Candidatas</h3>
-              <p>Aún no se ha inscrito ninguna candidata para esta elección.</p>
+              </div>
+            </div>
+          } @empty {
+            <div class="col-span-full py-16 text-center text-slate-500 border border-dashed border-[#C5A059]/20 rounded-2xl bg-[#0F0F0F]/50">
+              <i class="bi bi-person-badge text-5xl block mb-2 text-[#C5A059]/30"></i>
+              <p class="text-base font-medium text-slate-300">No hay participantes inscriptos en esta categoría.</p>
+              <p class="text-xs text-slate-500 mt-1">Hacé clic en "Inscribir Participante" para agregar el primero.</p>
             </div>
           }
         </div>
-      </div>
-    }
+      }
 
-    <!-- ====================================================== -->
-    <!-- ===== VISTA DE FORMULARIO (LAYOUT INVERTIDO Y MEJORADO) ===== -->
-    <!-- ====================================================== -->
-    @if(isFormVisible()){
-      <form class="form-mode" [formGroup]="candidataForm" (ngSubmit)="onSubmit()">
-        <div class="form-header">
-          <button type="button" mat-icon-button (click)="hideForm()" class="back-button" matTooltip="Volver a la lista">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-          <h4>{{ isEditing() ? 'Editar Datos de Candidata' : 'Nueva Inscripción' }}</h4>
-        </div>
+      <!-- ========================================================= -->
+      <!-- VISTA 2: FORMULARIO DE ALTA Y EDICIÓN                     -->
+      <!-- ========================================================= -->
+      @if (isFormVisible()) {
+        <form [formGroup]="candidataForm" (ngSubmit)="onSubmit()" class="space-y-6">
 
-        <!-- Contenedor principal del grid -->
-        <div class="form-layout-grid">
-
-          <!-- COLUMNA IZQUIERDA: Formulario de Datos -->
-          <div class="form-column">
-            <h5 class="form-section-title">Datos Personales</h5>
-            <div class="form-grid">
-              <mat-form-field appearance="fill">
-                <mat-label>Nombre</mat-label>
-                <input matInput formControlName="nombre">
-              </mat-form-field>
-              <mat-form-field appearance="fill">
-                <mat-label>Apellido</mat-label>
-                <input matInput formControlName="apellido">
-              </mat-form-field>
-              <mat-form-field appearance="fill" class="full-width-field">
-                <mat-label>Documento de Identidad (DNI)</mat-label>
-                <input matInput formControlName="dni">
-              </mat-form-field>
-            </div>
-
-            @if (eleccion.camposCandidata && eleccion.camposCandidata.length > 0) {
-              <h5 class="form-section-title">Información Adicional</h5>
-              <div class="form-grid" [formGroup]="camposPersonalizadosGroup">
-                @for(campo of eleccion.camposCandidata; track campo){
-                  <mat-form-field appearance="fill">
-                    <mat-label>{{ campo }}</mat-label>
-                    <input matInput [formControlName]="campo">
-                  </mat-form-field>
-                }
-              </div>
-            }
+          <div class="flex items-center justify-between pb-4 border-b border-[#C5A059]/25">
+            <button type="button" (click)="hideForm()" class="flex items-center gap-2 text-sm font-semibold text-slate-300 hover:text-[#F3E7C4] transition-colors">
+              <i class="bi bi-arrow-left text-base"></i> Volver a la lista
+            </button>
+            <span class="text-xs font-bold text-[#F3E7C4] uppercase tracking-widest px-4 py-1.5 bg-[#141414] rounded-full border border-[#C5A059]/40 shadow-sm">
+              {{ isEditing() ? 'Modificar Ficha' : 'Nueva Inscripción de Pasarela' }}
+            </span>
           </div>
 
-          <!-- COLUMNA DERECHA: Galería -->
-          <div class="form-column">
-            <div class="gallery-uploader">
-              <h5 class="form-section-title">Galería de Fotos</h5>
-              <div class="image-previews-grid neumorphic-panel-inset">
-                @for(preview of imagePreviews(); track $index){
-                  <div class="image-preview-item">
-                    <img [src]="preview" alt="Vista previa">
-                    <button type="button" mat-icon-button class="remove-image-btn" (click)="removeImage($index)">
-                      <mat-icon>cancel</mat-icon> 
-                    </button>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Columnas 1 y 2: Formulario de Datos Personales -->
+            <div class="lg:col-span-2 space-y-5">
+
+              <!-- N° de Pasarela y Categoría -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25">
+                <div>
+                  <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-2">
+                    N° de Pasarela (Orden Oficial)
+                  </label>
+                  <input type="number" formControlName="numero" min="1"
+                         class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all font-bold">
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-2">
+                    Categoría
+                  </label>
+                  <select formControlName="categoria"
+                          class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all font-medium [&>option]:bg-[#0F0F0F] [&>option]:text-white">
+                    <option value="Embajadora">Embajadora (Femenino)</option>
+                    <option value="Embajador">Embajador (Masculino)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Nombre, Apellido, DNI y Curso -->
+              <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 space-y-4">
+                <h3 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <i class="bi bi-person-vcard text-[#C5A059]"></i> Datos del Participante
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Nombre</label>
+                    <input type="text" formControlName="nombre" placeholder="Ej: Rocío"
+                           class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all">
                   </div>
-                }
-                <label for="file-upload" class="add-image-card neumorphic-button-outset">
-                  <mat-icon>add_a_photo</mat-icon>
-                  <span>Añadir fotos</span>
-                </label>
-                <input id="file-upload" type="file" (change)="onFileSelected($event)" accept="image/*" multiple hidden>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Apellido</label>
+                    <input type="text" formControlName="apellido" placeholder="Ej: Gómez"
+                           class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all">
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Documento (DNI)</label>
+                    <input type="text" formControlName="dni" placeholder="Ej: 46123456"
+                           class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Curso y División</label>
+                    <input type="text" formControlName="cursoDivision" placeholder="Ej: 5to 1ra Humanidades"
+                           class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Preguntas dinámicas (Información Adicional del Perfil) -->
+              @if (eleccion.camposCandidata && eleccion.camposCandidata.length > 0) {
+                <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 space-y-4" [formGroup]="camposPersonalizadosGroup">
+                  <h3 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="bi bi-card-text text-[#C5A059]"></i> Información del Perfil (Para el Locutor y Jurado)
+                  </h3>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    @for (campo of eleccion.camposCandidata; track campo) {
+                      <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">{{ campo }}</label>
+                        <input type="text" [formControlName]="campo" [placeholder]="'Ingresar ' + campo"
+                               class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 transition-all">
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Columna 3: Galería de Fotos de Estudio -->
+            <div class="p-6 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25 space-y-4 flex flex-col justify-between">
+              <div>
+                <h3 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1 flex items-center gap-2">
+                  <i class="bi bi-camera text-[#C5A059]"></i> Fotos de Estudio
+                </h3>
+                <p class="text-xs text-slate-400 mb-3">Imágenes para la ficha y la pantalla gigante.</p>
+
+                <div class="space-y-3">
+                  <div class="grid grid-cols-2 gap-2.5 max-h-64 overflow-y-auto custom-scrollbar">
+                    @for (preview of imagePreviews(); track $index) {
+                      <div class="relative h-32 rounded-xl overflow-hidden bg-black border border-[#C5A059]/30 group shadow-md">
+                        <img [src]="preview" alt="Preview" class="w-full h-full object-cover">
+                        <button type="button" (click)="removeImage($index)"
+                                class="absolute top-1.5 right-1.5 w-7 h-7 bg-black/80 hover:bg-red-600 text-white rounded-lg text-xs flex items-center justify-center transition-colors">
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
+
+                  <label for="file-upload-candidata"
+                         class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-[#C5A059]/40 hover:border-[#C5A059] rounded-2xl cursor-pointer bg-[#141414] hover:bg-[#1A1A1A] transition-all text-center group">
+                    <i class="bi bi-cloud-arrow-up text-3xl text-[#C5A059] mb-1.5 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-sm font-semibold text-[#F3E7C4]">Subir fotos</span>
+                    <span class="text-xs text-slate-400 mt-0.5">JPG o PNG en alta resolución</span>
+                  </label>
+                  <input id="file-upload-candidata" type="file" (change)="onFileSelected($event)" accept="image/*" multiple hidden>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div class="form-footer">
-          <button type="button" class="neumorphic-button-outset" (click)="hideForm()">Cancelar</button>
-          <button type="submit" class="neumorphic-button-outset primary" [disabled]="candidataForm.invalid">
-            {{ isEditing() ? 'Guardar Cambios' : 'Inscribir Candidata' }}
-          </button>
-        </div>
-      </form>
-    }
+          </div>
+
+          <!-- Pie del Formulario (Botón Dorado Metálico) -->
+          <div class="flex items-center justify-end gap-4 pt-6 border-t border-[#C5A059]/25">
+            <button type="button" (click)="hideForm()"
+                    class="px-6 py-3.5 rounded-2xl border border-[#C5A059]/30 text-neutral-300 hover:text-white hover:bg-[#1A1A1A] text-sm font-semibold transition-all">
+              Cancelar
+            </button>
+            <button type="submit"
+                    [disabled]="candidataForm.invalid"
+                    class="px-8 py-3.5 rounded-2xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-extrabold text-sm sm:text-base shadow-[0_4px_30px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/50 hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none">
+              {{ isEditing() ? 'Guardar Cambios' : 'Completar Inscripción' }}
+            </button>
+          </div>
+        </form>
+      }
+    </div>
   </div>
 </div>

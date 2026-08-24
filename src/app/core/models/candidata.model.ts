@@ -1,19 +1,23 @@
+export type CategoriaParticipante = 'Embajadora' | 'Embajador' ;
+
 export interface Candidata {
   id?: string;
   eleccionId: string;
-  numeroCandidata?: number;
+
+  // Datos clave de pasarela FNE
+  numero: number;                     // N° de Pasada (1, 2, 3...)
+  categoria: CategoriaParticipante;   // 'Embajadora' o 'Embajador'
   nombre: string;
   apellido: string;
   dni: string;
-  cursoDivision?: string;
+  cursoDivision: string;              // Ej: "5to 1ra Humanidades"
   fotosURL?: string[];
 
-  // Objeto para campos personalizados (Ej: { "Hobby": "Danza" })
-  camposPersonalizados: { [key: string]: string };
+  // Preguntas del perfil (Hobbies, proyecto, etc.)
+  camposPersonalizados?: { [key: string]: string };
 
-  // Objeto para puntuaciones acumuladas
-  puntuacionPorCriterio: { [key: string]: number };
-
+  // Puntuación acumulada de jurados
+  puntuacionPorCriterio?: { [key: string]: number };
   puntuacionTotal: number;
   cantidadDeVotos: number;
 }

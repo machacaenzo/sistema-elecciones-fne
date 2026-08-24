@@ -1,34 +1,16 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 
 import { CandidataService } from '../gestion-elecciones/candidata.service';
 import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Eleccion } from '../../../core/models/eleccion.model';
-import { Candidata } from '../../../core/models/candidata.model';
-
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { Candidata, CategoriaParticipante } from '../../../core/models/candidata.model';
 
 @Component({
   selector: 'app-gestion-candidatas',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatIconModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatTooltipModule,
-    MatProgressBarModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './gestion-candidatas.component.html',
   styleUrls: ['./gestion-candidatas.component.scss']
 })
@@ -40,22 +22,34 @@ export class GestionCandidatasComponent implements OnInit {
   private notificationService = inject(NotificacionService);
   private fb = inject(FormBuilder);
 
-  dataSource = new MatTableDataSource<Candidata>();
-  displayedColumns: string[] = ['foto', 'nombreCompleto', 'dni', 'acciones'];
+  // Signals de estado
+  participantes = signal<Candidata[]>([]);
+  categoriaFiltro = signal<'Todas' | CategoriaParticipante>('Todas');
 
-  candidataForm: FormGroup;
   isFormVisible = signal(false);
   isEditing = signal(false);
   editingCandidataId = signal<string | null>(null);
-
-
   imagePreviews = signal<string[]>([]);
+
+  candidataForm: FormGroup;
+
+  // Lista filtrada por categoría y siempre ordenada por número de pasada (1, 2, 3...)
+  participantesFiltrados = computed(() => {
+    let lista = [...this.participantes()];
+    if (this.categoriaFiltro() !== 'Todas') {
+      lista = lista.filter(p => p.categoria === this.categoriaFiltro());
+    }
+    return lista.sort((a, b) => (a.numero || 0) - (b.numero || 0));
+  });
 
   constructor() {
     this.candidataForm = this.fb.group({
+      numero: [1, [Validators.required, Validators.min(1)]],
+      categoria: ['Embajadora' as CategoriaParticipante, Validators.required],
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
       dni: ['', Validators.required],
+      cursoDivision: ['', Validators.required],
       fotosURL: this.fb.array([]),
       nuevasImagenes: this.fb.array([]),
       camposPersonalizados: this.fb.group({})
@@ -63,42 +57,49 @@ export class GestionCandidatasComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (!this.eleccion || !this.eleccion.id) {
-      this.notificationService.showAlertError('Error', 'No se ha especificado una elección para gestionar.');
+    if (!this.eleccion?.id) {
+      this.notificationService.showAlertError('Error', 'No se especificó la elección a gestionar.');
       this.closeModal.emit();
       return;
     }
+    this.cargarParticipantes();
+  }
 
-    this.buildDynamicFormFields();
-
-    this.candidataService.getCandidatasPorEleccion(this.eleccion.id).subscribe({
-      next: (candidatasData) => {
-        this.dataSource.data = candidatasData;
-      },
-      error: (err) => {
-        console.error('Error al cargar las candidatas:', err);
-        this.notificationService.showAlertError('Error de Carga', 'No se pudieron cargar las candidatas.');
-      }
+  cargarParticipantes(): void {
+    this.candidataService.getCandidatasPorEleccion(this.eleccion.id!).subscribe({
+      next: (data) => this.participantes.set(data),
+      error: () => this.notificationService.showAlertError('Error', 'No se pudieron cargar los participantes.')
     });
   }
+
   get camposPersonalizadosGroup(): FormGroup {
     return this.candidataForm.get('camposPersonalizados') as FormGroup;
   }
 
   buildDynamicFormFields(): void {
     const camposGroup = this.camposPersonalizadosGroup;
-    Object.keys(camposGroup.controls).forEach(key => {
-      camposGroup.removeControl(key);
-    });
+    Object.keys(camposGroup.controls).forEach(key => camposGroup.removeControl(key));
     this.eleccion.camposCandidata?.forEach(campo => {
-      camposGroup.addControl(campo, this.fb.control('', Validators.required));
+      camposGroup.addControl(campo, this.fb.control(''));
     });
   }
 
   openCreateForm(): void {
     this.isEditing.set(false);
     this.editingCandidataId.set(null);
-    this.candidataForm.reset();
+
+    // Sugerir automáticamente el siguiente número de pasada disponible
+    const siguienteNumero = this.participantes().length + 1;
+
+    this.candidataForm.reset({
+      numero: siguienteNumero,
+      categoria: 'Embajadora',
+      nombre: '',
+      apellido: '',
+      dni: '',
+      cursoDivision: ''
+    });
+
     this.buildDynamicFormFields();
     (this.candidataForm.get('fotosURL') as FormArray).clear();
     (this.candidataForm.get('nuevasImagenes') as FormArray).clear();
@@ -109,21 +110,23 @@ export class GestionCandidatasComponent implements OnInit {
   openEditForm(candidata: Candidata): void {
     this.isEditing.set(true);
     this.editingCandidataId.set(candidata.id!);
-    this.candidataForm.reset();
     this.buildDynamicFormFields();
-    (this.candidataForm.get('fotosURL') as FormArray).clear();
-    (this.candidataForm.get('nuevasImagenes') as FormArray).clear();
 
     this.candidataForm.patchValue({
+      numero: candidata.numero || 1,
+      categoria: candidata.categoria || 'Embajadora',
       nombre: candidata.nombre,
       apellido: candidata.apellido,
       dni: candidata.dni,
+      cursoDivision: candidata.cursoDivision || '',
       camposPersonalizados: candidata.camposPersonalizados || {}
     });
 
     const fotosUrlArray = this.candidataForm.get('fotosURL') as FormArray;
+    fotosUrlArray.clear();
     (candidata.fotosURL || []).forEach(url => fotosUrlArray.push(this.fb.control(url)));
 
+    (this.candidataForm.get('nuevasImagenes') as FormArray).clear();
     this.imagePreviews.set([...(candidata.fotosURL || [])]);
     this.isFormVisible.set(true);
   }
@@ -149,81 +152,72 @@ export class GestionCandidatasComponent implements OnInit {
 
   removeImage(index: number): void {
     const previews = [...this.imagePreviews()];
-    const removedPreview = previews.splice(index, 1)[0];
+    previews.splice(index, 1);
     this.imagePreviews.set(previews);
 
     const nuevasImagenesArray = this.candidataForm.get('nuevasImagenes') as FormArray;
-    let foundInNew = false;
-    for (let i = 0; i < nuevasImagenesArray.length; i++) {
-      if (nuevasImagenesArray.at(i).value === removedPreview) {
-        nuevasImagenesArray.removeAt(i);
-        foundInNew = true;
-        break;
-      }
-    }
-
-    if (!foundInNew) {
-      const fotosUrlArray = this.candidataForm.get('fotosURL') as FormArray;
-      for (let i = 0; i < fotosUrlArray.length; i++) {
-        if (fotosUrlArray.at(i).value === removedPreview) {
-          fotosUrlArray.removeAt(i);
-          break;
-        }
-      }
+    if (index < nuevasImagenesArray.length) {
+      nuevasImagenesArray.removeAt(index);
     }
   }
 
   async onSubmit(): Promise<void> {
-    if (this.candidataForm.invalid) return;
+    if (this.candidataForm.invalid) {
+      this.notificationService.showAlertWarning('Formulario Incompleto', 'Por favor completá los campos requeridos.');
+      return;
+    }
 
     const formValue = this.candidataForm.value;
     const finalFotosURL = [...formValue.fotosURL, ...formValue.nuevasImagenes];
 
-    const puntuacionPorCriterio: { [key: string]: number } = {};
-    this.eleccion.criterios?.forEach(criterio => {
-      puntuacionPorCriterio[criterio] = 0;
-    });
-
     const data: Omit<Candidata, 'id'> = {
       eleccionId: this.eleccion.id!,
+      numero: Number(formValue.numero),
+      categoria: formValue.categoria,
       nombre: formValue.nombre,
       apellido: formValue.apellido,
       dni: formValue.dni,
+      cursoDivision: formValue.cursoDivision,
       fotosURL: finalFotosURL,
-      camposPersonalizados: formValue.camposPersonalizados,
-      puntuacionPorCriterio: this.isEditing() ? this.dataSource.data.find(c => c.id === this.editingCandidataId())!.puntuacionPorCriterio : puntuacionPorCriterio,
-      puntuacionTotal: this.isEditing() ? this.dataSource.data.find(c => c.id === this.editingCandidataId())!.puntuacionTotal : 0,
-      cantidadDeVotos: this.isEditing() ? this.dataSource.data.find(c => c.id === this.editingCandidataId())!.cantidadDeVotos : 0,
+      camposPersonalizados: formValue.camposPersonalizados || {},
+      puntuacionPorCriterio: {},
+      puntuacionTotal: 0,
+      cantidadDeVotos: 0,
     };
 
     try {
       if (this.isEditing() && this.editingCandidataId()) {
+        const anterior = this.participantes().find(p => p.id === this.editingCandidataId());
+        data.puntuacionTotal = anterior?.puntuacionTotal || 0;
+        data.cantidadDeVotos = anterior?.cantidadDeVotos || 0;
+        data.puntuacionPorCriterio = anterior?.puntuacionPorCriterio || {};
+
         await this.candidataService.updateCandidata(this.editingCandidataId()!, data);
-        this.notificationService.showSuccessToast('Candidata actualizada');
+        this.notificationService.showSuccessToast('Participante actualizado/a');
       } else {
         await this.candidataService.createCandidata(data);
-        this.notificationService.showSuccessToast('Candidata inscrita');
+        this.notificationService.showSuccessToast('Participante inscripto/a');
       }
       this.hideForm();
     } catch (error) {
-      this.notificationService.showAlertError('Error', 'No se pudo guardar la candidata.');
+      this.notificationService.showAlertError('Error', 'No se pudo guardar en la base de datos.');
     }
   }
 
   async confirmDelete(candidata: Candidata): Promise<void> {
     if (candidata.cantidadDeVotos > 0) {
-      this.notificationService.showAlertError('Acción no permitida', 'No se puede eliminar una candidata que ya ha recibido votos.');
+      this.notificationService.showAlertError('Acción Bloqueada', 'No se puede eliminar un participante que ya tiene votos registrados.');
       return;
     }
 
     const result = await this.notificationService.showConfirm(
-      '¿Eliminar Candidata?',
-      `Se eliminará a ${candidata.nombre} ${candidata.apellido} de la elección.`,
+      '¿Eliminar Participante?',
+      `Se eliminará a ${candidata.nombre} ${candidata.apellido} (N° ${candidata.numero}) de la elección.`,
       'Sí, eliminar'
     );
     if (result.isConfirmed) {
       await this.candidataService.deleteCandidata(candidata.id!);
-      this.notificationService.showSuccessToast('Candidata eliminada');
+      this.notificationService.showSuccessToast('Participante eliminado');
     }
   }
 }

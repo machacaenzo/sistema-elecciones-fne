@@ -1,28 +1,22 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Timestamp } from '@angular/fire/firestore';
 
 import { EleccionService } from './eleccion.service';
 import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Eleccion, EstadoEleccion } from '../../../core/models/eleccion.model';
-
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { GestionCandidatasComponent } from '../gestion-candidatas/gestion-candidatas.component';
-import { ResultadosEleccionComponent } from '../../voting/resultados-eleccion/resultados-eleccion.component';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-gestion-elecciones',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, DatePipe, MatTableModule, MatIconModule,
-    MatButtonModule, MatFormFieldModule, MatInputModule, MatTooltipModule, GestionCandidatasComponent
+    CommonModule,
+    ReactiveFormsModule,
+    DatePipe,
+    GestionCandidatasComponent
   ],
   templateUrl: './gestion-elecciones.component.html',
   styleUrls: ['./gestion-elecciones.component.scss']
@@ -33,143 +27,275 @@ export class GestionEleccionesComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
+  // Signals de estado
+  elecciones = signal<Eleccion[]>([]);
+  isModalOpen = signal(false);
   isCandidatasModalOpen = signal(false);
   selectedEleccion = signal<Eleccion | null>(null);
-  dataSource = new MatTableDataSource<Eleccion>();
-  displayedColumns: string[] = ['nombre', 'fechaInicio', 'fechaFin', 'estado', 'acciones'];
-  eleccionForm: FormGroup;
-  isModalOpen = signal(false);
   isEditing = signal(false);
   editingEleccionId = signal<string | null>(null);
 
+  eleccionForm: FormGroup;
 
   constructor() {
     this.eleccionForm = this.fb.group({
       nombre: ['', Validators.required],
-      fechaInicio: ['', Validators.required],
-      fechaFin: ['', Validators.required],
-      puestos: this.fb.array([]),
-      criterios: this.fb.array([]),
+      fechaEvento: ['', Validators.required],
+      puestosFemeninos: this.fb.array([]),
+      puestosMasculinos: this.fb.array([]),
+      criteriosFemeninos: this.fb.array([]),
+      criteriosMasculinos: this.fb.array([]),
       camposCandidata: this.fb.array([]),
-      nuevoPuesto: [''],
-      nuevoCriterio: [''],
+      nuevoPuestoFemenino: [''],
+      nuevoPuestoMasculino: [''],
+      nuevoCriterioFemenino: [''],
+      nuevoCriterioMasculino: [''],
       nuevoCampoCandidata: ['']
     });
   }
 
   ngOnInit(): void {
-    this.eleccionService.getElecciones().subscribe(elecciones => {
-      this.dataSource.data = elecciones.sort((a, b) => b.fechaInicio.toMillis() - a.fechaInicio.toMillis());
+    this.cargarElecciones();
+  }
+
+  cargarElecciones(): void {
+    this.eleccionService.getElecciones().subscribe(data => {
+      this.elecciones.set(data.sort((a, b) => {
+        const fechaA = a.fechaEvento || a.fechaInicio;
+        const fechaB = b.fechaEvento || b.fechaInicio;
+        return (fechaB?.toMillis() || 0) - (fechaA?.toMillis() || 0);
+      }));
     });
   }
 
-  get puestosArray(): FormArray { return this.eleccionForm.get('puestos') as FormArray; }
-  get criteriosArray(): FormArray { return this.eleccionForm.get('criterios') as FormArray; }
+  // Getters para los FormArrays
+  get puestosFemeninosArray(): FormArray { return this.eleccionForm.get('puestosFemeninos') as FormArray; }
+  get puestosMasculinosArray(): FormArray { return this.eleccionForm.get('puestosMasculinos') as FormArray; }
+  get criteriosFemeninosArray(): FormArray { return this.eleccionForm.get('criteriosFemeninos') as FormArray; }
+  get criteriosMasculinosArray(): FormArray { return this.eleccionForm.get('criteriosMasculinos') as FormArray; }
   get camposCandidataArray(): FormArray { return this.eleccionForm.get('camposCandidata') as FormArray; }
 
-  addPuesto(): void {
-    const control = this.eleccionForm.get('nuevoPuesto');
-    if (control) { const value = control.value?.trim(); if (value) { this.puestosArray.push(this.fb.control(value)); control.reset(); } }
+  // Métodos para Puestos Femeninos
+  addPuestoFemenino(): void {
+    const control = this.eleccionForm.get('nuevoPuestoFemenino');
+    const val = control?.value?.trim();
+    if (val) {
+      this.puestosFemeninosArray.push(this.fb.control(val));
+      control?.reset();
+    }
   }
-  removePuesto(index: number): void { this.puestosArray.removeAt(index); }
+  removePuestoFemenino(index: number): void { this.puestosFemeninosArray.removeAt(index); }
 
-  addCriterio(): void {
-    const control = this.eleccionForm.get('nuevoCriterio');
-    if (control) { const value = control.value?.trim(); if (value) { this.criteriosArray.push(this.fb.control(value)); control.reset(); } }
+  // Métodos para Puestos Masculinos
+  addPuestoMasculino(): void {
+    const control = this.eleccionForm.get('nuevoPuestoMasculino');
+    const val = control?.value?.trim();
+    if (val) {
+      this.puestosMasculinosArray.push(this.fb.control(val));
+      control?.reset();
+    }
   }
-  removeCriterio(index: number): void { this.criteriosArray.removeAt(index); }
+  removePuestoMasculino(index: number): void { this.puestosMasculinosArray.removeAt(index); }
 
+  // Métodos para Criterios Femeninos
+  addCriterioFemenino(): void {
+    const control = this.eleccionForm.get('nuevoCriterioFemenino');
+    const val = control?.value?.trim();
+    if (val) {
+      this.criteriosFemeninosArray.push(this.fb.control(val));
+      control?.reset();
+    }
+  }
+  removeCriterioFemenino(index: number): void { this.criteriosFemeninosArray.removeAt(index); }
+
+  // Métodos para Criterios Masculinos
+  addCriterioMasculino(): void {
+    const control = this.eleccionForm.get('nuevoCriterioMasculino');
+    const val = control?.value?.trim();
+    if (val) {
+      this.criteriosMasculinosArray.push(this.fb.control(val));
+      control?.reset();
+    }
+  }
+  removeCriterioMasculino(index: number): void { this.criteriosMasculinosArray.removeAt(index); }
+
+  // Métodos para Campos de Perfil
   addCampoCandidata(): void {
     const control = this.eleccionForm.get('nuevoCampoCandidata');
-    if (control) { const value = control.value?.trim(); if (value) { this.camposCandidataArray.push(this.fb.control(value)); control.reset(); } }
+    const val = control?.value?.trim();
+    if (val) {
+      this.camposCandidataArray.push(this.fb.control(val));
+      control?.reset();
+    }
   }
   removeCampoCandidata(index: number): void { this.camposCandidataArray.removeAt(index); }
 
+  // Abrir Modal de Creación con pre-cargas individuales oficiales
   openCreateModal(): void {
     this.isEditing.set(false);
     this.editingEleccionId.set(null);
     this.eleccionForm.reset();
-    this.puestosArray.clear();
-    this.criteriosArray.clear();
+
+    this.puestosFemeninosArray.clear();
+    this.puestosMasculinosArray.clear();
+    this.criteriosFemeninosArray.clear();
+    this.criteriosMasculinosArray.clear();
     this.camposCandidataArray.clear();
-    this.eleccionForm.patchValue({ nuevoPuesto: '', nuevoCriterio: '', nuevoCampoCandidata: '' });
+
+    // 1. Títulos Femeninos pre-cargados
+    ['Embajadora', '1ra Princesa', '2da Princesa', '1ra Dama de Honor', '2da Dama de Honor', 'Miss Elegancia', 'Miss Simpatía']
+      .forEach(p => this.puestosFemeninosArray.push(this.fb.control(p)));
+
+    // 2. Títulos Masculinos pre-cargados
+    ['Embajador', '1er Paje', '2do Paje', 'Paje Elegancia', 'Paje Simpatía']
+      .forEach(p => this.puestosMasculinosArray.push(this.fb.control(p)));
+
+    // 3. Criterios Femeninos individuales
+    ['Elegancia', 'Porte', 'Simpatía', 'Pasarela']
+      .forEach(c => this.criteriosFemeninosArray.push(this.fb.control(c)));
+
+    // 4. Criterios Masculinos individuales
+    ['Actitud', 'Desenvolvimiento', 'Simpatía', 'Pasarela']
+      .forEach(c => this.criteriosMasculinosArray.push(this.fb.control(c)));
+
+    // 5. Preguntas del Perfil
+    ['Hobbies', 'Mensaje a la Juventud']
+      .forEach(cc => this.camposCandidataArray.push(this.fb.control(cc)));
+
     this.isModalOpen.set(true);
   }
 
+  // Abrir Modal de Edición
   openEditModal(eleccion: Eleccion): void {
     this.isEditing.set(true);
     this.editingEleccionId.set(eleccion.id!);
+
     const datePipe = new DatePipe('en-US');
-    const fechaInicio = datePipe.transform(eleccion.fechaInicio.toDate(), 'yyyy-MM-dd', 'UTC');
-    const fechaFin = datePipe.transform(eleccion.fechaFin.toDate(), 'yyyy-MM-dd', 'UTC');
-    this.puestosArray.clear();
-    this.criteriosArray.clear();
+    const fechaRef = eleccion.fechaEvento || eleccion.fechaInicio;
+    const fecha = datePipe.transform(fechaRef.toDate(), 'yyyy-MM-dd', 'UTC');
+
+    this.puestosFemeninosArray.clear();
+    this.puestosMasculinosArray.clear();
+    this.criteriosFemeninosArray.clear();
+    this.criteriosMasculinosArray.clear();
     this.camposCandidataArray.clear();
-    (eleccion.puestos || []).forEach(p => this.puestosArray.push(this.fb.control(p)));
-    (eleccion.criterios || []).forEach(c => this.criteriosArray.push(this.fb.control(c)));
-    (eleccion.camposCandidata || []).forEach(cc => this.camposCandidataArray.push(this.fb.control(cc)));
-    this.eleccionForm.patchValue({ nombre: eleccion.nombre, fechaInicio: fechaInicio, fechaFin: fechaFin });
+
+    const fem = eleccion.puestosFemeninos || eleccion.puestos || ['Embajadora', '1ra Princesa', '2da Princesa'];
+    fem.forEach(p => this.puestosFemeninosArray.push(this.fb.control(p)));
+
+    const masc = eleccion.puestosMasculinos || ['Embajador', '1er Paje'];
+    masc.forEach(p => this.puestosMasculinosArray.push(this.fb.control(p)));
+
+    const critFem = eleccion.criteriosFemeninos || eleccion.criterios || ['Elegancia', 'Simpatía', 'Pasarela'];
+    critFem.forEach(c => this.criteriosFemeninosArray.push(this.fb.control(c)));
+
+    const critMasc = eleccion.criteriosMasculinos || eleccion.criterios || ['Actitud', 'Simpatía', 'Pasarela'];
+    critMasc.forEach(c => this.criteriosMasculinosArray.push(this.fb.control(c)));
+
+    (eleccion.camposCandidata || ['Hobbies', 'Mensaje a la Juventud']).forEach(cc => this.camposCandidataArray.push(this.fb.control(cc)));
+
+    this.eleccionForm.patchValue({
+      nombre: eleccion.nombre,
+      fechaEvento: fecha
+    });
+
     this.isModalOpen.set(true);
   }
 
-  closeModal(): void { this.isModalOpen.set(false); }
+  closeModal(): void {
+    this.isModalOpen.set(false);
+  }
 
   async onSubmit(): Promise<void> {
-    if (this.eleccionForm.invalid) return;
-    const formValue = this.eleccionForm.value;
-    const fechaInicio = new Date(formValue.fechaInicio.replace(/-/g, '/'));
-    const fechaFin = new Date(formValue.fechaFin.replace(/-/g, '/'));
+    if (this.eleccionForm.invalid) {
+      this.notificationService.showAlertWarning('Formulario Incompleto', 'Por favor ingresá el nombre y la fecha del evento.');
+      return;
+    }
 
-    const eleccionData = {
+    const formValue = this.eleccionForm.value;
+    const fecha = new Date(formValue.fechaEvento.replace(/-/g, '/'));
+    const timestampFecha = Timestamp.fromDate(fecha);
+
+    const eleccionData: Omit<Eleccion, 'id'> = {
       nombre: formValue.nombre,
-      fechaInicio: Timestamp.fromDate(fechaInicio),
-      fechaFin: Timestamp.fromDate(fechaFin),
-      puestos: formValue.puestos || [],
-      criterios: formValue.criterios || [],
+      fechaEvento: timestampFecha,
+      estado: 'Configuracion' as EstadoEleccion,
+      puestosFemeninos: formValue.puestosFemeninos || [],
+      puestosMasculinos: formValue.puestosMasculinos || [],
+      criteriosFemeninos: formValue.criteriosFemeninos || [],
+      criteriosMasculinos: formValue.criteriosMasculinos || [],
       camposCandidata: formValue.camposCandidata || [],
+      // Campos de compatibilidad
+      fechaInicio: timestampFecha,
+      fechaFin: timestampFecha,
+      puestos: formValue.puestosFemeninos || [],
+      criterios: formValue.criteriosFemeninos || []
     };
+
     try {
       if (this.isEditing() && this.editingEleccionId()) {
         await this.eleccionService.updateEleccion(this.editingEleccionId()!, eleccionData);
-        this.notificationService.showSuccessToast('Elección actualizada');
+        this.notificationService.showSuccessToast('Evento actualizado');
       } else {
-        const dataToCreate = { ...eleccionData, estado: 'Configuracion' as EstadoEleccion };
-        await this.eleccionService.createEleccion(dataToCreate);
-        this.notificationService.showSuccessToast('Elección creada');
+        await this.eleccionService.createEleccion(eleccionData);
+        this.notificationService.showSuccessToast('Evento creado con éxito');
       }
       this.closeModal();
-    } catch (error) { this.notificationService.showAlertError('Error', 'No se pudo guardar la elección.'); }
+    } catch (error) {
+      this.notificationService.showAlertError('Error', 'No se pudo guardar la información.');
+    }
   }
 
-  openCandidatasModal(eleccion: Eleccion): void { this.selectedEleccion.set(eleccion); this.isCandidatasModalOpen.set(true); }
-  closeCandidatasModal(): void { this.isCandidatasModalOpen.set(false); }
+  openCandidatasModal(eleccion: Eleccion): void {
+    this.selectedEleccion.set(eleccion);
+    this.isCandidatasModalOpen.set(true);
+  }
 
- openResultados(eleccion: Eleccion): void {
+  closeCandidatasModal(): void {
+    this.isCandidatasModalOpen.set(false);
+  }
+
+  openResultados(eleccion: Eleccion): void {
     if (eleccion.id) {
       this.router.navigate(['/dashboard/resultados', eleccion.id]);
     }
   }
 
   async iniciarVotacion(eleccion: Eleccion): Promise<void> {
-    const result = await this.notificationService.showConfirm('¿Iniciar Votación?', `La elección "${eleccion.nombre}" se activará.`, 'Sí, iniciar');
-    if (result.isConfirmed) { await this.eleccionService.startEleccion(eleccion.id!); this.notificationService.showSuccessToast('La votación ha comenzado.'); }
-  }
-  async finalizarVotacion(eleccion: Eleccion): Promise<void> {
-    const result = await this.notificationService.showConfirm('¿Finalizar Votación?', `La elección "${eleccion.nombre}" se cerrará.`, 'Sí, finalizar');
-    if (result.isConfirmed) { await this.eleccionService.finishEleccion(eleccion.id!); this.notificationService.showSuccessToast('La votación ha finalizado.'); }
-  }
-   async publishEleccion(eleccion: Eleccion): Promise<void> {
-    if (!eleccion.id) return;
-
     const result = await this.notificationService.showConfirm(
-      '¿Publicar Resultados?',
-      `Los resultados de "${eleccion.nombre}" serán visibles para todos. Esta acción no se puede deshacer.`,
-      'Sí, publicar'
+      '¿Abrir Votación en Vivo?',
+      `Los jurados ya podrán empezar a calificar a los participantes de "${eleccion.nombre}".`,
+      'Sí, Abrir Votación'
+    );
+    if (result.isConfirmed) {
+      await this.eleccionService.startEleccion(eleccion.id!);
+      this.notificationService.showSuccessToast('Votación habilitada en vivo.');
+    }
+  }
+
+  async finalizarVotacion(eleccion: Eleccion): Promise<void> {
+    const result = await this.notificationService.showConfirm(
+      '¿Cerrar Votación?',
+      `Se cerrará la recepción de votos de los jurados para "${eleccion.nombre}".`,
+      'Sí, Cerrar Votación'
+    );
+    if (result.isConfirmed) {
+      await this.eleccionService.finishEleccion(eleccion.id!);
+      this.notificationService.showSuccessToast('Votación finalizada.');
+    }
+  }
+
+  async publishEleccion(eleccion: Eleccion): Promise<void> {
+    if (!eleccion.id) return;
+    const result = await this.notificationService.showConfirm(
+      '¿Proclamar Resultados Oficiales?',
+      `Los resultados de "${eleccion.nombre}" se mostrarán en la pantalla del escenario.`,
+      'Sí, Proclamar'
     );
     if (result.isConfirmed) {
       try {
         await this.eleccionService.publishEleccion(eleccion.id);
-        this.notificationService.showSuccessToast('Resultados publicados correctamente.');
+        this.notificationService.showSuccessToast('Resultados proclamados en escenario.');
       } catch (error) {
         this.notificationService.showAlertError('Error', 'No se pudieron publicar los resultados.');
       }

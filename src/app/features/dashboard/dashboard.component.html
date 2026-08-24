@@ -1,78 +1,132 @@
-<!-- La clase [class.sidebar-open] es clave para la lógica responsiva -->
-<div class="dashboard-layout" [class.sidebar-open]="isSidebarOpen()">
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <i class="bi bi-award"></i>
-      <span>FNE Elección</span>
+<div class="flex h-screen bg-[#000000] text-neutral-100 overflow-hidden font-sans">
+
+  <!-- SIDEBAR LATERAL: NEGRO PURO CON BORDE DE ORO -->
+  <aside class="fixed inset-y-0 left-0 z-40 w-64 bg-[#080808] border-r border-[#C5A059]/30 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 shadow-[10px_0_30px_rgba(0,0,0,0.8)]"
+         [class.translate-x-0]="isSidebarOpen()"
+         [class.-translate-x-full]="!isSidebarOpen()">
+
+    <!-- CABECERA DE MARCA -->
+    <div>
+      <div class="flex items-center gap-3.5 px-6 py-6 border-b border-[#C5A059]/20 bg-[#000000]">
+        <div class="w-11 h-11 rounded-2xl bg-[#121212] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_20px_rgba(197,160,89,0.2)]">
+          <i class="bi bi-stars"></i>
+        </div>
+        <div>
+          <h2 class="text-sm font-black tracking-widest text-[#F3E7C4] uppercase">FNE Elección</h2>
+          <p class="text-[10px] text-[#C5A059] uppercase tracking-widest font-bold">Panel Oficial</p>
+        </div>
+      </div>
+
+      <!-- NAVEGACIÓN PRINCIPAL -->
+      <nav class="p-4 space-y-2">
+
+        <!-- INICIO (BOTÓN DORADO METÁLICO CUANDO ESTÁ ACTIVO) -->
+        <a routerLink="/dashboard/home"
+           routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
+           [routerLinkActiveOptions]="{ exact: true }"
+           (click)="isSidebarOpen.set(false)"
+           class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414] border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
+          <i class="bi bi-house-door-fill text-lg"></i>
+          <span>Inicio</span>
+        </a>
+
+        <!-- ACCESO A VOTACIÓN (JURADOS O ALUMNOS) -->
+        @if (isJurado() || isAlumno()) {
+          <a routerLink="/dashboard/votacion"
+             routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
+             (click)="isSidebarOpen.set(false)"
+             class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414] border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
+            <i class="bi bi-award-fill text-lg"></i>
+            <span>{{ isJurado() ? 'Planilla de Jurado' : 'Centro de Votación' }}</span>
+          </a>
+        }
+
+        <!-- MI PERFIL -->
+        <a routerLink="/dashboard/profile"
+           routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
+           (click)="isSidebarOpen.set(false)"
+           class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414] border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
+          <i class="bi bi-person-circle text-lg"></i>
+          <span>Mi Perfil</span>
+        </a>
+
+        <!-- SECCIÓN DE ADMINISTRACIÓN -->
+        @if (isAdmin()) {
+          <div class="pt-6 pb-2 px-3">
+            <p class="text-[10px] font-black text-[#C5A059] uppercase tracking-widest">Gestión de Gala</p>
+          </div>
+
+          <!-- NOCHES DE ELECCIÓN -->
+          <a routerLink="/dashboard/admin/elections"
+             routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
+             (click)="isSidebarOpen.set(false)"
+             class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414] border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
+            <i class="bi bi-trophy-fill text-lg"></i>
+            <span>Noches de Elección</span>
+          </a>
+
+          <!-- PADRÓN DE JURADOS -->
+          <a routerLink="/dashboard/admin/users"
+             routerLinkActive="!bg-gradient-to-b !from-[#F3E7C4] !via-[#C5A059] !to-[#8C6D2D] !text-[#000000] font-black shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60"
+             (click)="isSidebarOpen.set(false)"
+             class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-neutral-400 hover:text-[#F3E7C4] hover:bg-[#141414] border border-transparent hover:border-[#C5A059]/30 text-sm font-bold transition-all group">
+            <i class="bi bi-people-fill text-lg"></i>
+            <span>Padrón de Jurados</span>
+          </a>
+        }
+      </nav>
     </div>
 
-    <nav class="sidebar-nav">
-
-      <!-- INICIO GENERAL (Para todos los usuarios) -->
-      <a routerLink="/dashboard/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="isSidebarOpen.set(false)">
-        <i class="bi bi-house-door"></i>
-        <span>Inicio</span>
-      </a>
-
-      <!-- VISTA PARA JURADOS O ALUMNOS (VOTACIÓN) -->
-      @if (isJurado() || isAlumno()) {
-        <a routerLink="/dashboard/votacion" routerLinkActive="active" (click)="isSidebarOpen.set(false)">
-          <i class="bi bi-award-fill"></i>
-          <span>{{ isJurado() ? 'Planilla de Evaluación' : 'Centro de Votación' }}</span>
-        </a>
-      }
-
-      <!-- MI PERFIL -->
-      <a routerLink="/dashboard/profile" routerLinkActive="active" (click)="isSidebarOpen.set(false)">
-        <i class="bi bi-person-circle"></i>
-        <span>Mi Perfil</span>
-      </a>
-
-      <!-- SECCIÓN EXCLUSIVA DE ADMINISTRACIÓN FNE -->
-      @if (isAdmin()) {
-        <hr class="nav-divider">
-
-        <a routerLink="/dashboard/admin/elections" routerLinkActive="active" (click)="isSidebarOpen.set(false)">
-          <i class="bi bi-trophy"></i>
-          <span>Gestión de Elecciones</span>
-        </a>
-
-        <a routerLink="/dashboard/admin/users" routerLinkActive="active" (click)="isSidebarOpen.set(false)">
-          <i class="bi bi-people"></i>
-          <span>Padrón de Jurados</span>
-        </a>
-      }
-    </nav>
-
+    <!-- TARJETA DE USUARIO INFERIOR (NEGRO PROFUNDO + ORO) -->
     @if (currentUser()) {
-      <div class="user-profile">
-        <img [src]="currentUser()?.fotoURL || 'assets/user-default.jpg'" alt="Foto de perfil">
-        <div class="user-info">
-          <strong>{{ currentUser()?.nombre }} {{ currentUser()?.apellido }}</strong>
-          <small>{{ currentUser()?.rol }}</small>
+      <div class="p-4 border-t border-[#C5A059]/20 bg-[#000000]">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <img [src]="currentUser()?.fotoURL || 'assets/user-default.jpg'"
+                 alt="Avatar"
+                 class="w-10 h-10 rounded-2xl object-cover border-2 border-[#C5A059]/50 bg-[#141414] shadow-sm">
+            <div class="min-w-0">
+              <p class="text-xs font-bold text-white truncate">{{ currentUser()?.nombre }} {{ currentUser()?.apellido }}</p>
+              <span class="inline-block px-2.5 py-0.5 rounded-lg bg-[#141414] text-[10px] font-extrabold text-[#F3E7C4] border border-[#C5A059]/40">
+                {{ currentUser()?.rol }}
+              </span>
+            </div>
+          </div>
+
+          <button (click)="logout()"
+                  class="p-2.5 rounded-xl bg-[#141414] hover:bg-red-500/20 text-neutral-400 hover:text-red-400 border border-[#C5A059]/20 transition-all"
+                  title="Cerrar Sesión">
+            <i class="bi bi-box-arrow-right text-base"></i>
+          </button>
         </div>
-        <button class="btn-logout" (click)="logout()" title="Cerrar Sesión">
-          <i class="bi bi-box-arrow-right"></i>
-        </button>
       </div>
     }
   </aside>
 
-  <!-- Overlay que aparece en móvil para cerrar el sidebar al hacer clic fuera -->
-  <div class="sidebar-overlay" (click)="isSidebarOpen.set(false)"></div>
+  <!-- OVERLAY PARA CELULARES -->
+  @if (isSidebarOpen()) {
+    <div class="fixed inset-0 z-30 bg-black/90 backdrop-blur-sm lg:hidden"
+         (click)="isSidebarOpen.set(false)"></div>
+  }
 
-  <main class="main-content">
-    <!-- Cabecera para la vista móvil con el botón "hamburguesa" -->
-    <header class="mobile-header">
-      <button class="btn-menu" (click)="toggleSidebar()">
-        <i class="bi bi-list"></i>
+  <!-- CONTENEDOR PRINCIPAL: NEGRO ABSOLUTO -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#000000]">
+
+    <!-- CABECERA MÓVIL (SOLO PARA PANTALLAS CHICAS) -->
+    <header class="flex items-center justify-between px-5 py-3.5 bg-[#080808] border-b border-[#C5A059]/30 lg:hidden shadow-md">
+      <button (click)="toggleSidebar()" class="p-2 rounded-xl bg-[#141414] text-[#F3E7C4] border border-[#C5A059]/40">
+        <i class="bi bi-list text-xl"></i>
       </button>
-      <div class="mobile-header-logo">
-        <i class="bi bi-award"></i>
-        <span>FNE Elección</span>
-      </div>
+      <span class="text-sm font-black text-[#F3E7C4] tracking-wider flex items-center gap-2">
+        <i class="bi bi-stars text-[#C5A059]"></i> FNE ELECCIÓN
+      </span>
+      <div class="w-8"></div>
     </header>
 
-    <router-outlet></router-outlet>
-  </main>
+    <!-- ÁREA DONDE SE CARGAN LAS PÁGINAS -->
+    <main class="flex-1 overflow-y-auto custom-scrollbar bg-[#000000]">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
 </div>

@@ -4,14 +4,14 @@
       <div class="election-card neumorphic-panel-outset">
         <div class="election-info">
           <h3 class="election-name" [matTooltip]="eleccion.nombre">{{ eleccion.nombre }}</h3>
-          <span class="election-dates">Del {{ eleccion.fechaInicio.toDate() | date:'dd/MM' }} al {{ eleccion.fechaFin.toDate() | date:'dd/MM/yyyy' }}</span>
+          <!-- <span class="election-dates">Del {{ eleccion.fechaInicio.toDate() | date:'dd/MM' }} al {{ eleccion.fechaFin.toDate() | date:'dd/MM/yyyy' }}</span> -->
         </div>
         <div class="election-status">
           @if (haVotado(eleccion.id!)) {
             <div class="status-badge voted"><mat-icon>verified</mat-icon><span>Ya Votaste</span></div>
             <button class="neumorphic-button-outset" (click)="openDetalleMode(eleccion)"><mat-icon>groups</mat-icon><span>Explorar</span></button>
             @if(eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada'){<button class="neumorphic-button-outset results" (click)="openResultadosMode(eleccion)"><mat-icon>emoji_events</mat-icon><span>Resultados</span></button>}
-          } @else if (eleccion.estado === 'Activa' && eleccion.fechaFin.toDate() > today) {
+          <!-- } @else if (eleccion.estado === 'Activa' && eleccion.fechaFin.toDate() > today) { -->
             <button class="neumorphic-button-outset" (click)="openDetalleMode(eleccion)"><mat-icon>groups</mat-icon><span>Explorar</span></button>
             <button class="neumorphic-button-outset primary" (click)="openVotingMode(eleccion)"><mat-icon>how_to_vote</mat-icon><span>Votar Ahora</span></button>
           } @else if (eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada') {

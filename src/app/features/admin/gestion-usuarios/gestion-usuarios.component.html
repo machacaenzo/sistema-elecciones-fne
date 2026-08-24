@@ -1,163 +1,225 @@
-<div class="page-container">
+<div class="min-h-screen p-4 sm:p-8 bg-[#000000] text-neutral-100 space-y-6 font-sans">
 
-  <div class="header">
-    <div class="header-text">
-      <h1>Gestión de Usuarios</h1>
-      <p>Administra, edita y visualiza los usuarios de la plataforma.</p>
+  <!-- CABECERA PRINCIPAL -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#C5A059]/25 bg-[#000000]">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-3">
+        <span class="w-11 h-11 rounded-2xl bg-[#121212] border border-[#C5A059]/40 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.15)]">
+          <i class="bi bi-person-check-fill"></i>
+        </span>
+        Padrón de Jurados y Accesos
+      </h1>
+      <p class="text-xs sm:text-sm text-neutral-400 mt-1">Habilitá cuentas, asigná roles y controlá quiénes pueden calificar en la gala.</p>
     </div>
   </div>
 
-  <div class="filters-container neumorphic-panel-outset">
-    <mat-form-field appearance="fill" class="search-input">
-      <mat-icon matPrefix>search</mat-icon>
-      <mat-label>Buscar por nombre, apellido o email...</mat-label>
-      <input matInput (keyup)="onSearchChange($event)">
-    </mat-form-field>
+  <!-- BARRA DE FILTROS Y BÚSQUEDA -->
+  <div class="p-5 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/30 shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
 
-    <mat-form-field appearance="fill">
-      <mat-label>Filtrar por Rol</mat-label>
-      <mat-select [ngModel]="(rolFilter$ | async)" (ngModelChange)="onRolChange($event)">
-        <mat-option value="">Todos los Roles</mat-option>
-        <mat-option value="Administrador">Administrador</mat-option>
-        <mat-option value="Director">Director</mat-option>
-        <mat-option value="Docente">Docente</mat-option>
-        <mat-option value="RTE">RTE</mat-option>
-        <mat-option value="Alumno">Alumno</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <!-- Buscador -->
+    <div class="relative w-full md:w-96">
+      <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-[#C5A059]"></i>
+      <input type="text"
+             [value]="searchText()"
+             (input)="onSearchChange($event)"
+             placeholder="Buscar por nombre, apellido o email..."
+             class="w-full bg-[#141414] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#C5A059]/30 transition-all placeholder:text-neutral-500">
+    </div>
 
-    <mat-slide-toggle [checked]="showInactive$ | async" (change)="onShowInactiveChange($event.checked)" color="primary">
-      Mostrar inactivos
-    </mat-slide-toggle>
+    <!-- Filtro por Rol y Toggle de Inactivos -->
+    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+
+      <!-- Selector de Rol -->
+      <select (change)="onRolChange($event)"
+              class="bg-[#141414] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-2xl px-4 py-3 text-xs sm:text-sm text-[#F3E7C4] focus:outline-none font-semibold [&>option]:bg-[#0F0F0F] [&>option]:text-white">
+        <option value="">Todos los Roles</option>
+        <option value="Jurado">Jurados</option>
+        <option value="Administrador">Administradores</option>
+        <option value="Alumno">Alumnos</option>
+        <option value="Docente">Docentes</option>
+      </select>
+
+      <!-- Botón Toggle: Mostrar Inactivos -->
+      <button type="button"
+              (click)="toggleShowInactive()"
+              [class]="showInactive() ? 'bg-[#C5A059]/20 border-[#C5A059] text-[#F3E7C4]' : 'bg-[#141414] border-[#C5A059]/30 text-neutral-400'"
+              class="flex items-center gap-2 px-4 py-3 rounded-2xl border text-xs sm:text-sm font-semibold transition-all">
+        <i class="bi" [ngClass]="showInactive() ? 'bi-check-circle-fill text-[#C5A059]' : 'bi-circle'"></i>
+        <span>Mostrar Deshabilitados</span>
+      </button>
+    </div>
   </div>
 
-  <div *ngIf="isLoading" class="spinner-container">
-    <mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner>
-  </div>
+  <!-- ESTADO DE CARGA -->
+  @if (isLoading()) {
+    <div class="py-20 flex flex-col items-center justify-center text-neutral-400 space-y-4">
+      <div class="w-12 h-12 border-4 border-[#C5A059]/20 border-t-[#C5A059] rounded-full animate-spin"></div>
+      <p class="text-sm tracking-widest uppercase font-bold text-[#F3E7C4]">Cargando padrón...</p>
+    </div>
+  } @else {
 
-  <div class="content-wrapper" [hidden]="isLoading">
-    <div class="users-grid">
-      @for (user of dataSource.data; track user.uid) {
-        <div class="user-card neumorphic-panel-outset" [class.inactive-card]="!user.EsActivo">
-          <div class="card-header">
-            <div class="avatar-container">
-              <img class="user-avatar" [src]="user.fotoURL || 'assets/user-default.jpg'" [alt]="user.nombre">
+    <!-- GRILLA DE USUARIOS (TARJETAS EN NEGRO PURO Y ORO) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      @for (user of filteredUsers(); track user.uid) {
+
+        <div class="relative group p-5 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/25 hover:border-[#C5A059]/60 transition-all duration-300 flex flex-col justify-between shadow-md"
+             [class.opacity-50]="!user.EsActivo">
+
+          <!-- Cabecera de la Tarjeta: Avatar y Acciones -->
+          <div>
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <img [src]="user.fotoURL || 'assets/user-default.jpg'"
+                   [alt]="user.nombre"
+                   class="w-14 h-14 rounded-2xl object-cover border-2 border-[#C5A059]/40 bg-[#141414] shadow-sm">
+
+              <div class="flex items-center gap-1">
+                <!-- Botón Editar -->
+                <button type="button"
+                        (click)="openEditModal(user)"
+                        class="p-2 rounded-xl bg-[#141414] hover:bg-[#202020] text-slate-300 hover:text-[#F3E7C4] border border-white/5 transition-colors"
+                        title="Editar Usuario">
+                  <i class="bi bi-pencil"></i>
+                </button>
+
+                <!-- Botón Habilitar / Deshabilitar -->
+                <button type="button"
+                        (click)="toggleUserStatus(user)"
+                        [class]="user.EsActivo ? 'text-emerald-400 hover:bg-emerald-500/20' : 'text-rose-400 hover:bg-rose-500/20'"
+                        class="p-2 rounded-xl bg-[#141414] border border-white/5 transition-colors"
+                        [title]="user.EsActivo ? 'Deshabilitar acceso' : 'Habilitar acceso'">
+                  <i class="bi" [ngClass]="user.EsActivo ? 'bi-toggle-on text-lg text-emerald-400' : 'bi-toggle-off text-lg text-rose-400'"></i>
+                </button>
+              </div>
             </div>
-            <div class="user-actions">
-              @if (user.EsActivo) {
-                <button mat-icon-button class="action-button" (click)="openEditModal(user)" matTooltip="Editar Usuario">
-                  <mat-icon>edit_square</mat-icon>
-                </button>
-                <button mat-icon-button class="action-button warn" (click)="deleteUser(user)" matTooltip="Desactivar Usuario">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              } @else {
-                <button mat-icon-button class="action-button restore" (click)="restoreUser(user)" matTooltip="Reactivar Usuario">
-                  <mat-icon>restore_from_trash</mat-icon>
-                </button>
-                <button mat-icon-button class="action-button warn" (click)="deleteUser(user)" matTooltip="Eliminar Permanentemente">
-                  <mat-icon>delete_forever</mat-icon>
-                </button>
-              }
+
+            <!-- Datos del Usuario -->
+            <div class="space-y-1">
+              <h3 class="text-base font-bold text-white truncate">{{ user.nombre }} {{ user.apellido }}</h3>
+              <p class="text-xs text-neutral-400 truncate">{{ user.email }}</p>
             </div>
           </div>
-          <div class="user-details">
-            <h3 class="user-name">{{user.nombre}} {{user.apellido}}</h3>
-            <p class="user-email">{{user.email}}</p>
-          </div>
-          <div class="user-badges">
-            <span class="badge neumorphic-panel-inset" [ngClass]="user.rol.toLowerCase()">{{user.rol}}</span>
-            <span class="badge neumorphic-panel-inset" [ngClass]="user.EsActivo ? 'activo' : 'inactivo'">
-              {{ user.EsActivo ? 'Activo' : 'Inactivo' }}
+
+          <!-- Badges de Rol y Estado -->
+          <div class="flex items-center justify-between gap-2 mt-5 pt-3 border-t border-[#C5A059]/15 text-xs">
+            <span class="px-3 py-1 rounded-xl bg-[#141414] border border-[#C5A059]/40 font-bold text-[#F3E7C4]">
+              {{ user.rol }}
+            </span>
+
+            <span class="inline-flex items-center gap-1.5 font-semibold"
+                  [class]="user.EsActivo ? 'text-emerald-400' : 'text-rose-400'">
+              <span class="w-1.5 h-1.5 rounded-full" [ngClass]="user.EsActivo ? 'bg-emerald-400' : 'bg-rose-400'"></span>
+              {{ user.EsActivo ? 'Habilitado' : 'Suspendido' }}
             </span>
           </div>
+
         </div>
+
       } @empty {
-        <div class="no-users-message">
-          <mat-icon>search_off</mat-icon>
-          <h3>No se encontraron usuarios</h3>
-          <p>Intenta ajustar los filtros de búsqueda o activa "Mostrar inactivos".</p>
+        <div class="col-span-full py-20 text-center text-neutral-500 border border-dashed border-[#C5A059]/20 rounded-3xl bg-[#0A0A0A]">
+          <i class="bi bi-person-x text-5xl block mb-2 text-[#C5A059]/30"></i>
+          <p class="text-base font-medium text-neutral-300">No se encontraron usuarios con esos filtros.</p>
+          <p class="text-xs text-neutral-500 mt-1">Probá cambiando la búsqueda o activá "Mostrar Deshabilitados".</p>
         </div>
       }
     </div>
 
-    <mat-paginator class="neumorphic-panel-outset" [pageSizeOptions]="[8, 16, 24]" showFirstLastButtons></mat-paginator>
-  </div>
-</div>
+  }
 
-@if (isModalVisible) {
-  <div class="modal-overlay" (click)="closeModal()">
-    <div class="modal-content neumorphic-panel-outset" (click)="$event.stopPropagation()">
-      <form [formGroup]="userForm" (ngSubmit)="saveChanges()">
+  <!-- ========================================================================= -->
+  <!-- MODAL DE EDICIÓN DE USUARIO (NEGRO PURO Y ORO)                            -->
+  <!-- ========================================================================= -->
+  @if (isModalVisible()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-fade-in"
+         (click)="$event.stopPropagation()">
 
-        <div class="modal-header">
-          <h2 class="modal-title">Editar Usuario</h2>
-          <button type="button" mat-icon-button class="modal-close-button" (click)="closeModal()" matTooltip="Cerrar">
-            <mat-icon>close</mat-icon>
+      <div class="relative w-full max-w-lg overflow-hidden rounded-3xl bg-[#050505] border-2 border-[#C5A059]/50 shadow-[0_0_60px_rgba(197,160,89,0.25)] flex flex-col">
+
+        <!-- CABECERA MODAL -->
+        <div class="flex items-center justify-between px-8 py-5 border-b border-[#C5A059]/25 bg-[#0D0D0D]">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-[#141414] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-lg">
+              <i class="bi bi-person-gear"></i>
+            </div>
+            <h2 class="text-lg font-bold text-[#F3E7C4] tracking-wide">Editar Usuario / Jurado</h2>
+          </div>
+
+          <button type="button"
+                  (click)="closeModal()"
+                  class="w-9 h-9 rounded-xl bg-[#141414] hover:bg-[#202020] border border-[#C5A059]/30 text-neutral-400 hover:text-white flex items-center justify-center transition-all">
+            <i class="bi bi-x-lg text-sm"></i>
           </button>
         </div>
 
-        <div class="modal-body">
-          <div class="avatar-uploader">
-            <div class="avatar-preview-container neumorphic-panel-inset">
-              <img [src]="imagePreview" alt="Avatar" class="avatar-preview">
-            </div>
-            <div class="avatar-actions">
-              <label for="file-upload" class="avatar-action-button neumorphic-button-outset" matTooltip="Cambiar foto">
-                <mat-icon>photo_camera</mat-icon>
+        <!-- FORMULARIO -->
+        <form [formGroup]="userForm" (ngSubmit)="saveChanges()" class="p-6 sm:p-8 space-y-5">
+
+          <!-- Avatar Uploader -->
+          <div class="flex items-center gap-4 p-4 rounded-2xl bg-[#0F0F0F] border border-[#C5A059]/25">
+            <img [src]="imagePreview() || 'assets/user-default.jpg'"
+                 alt="Preview"
+                 class="w-16 h-16 rounded-2xl object-cover border-2 border-[#C5A059]/40 bg-[#171717]">
+
+            <div class="space-y-1">
+              <label for="avatar-file-upload"
+                     class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#171717] hover:bg-[#222222] border border-[#C5A059]/40 text-xs font-bold text-[#F3E7C4] cursor-pointer transition-all">
+                <i class="bi bi-camera text-sm"></i> Cambiar Foto
               </label>
-              @if (imagePreview && imagePreview !== 'assets/user-default.jpg') {
-                <button type="button" (click)="removeImage()" class="avatar-action-button neumorphic-button-outset warn" matTooltip="Eliminar foto">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              }
+              <input id="avatar-file-upload" type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
+              <p class="text-[11px] text-neutral-500">JPG o PNG cuadrado.</p>
             </div>
-            <input id="file-upload" type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
           </div>
 
-          <div class="form-container-grid">
-            <mat-form-field appearance="fill">
-              <mat-label>Nombre</mat-label>
-              <input matInput formControlName="nombre">
-            </mat-form-field>
-            <mat-form-field appearance="fill">
-              <mat-label>Apellido</mat-label>
-              <input matInput formControlName="apellido">
-            </mat-form-field>
+          <!-- Campos de Texto -->
+          <div class="space-y-4">
 
-            <mat-form-field appearance="fill">
-              <mat-label>Rol</mat-label>
-              <mat-select formControlName="rol">
-                <mat-option value="Administrador">Administrador</mat-option>
-                <mat-option value="Director">Director</mat-option>
-                <mat-option value="Docente">Docente</mat-option>
-                <mat-option value="RTE">RTE</mat-option>
-                <mat-option value="Alumno">Alumno</mat-option>
-
-              </mat-select>
-            </mat-form-field>
-            <div class="status-toggle-container">
-              <mat-slide-toggle formControlName="EsActivo" color="primary" class="status-toggle">
-                {{ userForm.get('EsActivo')?.value ? 'Usuario Activo' : 'Usuario Inactivo' }}
-              </mat-slide-toggle>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">Nombre</label>
+                <input type="text" formControlName="nombre"
+                       class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">Apellido</label>
+                <input type="text" formControlName="apellido"
+                       class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+              </div>
             </div>
 
-            <mat-form-field appearance="fill" class="full-width-field">
-              <mat-label>Email</mat-label>
-              <input matInput formControlName="email" type="email">
-            </mat-form-field>
+            <div>
+              <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">Rol en el Evento</label>
+              <select formControlName="rol"
+                      class="w-full bg-[#171717] border border-[#C5A059]/30 focus:border-[#C5A059] rounded-xl px-4 py-2.5 text-sm text-[#F3E7C4] font-bold focus:outline-none [&>option]:bg-[#0F0F0F] [&>option]:text-white">
+                <option value="Jurado">Jurado (Puntuación en Gala)</option>
+                <option value="Administrador">Administrador (Control Total)</option>
+                <option value="Alumno">Alumno (Voto Popular)</option>
+                <option value="Docente">Docente</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1.5">Correo Electrónico (No editable)</label>
+              <input type="email" formControlName="email"
+                     class="w-full bg-[#101010] border border-white/5 rounded-xl px-4 py-2.5 text-sm text-neutral-400 cursor-not-allowed">
+            </div>
+
           </div>
 
-        </div>
+          <!-- Pie del Modal -->
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#C5A059]/20">
+            <button type="button" (click)="closeModal()"
+                    class="px-5 py-2.5 rounded-xl border border-[#C5A059]/30 text-neutral-300 hover:text-white hover:bg-[#141414] text-xs font-semibold transition-all">
+              Cancelar
+            </button>
+            <button type="submit"
+                    [disabled]="userForm.invalid"
+                    class="px-7 py-2.5 rounded-2xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs shadow-[0_4px_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none">
+              Guardar Cambios
+            </button>
+          </div>
 
-        <div class="modal-footer">
-          <button type="button" class="neumorphic-button-outset" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="neumorphic-button-outset primary" [disabled]="userForm.invalid || !userForm.dirty">
-            Guardar Cambios
-          </button>
-        </div>
-
-      </form>
+        </form>
+      </div>
     </div>
-  </div>
-}
+  }
+
+</div>

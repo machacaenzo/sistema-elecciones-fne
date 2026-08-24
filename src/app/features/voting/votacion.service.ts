@@ -1,8 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Firestore, doc, runTransaction, DocumentReference, increment } from '@angular/fire/firestore';
-import { User } from '../../core/models/user.model';
-import { Candidata } from '../../core/models/candidata.model';
-
+import { Firestore, doc, runTransaction, serverTimestamp } from '@angular/fire/firestore';
 
 export interface EvaluacionPayload {
   candidataId: string;
@@ -16,40 +13,97 @@ export interface EvaluacionPayload {
 export class VotacionService {
   private firestore: Firestore = inject(Firestore);
 
-  async submitVoto(eleccionId: string, userId: string, evaluaciones: EvaluacionPayload[]): Promise<void> {
-
-    const userRef = doc(this.firestore, `users/${userId}`);
+  async submitVoto(
+    eleccionId: string,
+    userId: string,
+    categoria: 'Embajadora' | 'Embajador',
+    evaluaciones: EvaluacionPayload[],
+    esUltimaTanda: boolean = false
+  ): Promise<void> {
+    // 1. Documento oficial del acta firmada por tanda
+    const votoDocRef = doc(this.firestore, `votos_jurados/voto_${eleccionId}_${userId}_${categoria}`);
+    const userDocRef = doc(this.firestore, `users/${userId}`);
 
     return runTransaction(this.firestore, async (transaction) => {
 
-      const userDoc = await transaction.get(userRef);
-      if (!userDoc.exists()) {
-        throw new Error("El usuario no existe.");
+      // ==========================================================
+      // FASE 1: TODAS LAS LECTURAS (READS) PRIMERO
+      // ==========================================================
+      const votoSnap = await transaction.get(votoDocRef);
+      const userSnap = await transaction.get(userDocRef);
+
+      // Verificación de seguridad: Si ya firmó esta tanda, frena
+      if (votoSnap.exists()) {
+        throw new Error(`Ya has firmado y enviado el acta oficial de ${categoria}s.`);
       }
-      const userData = userDoc.data() as User;
-      if (userData.eleccionesVotadas?.includes(eleccionId)) {
-        throw new Error("Este usuario ya ha votado en esta elección.");
+
+      // Leer los documentos de todos los candidatos evaluados en esta tanda
+      const candidatosData = [];
+      for (const evalData of evaluaciones) {
+        const ref = doc(this.firestore, `candidatas/${evalData.candidataId}`);
+        const snap = await transaction.get(ref);
+        candidatosData.push({ ref, snap, evalData });
       }
 
+      // ==========================================================
+      // FASE 2: TODAS LAS ESCRITURAS (WRITES)
+      // ==========================================================
 
-      const nuevasEleccionesVotadas = [...(userData.eleccionesVotadas || []), eleccionId];
-      transaction.update(userRef, { eleccionesVotadas: nuevasEleccionesVotadas });
+      // A. Sumar puntos y votos a cada candidata/o
+      for (const item of candidatosData) {
+        if (item.snap.exists()) {
+          const data = item.snap.data();
+          const anteriorPorCriterio = data['puntuacionPorCriterio'] || {};
 
-      for (const evaluacion of evaluaciones) {
-        const candidataRef = doc(this.firestore, `candidatas/${evaluacion.candidataId}`);
+          transaction.update(item.ref, {
+            puntuacionTotal: (data['puntuacionTotal'] || 0) + item.evalData.puntuacion,
+            cantidadDeVotos: (data['cantidadDeVotos'] || 0) + 1,
+            puntuacionPorCriterio: this.mergeCriterios(anteriorPorCriterio, item.evalData.puntuacionPorCriterio)
+          });
+        }
+      }
 
+      // B. Guardar el acta oficial inalterable con fecha y firma digital
+      transaction.set(votoDocRef, {
+        eleccionId,
+        juradoUid: userId,
+        categoria,
+        evaluaciones,
+        fechaFirma: serverTimestamp()
+      });
 
-        const updates: { [key: string]: any } = {
-          puntuacionTotal: increment(evaluacion.puntuacion),
-          cantidadDeVotos: increment(1)
-        };
+      // C. Actualizar el registro del usuario
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const tandasVotadas = userData['tandasVotadas'] || [];
+        const tandaTag = `${eleccionId}_${categoria}`;
 
-        for (const criterio in evaluacion.puntuacionPorCriterio) {
-          updates[`puntuacionPorCriterio.${criterio}`] = increment(evaluacion.puntuacionPorCriterio[criterio]);
+        const updates: any = {};
+        if (!tandasVotadas.includes(tandaTag)) {
+          updates.tandasVotadas = [...tandasVotadas, tandaTag];
         }
 
-        transaction.update(candidataRef, updates);
+        // Si ya completó ambas tandas, marcar la elección completa como votada
+        if (esUltimaTanda) {
+          const eleccionesVotadas = userData['eleccionesVotadas'] || [];
+          if (!eleccionesVotadas.includes(eleccionId)) {
+            updates.eleccionesVotadas = [...eleccionesVotadas, eleccionId];
+          }
+        }
+
+        if (Object.keys(updates).length > 0) {
+          transaction.update(userDocRef, updates);
+        }
       }
     });
+  }
+
+  // Suma los puntajes de cada criterio de forma segura
+  private mergeCriterios(existente: any, nuevos: any) {
+    const res = { ...existente };
+    for (const key in nuevos) {
+      res[key] = (res[key] || 0) + (nuevos[key] || 0);
+    }
+    return res;
   }
 }

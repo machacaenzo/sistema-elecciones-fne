@@ -28,7 +28,7 @@ export class DetalleEleccionComponent implements OnInit {
   selectedPhotoIndex = signal<number>(0);
 
   // Filtro por Categoría: 'Todas' | 'Embajadora' | 'Paje'
-  selectedCategory = signal<'Todas' | 'Embajadora' | 'Paje'>('Todas');
+  selectedCategory = signal<'Todas' | 'Embajadora' | 'Embajador'>('Todas');
 
   // Candidatas filtradas según la pestaña activa
   candidatasFiltradas = computed(() => {
@@ -63,7 +63,7 @@ export class DetalleEleccionComponent implements OnInit {
     });
   }
 
-  setCategory(cat: 'Todas' | 'Embajadora' | 'Paje'): void {
+  setCategory(cat: 'Todas' | 'Embajadora' | 'Embajador'): void {
     this.selectedCategory.set(cat);
   }
 

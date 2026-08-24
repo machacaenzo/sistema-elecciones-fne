@@ -27,9 +27,9 @@ export class HomeComponent implements OnInit {
   juradosCount = signal<number>(0);
   totalVotosCount = signal<number>(0);
 
-  // Permisos de usuario
+  // Permisos de usuario (Solo roles vigentes)
   isAdmin = computed(() => this.currentUser()?.rol === 'Administrador');
-  isJurado = computed(() => this.currentUser()?.rol === 'Jurado');
+  isJurado = computed(() => this.currentUser()?.rol === 'Jurado' && !!this.currentUser()?.EsActivo);
 
   ngOnInit(): void {
     this.cargarDatosGala();
@@ -39,7 +39,7 @@ export class HomeComponent implements OnInit {
     // 1. Cargar la Elección
     this.firestoreService.getCollection<Eleccion>('elecciones').subscribe(elecciones => {
       if (elecciones.length > 0) {
-        const activa = elecciones.find(e => e.estado === 'Activa') || elecciones[0];
+        const activa = elecciones.find(e => e.estado === 'Activa' || e.estado === 'Publicada') || elecciones[0];
         this.eleccionActiva.set(activa);
 
         if (activa && activa.id) {
@@ -47,7 +47,7 @@ export class HomeComponent implements OnInit {
           this.firestoreService.getCollectionByFilter<Candidata>('candidatas', 'eleccionId', activa.id)
             .subscribe(candidatas => {
               const chicas = candidatas.filter((c: any) => c.categoria === 'Embajadora' || !c.categoria);
-              const chicos = candidatas.filter((c: any) => c.categoria === 'Embajador' || c.categoria === 'Paje');
+              const chicos = candidatas.filter((c: any) => c.categoria === 'Embajador');
 
               this.embajadorasCount.set(chicas.length);
               this.embajadoresCount.set(chicos.length);

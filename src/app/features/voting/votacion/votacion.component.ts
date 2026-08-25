@@ -286,21 +286,19 @@ ngOnDestroy(): void {
   }
 
   haVotado(eleccionId: string): boolean {
-  const user = this.authService.currentUser();
+  const user = this.authService.currentUser() as any;
   if (!user) return false;
 
-  // Solo consideramos la elección terminada si ya firmó AMBAS tandas
+  // 1. Si el usuario ya completó ambas tandas oficialmente en la base de datos
+  const elecciones = user.eleccionesVotadas || [];
+  if (elecciones.includes(eleccionId)) return true;
+
+  // 2. Si tiene registradas ambas tandas en su perfil
   const tandas = user.tandasVotadas || [];
   const firmoChicas = tandas.includes(`${eleccionId}_Embajadora`);
   const firmoChicos = tandas.includes(`${eleccionId}_Embajador`);
 
-  const tieneChicas = this.candidatas().some(c => (c.categoria || 'Embajadora') === 'Embajadora');
-  const tieneChicos = this.candidatas().some(c => c.categoria === 'Embajador');
-
-  if (tieneChicas && tieneChicos) {
-    return firmoChicas && firmoChicos;
-  }
-  return firmoChicas || firmoChicos;
+  return firmoChicas && firmoChicos; // 👈 EXIGE ESTRICTAMENTE QUE AMBAS ESTÉN FIRMADAS (&&)
 }
 
   // =========================================================

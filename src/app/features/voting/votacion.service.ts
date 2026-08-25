@@ -72,29 +72,32 @@ export class VotacionService {
         fechaFirma: serverTimestamp()
       });
 
-      // C. Actualizar el registro del usuario
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        const tandasVotadas = userData['tandasVotadas'] || [];
-        const tandaTag = `${eleccionId}_${categoria}`;
+     // C. Actualizar el registro del usuario
+if (userSnap.exists()) {
+  const userData = userSnap.data();
+  const tandasVotadas = userData['tandasVotadas'] || [];
+  const tandaTag = `${eleccionId}_${categoria}`;
 
-        const updates: any = {};
-        if (!tandasVotadas.includes(tandaTag)) {
-          updates.tandasVotadas = [...tandasVotadas, tandaTag];
-        }
+  const updates: any = {};
+  const nuevasTandas = tandasVotadas.includes(tandaTag)
+    ? tandasVotadas
+    : [...tandasVotadas, tandaTag];
 
-        // Si ya completó ambas tandas, marcar la elección completa como votada
-        if (esUltimaTanda) {
-          const eleccionesVotadas = userData['eleccionesVotadas'] || [];
-          if (!eleccionesVotadas.includes(eleccionId)) {
-            updates.eleccionesVotadas = [...eleccionesVotadas, eleccionId];
-          }
-        }
+  updates.tandasVotadas = nuevasTandas;
 
-        if (Object.keys(updates).length > 0) {
-          transaction.update(userDocRef, updates);
-        }
-      }
+  // COMPROBACIÓN REAL: Solo si ya firmó Embajadora Y Embajador se agrega a eleccionesVotadas
+  const tieneAmbas = nuevasTandas.includes(`${eleccionId}_Embajadora`) &&
+                     nuevasTandas.includes(`${eleccionId}_Embajador`);
+
+  if (tieneAmbas || esUltimaTanda) {
+    const eleccionesVotadas = userData['eleccionesVotadas'] || [];
+    if (!eleccionesVotadas.includes(eleccionId)) {
+      updates.eleccionesVotadas = [...eleccionesVotadas, eleccionId];
+    }
+  }
+
+  transaction.update(userDocRef, updates);
+}
     });
   }
 
@@ -107,5 +110,5 @@ export class VotacionService {
     return res;
   }
 
-  
+
 }

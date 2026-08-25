@@ -240,14 +240,14 @@ ngOnDestroy(): void {
   // CONTROL DE TANDAS Y FIRMA
   // =========================================================
   tandaFirmada(categoria: 'Embajadora' | 'Embajador'): boolean {
-    const user = this.authService.currentUser() as any;
-    const eleccionId = this.selectedEleccion()?.id;
-    if (!user || !eleccionId) return false;
+  const user = this.authService.currentUser();
+  const eleccionId = this.selectedEleccion()?.id;
+  if (!user || !eleccionId) return false;
 
-    // Comprueba si ya tiene la firma registrada en sus tandas
-    const tandas = user.tandasVotadas || [];
-    return tandas.includes(`${eleccionId}_${categoria}`);
-  }
+  const tandas = user.tandasVotadas || [];
+  return tandas.includes(`${eleccionId}_${categoria}`);
+}
+
 
   todasLasTandasFirmadas(eleccionId: string): boolean {
     const user = this.authService.currentUser() as any;
@@ -286,8 +286,22 @@ ngOnDestroy(): void {
   }
 
   haVotado(eleccionId: string): boolean {
-    return this.todasLasTandasFirmadas(eleccionId);
+  const user = this.authService.currentUser();
+  if (!user) return false;
+
+  // Solo consideramos la elección terminada si ya firmó AMBAS tandas
+  const tandas = user.tandasVotadas || [];
+  const firmoChicas = tandas.includes(`${eleccionId}_Embajadora`);
+  const firmoChicos = tandas.includes(`${eleccionId}_Embajador`);
+
+  const tieneChicas = this.candidatas().some(c => (c.categoria || 'Embajadora') === 'Embajadora');
+  const tieneChicos = this.candidatas().some(c => c.categoria === 'Embajador');
+
+  if (tieneChicas && tieneChicos) {
+    return firmoChicas && firmoChicos;
   }
+  return firmoChicas || firmoChicos;
+}
 
   // =========================================================
   // ENVÍO DEFINITIVO DEL ACTA DE LA TANDA
@@ -343,13 +357,14 @@ ngOnDestroy(): void {
         }
 
         // Comprobar si la otra categoría ya fue firmada para marcar la elección completa
-        const otraCat = cat === 'Embajadora' ? 'Embajador' : 'Embajadora';
-        const yaFirmoLaOtra = this.tandaFirmada(otraCat);
-        const noHayOtraCat = this.candidatas().filter(c =>
-          otraCat === 'Embajador' ? (c.categoria === 'Embajador' || c.categoria === 'Paje') : (c.categoria === 'Embajadora')
-        ).length === 0;
+        // Detección segura de si quedan otras categorías
+const otraCat = cat === 'Embajadora' ? 'Embajador' : 'Embajadora';
+const yaFirmoLaOtra = this.tandaFirmada(otraCat);
+const hayCandidatosDeLaOtra = this.candidatas().some(c =>
+  otraCat === 'Embajador' ? (c.categoria === 'Embajador' || c.categoria === 'Paje') : ((c.categoria || 'Embajadora') === 'Embajadora')
+);
 
-        const esUltimaTanda = yaFirmoLaOtra || noHayOtraCat;
+const esUltimaTanda = yaFirmoLaOtra || !hayCandidatosDeLaOtra;
 
         // Enviar a Firebase
         await this.votacionService.submitVoto(

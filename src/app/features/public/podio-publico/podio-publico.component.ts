@@ -51,25 +51,43 @@ export class PodioPublicoComponent implements OnInit {
     this.isLoading.set(true);
     const idParam = this.route.snapshot.paramMap.get('id');
 
-    if (idParam) {
-      this.cargarPorId(idParam);
-    } else {
-      // Si entra a /podio sin ID, busca la elección activa o publicada más reciente
-      this.eleccionService.getElecciones().pipe(first()).subscribe({
-        next: (elecciones) => {
-          if (elecciones.length > 0) {
-            const activa = elecciones.find(e => e.estado === 'Publicada' || e.estado === 'Activa') || elecciones[0];
-            this.eleccion.set(activa);
-            if (activa.id) {
-              this.cargarCandidatas(activa.id);
-            }
+    this.eleccionService.getElecciones().pipe(first()).subscribe({
+      next: (elecciones) => {
+        if (elecciones.length > 0) {
+
+          // Ordenamos de más nueva a más antigua
+          const ordenadas = [...elecciones].sort((a, b) => {
+            const fechaA = (a.fechaEvento || a.fechaInicio)?.toMillis() || 0;
+            const fechaB = (b.fechaEvento || b.fechaInicio)?.toMillis() || 0;
+            return fechaB - fechaA;
+          });
+
+          let galaSeleccionada: Eleccion | undefined;
+
+          if (idParam) {
+            galaSeleccionada = ordenadas.find(e => e.id === idParam);
+          }
+
+          if (!galaSeleccionada) {
+            galaSeleccionada = ordenadas.find(e => e.estado === 'Publicada')
+                            || ordenadas.find(e => e.estado === 'Activa')
+                            || ordenadas[0];
+          }
+
+          this.eleccion.set(galaSeleccionada || null);
+
+          if (galaSeleccionada?.id) {
+            this.cargarCandidatas(galaSeleccionada.id);
           } else {
             this.isLoading.set(false);
           }
-        },
-        error: () => this.isLoading.set(false)
-      });
-    }
+
+        } else {
+          this.isLoading.set(false);
+        }
+      },
+      error: () => this.isLoading.set(false)
+    });
   }
 
   private async cargarPorId(id: string): Promise<void> {

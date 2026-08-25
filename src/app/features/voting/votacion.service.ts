@@ -106,4 +106,6 @@ export class VotacionService {
     }
     return res;
   }
+
+  
 }

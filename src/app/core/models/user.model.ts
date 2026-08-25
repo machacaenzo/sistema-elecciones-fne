@@ -11,4 +11,5 @@ export interface User {
   EsActivo?: boolean;
   dni?: string;
   eleccionesVotadas?: string[];
+  tandasVotadas?: string[]; // 👈 AGREGAR ESTO
 }

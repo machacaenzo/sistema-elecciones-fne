@@ -20,6 +20,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/public/podio-publico/podio-publico.component').then(c => c.PodioPublicoComponent)
   },
 
+  // Portada pública principal
+  {
+    path: '',
+    loadComponent: () => import('./features/public/gala-portal/gala-portal.component').then(c => c.GalaPortalComponent)
+  },
+  {
+    path: 'gala/:id',
+    loadComponent: () => import('./features/public/gala-portal/gala-portal.component').then(c => c.GalaPortalComponent)
+  },
+  
   // --- RUTAS DE LOGIN Y REGISTRO ---
   {
     path: 'login',

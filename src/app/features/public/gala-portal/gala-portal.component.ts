@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { first } from 'rxjs/operators';
 
 import { EleccionService } from '../../admin/gestion-elecciones/eleccion.service';
@@ -27,6 +27,7 @@ export class GalaPortalComponent implements OnInit, OnDestroy {
   private eleccionService = inject(EleccionService);
   private candidataService = inject(CandidataService);
 
+  private route = inject(ActivatedRoute);
   eleccion = signal<Eleccion | null>(null);
   candidatas = signal<Candidata[]>([]);
   isLoading = signal(true);
@@ -70,26 +71,64 @@ export class GalaPortalComponent implements OnInit, OnDestroy {
 
   cargarDatosGala(): void {
     this.isLoading.set(true);
+    const idParam = this.route.snapshot.paramMap.get('id');
+
     this.eleccionService.getElecciones().pipe(first()).subscribe({
       next: (elecciones) => {
         if (elecciones.length > 0) {
-          const activa = elecciones.find(e => e.estado === 'Activa' || e.estado === 'Publicada') || elecciones[0];
-          this.eleccion.set(activa);
 
-          const fechaRef = (activa.fechaEvento || activa.fechaInicio)?.toDate();
-          if (fechaRef) {
-            this.iniciarCountdown(fechaRef);
+          // 1. Ordenamos de la fecha MÁS NUEVA a la más antigua
+          const ordenadas = [...elecciones].sort((a, b) => {
+            const fechaA = (a.fechaEvento || a.fechaInicio)?.toMillis() || 0;
+            const fechaB = (b.fechaEvento || b.fechaInicio)?.toMillis() || 0;
+            return fechaB - fechaA;
+          });
+
+          let galaSeleccionada: Eleccion | undefined;
+
+          // 2. Si pasaron un ID por URL (ej: /gala/id_eleccion), busca esa exactamente
+          if (idParam) {
+            galaSeleccionada = ordenadas.find(e => e.id === idParam);
           }
 
-          if (activa.id) {
-            this.candidataService.getCandidatasPorEleccion(activa.id).pipe(first()).subscribe({
-              next: (cands) => {
-                this.candidatas.set(cands);
-                this.isLoading.set(false);
-              },
-              error: () => this.isLoading.set(false)
-            });
+          // 3. Si no hay ID en URL, toma la elección del año/fecha más reciente
+          if (!galaSeleccionada) {
+            // Prioridad:
+            // A) La más reciente que esté 'Activa' (en vivo hoy)
+            // B) La más reciente que esté 'Configuracion' (próxima gala del año)
+            // C) La más reciente que esté 'Publicada'
+            // D) La primera de la lista ordenada
+            galaSeleccionada = ordenadas.find(e => e.estado === 'Activa')
+                            || ordenadas.find(e => e.estado === 'Configuracion')
+                            || ordenadas.find(e => e.estado === 'Publicada')
+                            || ordenadas[0];
           }
+
+          this.eleccion.set(galaSeleccionada || null);
+
+          if (galaSeleccionada) {
+            // Iniciar cuenta regresiva para la fecha de esta gala
+            const fechaRef = (galaSeleccionada.fechaEvento || galaSeleccionada.fechaInicio)?.toDate();
+            if (fechaRef) {
+              this.iniciarCountdown(fechaRef);
+            }
+
+            // Cargar los participantes de esta gala específica
+            if (galaSeleccionada.id) {
+              this.candidataService.getCandidatasPorEleccion(galaSeleccionada.id).pipe(first()).subscribe({
+                next: (cands) => {
+                  this.candidatas.set(cands);
+                  this.isLoading.set(false);
+                },
+                error: () => this.isLoading.set(false)
+              });
+            } else {
+              this.isLoading.set(false);
+            }
+          } else {
+            this.isLoading.set(false);
+          }
+
         } else {
           this.isLoading.set(false);
         }

@@ -48,14 +48,8 @@ export class VotacionComponent implements OnInit, OnDestroy{
   private photoSlideshowInterval: any = null;
 
 
-  // Alternar entre Embajadoras y Embajadores directamente desde la pantalla de Auditoría
-toggleCategoriaAudit(): void {
-  const actual = this.categoriaSeleccionada();
-  const nueva: 'Embajadora' | 'Embajador' = (actual === 'Embajador') ? 'Embajadora' : 'Embajador';
-  this.categoriaSeleccionada.set(nueva);
-  this.cargarBorradorLocal(nueva);
-  this.isReviewMode.set(true); // Se mantiene en la pantalla de resumen
-}
+  
+
 
   // Control de tanda activa: 'Embajadora' | 'Embajador'
   categoriaSeleccionada = signal<'Embajadora' | 'Embajador' | null>(null);
@@ -130,21 +124,7 @@ ngOnDestroy(): void {
   }
 
   // Seleccionar Tanda (Embajadoras o Embajadores) y restaurar borrador guardado
-  seleccionarTanda(cat: 'Embajadora' | 'Embajador'): void {
-    this.categoriaSeleccionada.set(cat);
-    this.isReviewMode.set(false);
-    this.carouselImageIndex.set(0);
-
-    // Restaurar borrador del dispositivo si existe
-    this.cargarBorradorLocal(cat);
-
-    // Posicionarse en el primer candidato de esa categoría
-    const filtrados = this.getCandidatasFiltradas();
-    if (filtrados.length > 0) {
-      const primerIdx = this.candidatas().indexOf(filtrados[0]);
-      this.currentStep.set(primerIdx >= 0 ? primerIdx : 0);
-    }
-  }
+  
 
   getCandidatasFiltradas(): Candidata[] {
     const cat = this.categoriaSeleccionada();
@@ -167,13 +147,14 @@ ngOnDestroy(): void {
 
   // Actualizar slider y guardar en LocalStorage automáticamente
   updateSliderValue(index: number, controlName: string, event: Event): void {
-    const val = +(event.target as HTMLInputElement).value;
-    const control = this.evaluacionesArray.at(index)?.get(controlName);
-    if (control) {
-      control.setValue(val);
-      this.guardarBorradorLocal();
-    }
+  const val = +(event.target as HTMLInputElement).value;
+  const control = this.evaluacionesArray.at(index)?.get(controlName);
+  if (control) {
+    control.setValue(val);
+    // 👇 AGREGA ESTO: Guarda el progreso automáticamente
+    this.guardarBorradorLocal();
   }
+}
 
   getEvaluacionValue(index: number, controlName: string): number {
     return this.evaluacionesArray.at(index)?.get(controlName)?.value || 0;
@@ -305,93 +286,79 @@ ngOnDestroy(): void {
   // ENVÍO DEFINITIVO DEL ACTA DE LA TANDA
   // =========================================================
   async onSubmit(): Promise<void> {
-    const cat = this.categoriaSeleccionada();
-    if (!cat || this.isSubmitting()) return;
+  const cat = this.categoriaSeleccionada();
+  if (!cat || this.isSubmitting()) return;
 
-    const nombrePlural = cat === 'Embajador' ? 'Embajadores' : 'Embajadoras';
+  const res = await this.notificationService.showConfirm(`¿Firmar Acta?`, `Esta acción sumará los puntos de los ${cat}s.`, 'Confirmar');
+  
+  if (res.isConfirmed) {
+    this.isSubmitting.set(true);
+    try {
+      // LIMPIAMOS EL PAYLOAD: Solo lo que pertenece a la tanda activa
+      const payloadFiltrado: EvaluacionPayload[] = [];
+      
+      // Dentro de onSubmit corregido:
+this.candidatas().forEach((cand, idx) => {
+  const esMismo = cat === 'Embajador' 
+    ? (cand.categoria === 'Embajador' || cand.categoria === 'Paje') 
+    : (cand.categoria === 'Embajadora' || !cand.categoria);
 
-    const res = await this.notificationService.showConfirm(
-      `¿Firmar Acta de ${nombrePlural}?`,
-      `Esta acción enviará los puntajes oficiales de esta tanda de forma inalterable.`,
-      'Sí, Firmar Acta'
-    );
+  if (esMismo) {
+    const formValue = this.evaluacionesArray.at(idx).value;
+    
+    // 1. Cambiamos a getCriteriosParaCandidata
+    const criterios = this.getCriteriosParaCandidata(cand, this.selectedEleccion()!);
+    const porCrit: { [key: string]: number } = {};
+    
+    let sumaCandidata = 0;
+    
+    // 2. Agregamos el tipo (cr: string) para que no de error
+    criterios.forEach((cr: string) => {
+      const valor = formValue[cr] || 0;
+      porCrit[cr] = valor;
+      sumaCandidata += valor;
+    });
 
-    if (res.isConfirmed) {
-      this.isSubmitting.set(true);
-      try {
-        const evaluacionesCompletas = this.evaluacionesArray.value;
-        const payloadFiltrado: EvaluacionPayload[] = [];
+    payloadFiltrado.push({
+      candidataId: cand.id!,
+      puntuacion: sumaCandidata,
+      puntuacionPorCriterio: porCrit
+    });
+  }
+});
 
-        this.candidatas().forEach((cand, index) => {
-          const esMismaCat = (cat === 'Embajador')
-            ? (cand.categoria === 'Embajador' || cand.categoria === 'Paje')
-            : (cand.categoria === 'Embajadora');
-
-          if (esMismaCat) {
-            const evaluacionForm = evaluacionesCompletas[index];
-            const criterios = this.getCriteriosParaCandidata(cand, this.selectedEleccion()!);
-
-            let total = 0;
-            const porCrit: { [key: string]: number } = {};
-
-            criterios.forEach(c => {
-              const pts = evaluacionForm[c] || 0;
-              total += pts;
-              porCrit[c] = pts;
-            });
-
-            payloadFiltrado.push({
-              candidataId: cand.id!,
-              puntuacion: total,
-              puntuacionPorCriterio: porCrit
-            });
-          }
-        });
-
-        if (payloadFiltrado.length === 0) {
-          this.notificationService.showAlertWarning('Atención', 'No hay votos cargados para enviar en esta tanda.');
-          this.isSubmitting.set(false);
-          return;
-        }
-
-        // Comprobar si la otra categoría ya fue firmada para marcar la elección completa
-        // Detección segura de si quedan otras categorías
-const otraCat = cat === 'Embajadora' ? 'Embajador' : 'Embajadora';
-const yaFirmoLaOtra = this.tandaFirmada(otraCat);
-const hayCandidatosDeLaOtra = this.candidatas().some(c =>
-  otraCat === 'Embajador' ? (c.categoria === 'Embajador' || c.categoria === 'Paje') : ((c.categoria || 'Embajadora') === 'Embajadora')
-);
-
-const esUltimaTanda = yaFirmoLaOtra || !hayCandidatosDeLaOtra;
-
-        // Enviar a Firebase
-        await this.votacionService.submitVoto(
-          this.selectedEleccion()!.id!,
-          this.authService.currentUser()!.uid,
-          cat,
-          payloadFiltrado,
-          esUltimaTanda
-        );
-
-        // Limpiar el borrador local de esta tanda
-        this.limpiarBorradorLocal(cat);
-
-        this.notificationService.showSuccessToast(`Acta de ${nombrePlural} firmada con éxito`);
-
-        // Volver a la pantalla de selección de tanda
-        this.isReviewMode.set(false);
-        this.categoriaSeleccionada.set(null);
-
-        await this.authService.refreshUserProfile();
-
-      } catch (err: any) {
-        console.error(err);
-        this.notificationService.showAlertError('Error', err.message || 'No se pudieron registrar los votos.');
-      } finally {
-        this.isSubmitting.set(false);
+      // Validamos que no enviemos basura
+      if (payloadFiltrado.length === 0) {
+        throw new Error("No hay candidatos para calificar en esta tanda.");
       }
+
+      // Enviamos
+      const otra = cat === 'Embajadora' ? 'Embajador' : 'Embajadora';
+      const esUltima = this.tandaFirmada(otra);
+
+      await this.votacionService.submitVoto(
+        this.selectedEleccion()!.id!, 
+        this.authService.currentUser()!.uid, 
+        cat, 
+        payloadFiltrado, 
+        esUltima
+      );
+
+      this.limpiarBorradorLocal(cat);
+      this.notificationService.showSuccessToast('Acta procesada correctamente');
+      
+      // RESETEO DE ESTADO: Fundamental para no arrastrar datos
+      this.categoriaSeleccionada.set(null);
+      this.isReviewMode.set(false);
+      await this.authService.refreshUserProfile();
+
+    } catch (e: any) {
+      this.notificationService.showAlertError('Error de Cómputo', e.message);
+    } finally {
+      this.isSubmitting.set(false);
     }
   }
+}
 
   // Navegación de fotos de la candidata
 nextImage(candidata: Candidata): void {
@@ -428,4 +395,66 @@ selectImageIndex(idx: number): void {
   this.carouselImageIndex.set(idx);
   this.iniciarPaseAutomaticoFotos(); // Reinicia el tiempo al hacer clic
 }
+
+// Carga los puntajes oficiales enviados en Firebase para modo consulta
+  async cargarVotoFirmado(cat: 'Embajadora' | 'Embajador'): Promise<void> {
+    const eleccionId = this.selectedEleccion()?.id;
+    const userId = this.authService.currentUser()?.uid;
+    if (!eleccionId || !userId) return;
+
+    try {
+      const voto = await this.votacionService.getVotoFirmado(eleccionId, userId, cat);
+      if (voto && voto['evaluaciones']) {
+        this.candidatas().forEach((cand, idx) => {
+          const evaluacion = voto['evaluaciones'].find((ev: any) => ev.candidataId === cand.id);
+          if (evaluacion && evaluacion.puntuacionPorCriterio) {
+            const formValues = {
+              candidataId: cand.id,
+              ...evaluacion.puntuacionPorCriterio
+            };
+            this.evaluacionesArray.at(idx)?.patchValue(formValues, { emitEvent: false });
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Error al cargar voto firmado:', err);
+    }
+  }
+
+  // Seleccionar Tanda (Restaura Borrador si no firmó, o Puntajes Oficiales si ya firmó)
+  async seleccionarTanda(cat: 'Embajadora' | 'Embajador'): Promise<void> {
+    this.categoriaSeleccionada.set(cat);
+    this.isReviewMode.set(false);
+    this.carouselImageIndex.set(0);
+
+    if (this.tandaFirmada(cat)) {
+      // Si ya está firmada, lee los puntajes oficiales de Firebase
+      await this.cargarVotoFirmado(cat);
+    } else {
+      // Si sigue abierta, lee el borrador local
+      this.cargarBorradorLocal(cat);
+    }
+
+    const filtrados = this.getCandidatasFiltradas();
+    if (filtrados.length > 0) {
+      const primerIdx = this.candidatas().indexOf(filtrados[0]);
+      this.currentStep.set(primerIdx >= 0 ? primerIdx : 0);
+    }
+  }
+
+  // Alternar entre Embajadoras y Embajadores desde la pantalla de Auditoría
+  async toggleCategoriaAudit(): Promise<void> {
+    const actual = this.categoriaSeleccionada();
+    const nueva: 'Embajadora' | 'Embajador' = (actual === 'Embajador') ? 'Embajadora' : 'Embajador';
+    this.categoriaSeleccionada.set(nueva);
+
+    if (this.tandaFirmada(nueva)) {
+      await this.cargarVotoFirmado(nueva);
+    } else {
+      this.cargarBorradorLocal(nueva);
+    }
+
+    this.isReviewMode.set(true);
+  }
+
 }

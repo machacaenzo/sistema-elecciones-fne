@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, signal, computed } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, OnDestroy, Output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { first } from 'rxjs/operators';
 
@@ -11,9 +11,10 @@ import { NotificacionService } from '../../../core/services/notificacion.service
   selector: 'app-detalle-eleccion',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './detalle-eleccion.component.html'
+  templateUrl: './detalle-eleccion.component.html',
+  styleUrls: ['./detalle-eleccion.component.scss']
 })
-export class DetalleEleccionComponent implements OnInit {
+export class DetalleEleccionComponent implements OnInit, OnDestroy {
   @Input({ required: true }) eleccion!: Eleccion;
   @Input() haVotado: boolean = false;
   @Output() closeModal = new EventEmitter<void>();
@@ -26,11 +27,12 @@ export class DetalleEleccionComponent implements OnInit {
   isLoading = signal(true);
   selectedCandidata = signal<Candidata | null>(null);
   selectedPhotoIndex = signal<number>(0);
+  
+  // Timer para el carrusel automático
+  private autoplayInterval: any;
 
-  // Filtro por Categoría: 'Todas' | 'Embajadora' | 'Paje'
   selectedCategory = signal<'Todas' | 'Embajadora' | 'Embajador'>('Todas');
 
-  // Candidatas filtradas según la pestaña activa
   candidatasFiltradas = computed(() => {
     const list = this.candidatas();
     const cat = this.selectedCategory();
@@ -42,53 +44,72 @@ export class DetalleEleccionComponent implements OnInit {
   today = new Date();
 
   ngOnInit(): void {
-    if (!this.eleccion || !this.eleccion.id) {
-      this.notificationService.showAlertError('Error', 'No se ha podido cargar la información de la elección.');
+    if (!this.eleccion?.id) {
+      this.notificationService.showAlertError('Error', 'No se ha podido cargar la información.');
       this.closeModal.emit();
       return;
     }
 
     this.candidataService.getCandidatasPorEleccion(this.eleccion.id).pipe(first()).subscribe({
-      next: (candidatasData) => {
-        // Ordenamos por número de pasada
-        const ordenadas = candidatasData.sort((a: any, b: any) => (a.numero || a.numeroCandidata || 0) - (b.numero || b.numeroCandidata || 0));
+      next: (data) => {
+        const ordenadas = data.sort((a: any, b: any) => (a.numero || 0) - (b.numero || 0));
         this.candidatas.set(ordenadas);
         this.isLoading.set(false);
       },
-      error: (err) => {
-        console.error('Error al cargar las candidatas:', err);
-        this.notificationService.showAlertError('Error de Carga', 'No se pudieron cargar las candidatas.');
-        this.isLoading.set(false);
-      }
+      error: () => this.isLoading.set(false)
     });
+  }
+
+  // Limpieza al destruir el componente
+  ngOnDestroy(): void {
+    this.stopAutoplay();
   }
 
   setCategory(cat: 'Todas' | 'Embajadora' | 'Embajador'): void {
     this.selectedCategory.set(cat);
   }
 
+  formatNumero(num: any): string {
+    const n = num ?? 0;
+    return n < 10 ? `0${n}` : `${n}`;
+  }
+
   getNumeroPasada(candidata: any, index: number = 0): string {
-    const num = candidata?.numero || candidata?.numeroCandidata || (index + 1);
-    return num < 10 ? `0${num}` : `${num}`;
+    const num = candidata?.numero || (index + 1);
+    return this.formatNumero(num);
   }
 
   openGallery(candidata: Candidata): void {
     this.selectedCandidata.set(candidata);
     this.selectedPhotoIndex.set(0);
     this.isGalleryOpen.set(true);
+    this.startAutoplay(); // Inicia el carrusel
   }
 
   closeGallery(): void {
     this.isGalleryOpen.set(false);
+    this.stopAutoplay(); // Detiene el carrusel
   }
 
-  selectPhoto(index: number): void {
-    this.selectedPhotoIndex.set(index);
+  // Métodos del Carrusel Automático
+  private startAutoplay(): void {
+    this.stopAutoplay();
+    this.autoplayInterval = setInterval(() => {
+      const photos = this.selectedCandidata()?.fotosURL || [];
+      if (photos.length > 1) {
+        // Incrementa el índice de forma circular (0, 1, 2, 0...)
+        this.selectedPhotoIndex.update(idx => (idx + 1) % photos.length);
+      }
+    }, 4000); // Cambia cada 4 segundos
+  }
+
+  private stopAutoplay(): void {
+    if (this.autoplayInterval) clearInterval(this.autoplayInterval);
   }
 
   onVotarClick(): void {
     if (this.candidatas().length === 0) {
-      this.notificationService.showAlertWarning('Sin Candidatas', 'Aún no hay candidatas inscritas en esta elección.');
+      this.notificationService.showAlertWarning('Atención', 'No hay participantes registrados.');
       return;
     }
     this.iniciarVotacion.emit();

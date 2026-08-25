@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Firestore, doc, runTransaction, serverTimestamp } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc, runTransaction, serverTimestamp } from '@angular/fire/firestore';
 
 export interface EvaluacionPayload {
   candidataId: string;
@@ -20,7 +20,7 @@ export class VotacionService {
     evaluaciones: EvaluacionPayload[],
     esUltimaTanda: boolean = false
   ): Promise<void> {
-    // 1. Documento oficial del acta firmada por tanda
+    // 1. Documento oficial inalterable por tanda (recibo de firma)
     const votoDocRef = doc(this.firestore, `votos_jurados/voto_${eleccionId}_${userId}_${categoria}`);
     const userDocRef = doc(this.firestore, `users/${userId}`);
 
@@ -32,12 +32,12 @@ export class VotacionService {
       const votoSnap = await transaction.get(votoDocRef);
       const userSnap = await transaction.get(userDocRef);
 
-      // Verificación de seguridad: Si ya firmó esta tanda, frena
+      // Verificación de seguridad: Evita doble cómputo si el acta ya existe
       if (votoSnap.exists()) {
-        throw new Error(`Ya has firmado y enviado el acta oficial de ${categoria}s.`);
+        throw new Error(`El acta de ${categoria}s ya ha sido procesada y firmada.`);
       }
 
-      // Leer los documentos de todos los candidatos evaluados en esta tanda
+      // Leer los documentos de todas las candidatas/os de esta tanda
       const candidatosData = [];
       for (const evalData of evaluaciones) {
         const ref = doc(this.firestore, `candidatas/${evalData.candidataId}`);
@@ -49,7 +49,7 @@ export class VotacionService {
       // FASE 2: TODAS LAS ESCRITURAS (WRITES)
       // ==========================================================
 
-      // A. Sumar puntos y votos a cada candidata/o
+      // A. Sumar puntos y votos a cada candidato de la tanda
       for (const item of candidatosData) {
         if (item.snap.exists()) {
           const data = item.snap.data();
@@ -63,7 +63,7 @@ export class VotacionService {
         }
       }
 
-      // B. Guardar el acta oficial inalterable con fecha y firma digital
+      // B. Guardar el acta oficial firmada
       transaction.set(votoDocRef, {
         eleccionId,
         juradoUid: userId,
@@ -72,36 +72,43 @@ export class VotacionService {
         fechaFirma: serverTimestamp()
       });
 
-     // C. Actualizar el registro del usuario
-if (userSnap.exists()) {
-  const userData = userSnap.data();
-  const tandasVotadas = userData['tandasVotadas'] || [];
-  const tandaTag = `${eleccionId}_${categoria}`;
+      // C. Actualizar registro del usuario (Control seguro de tandas)
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const tandasVotadas = userData['tandasVotadas'] || [];
+        const tandaTag = `${eleccionId}_${categoria}`;
 
-  const updates: any = {};
-  const nuevasTandas = tandasVotadas.includes(tandaTag)
-    ? tandasVotadas
-    : [...tandasVotadas, tandaTag];
+        const updates: any = {};
+        const nuevasTandas = tandasVotadas.includes(tandaTag)
+          ? tandasVotadas
+          : [...tandasVotadas, tandaTag];
 
-  updates.tandasVotadas = nuevasTandas;
+        updates.tandasVotadas = nuevasTandas;
 
-  // COMPROBACIÓN REAL: Solo si ya firmó Embajadora Y Embajador se agrega a eleccionesVotadas
-  const tieneAmbas = nuevasTandas.includes(`${eleccionId}_Embajadora`) &&
-                     nuevasTandas.includes(`${eleccionId}_Embajador`);
+        // COMPROBACIÓN EXACTA: Solo marca eleccionesVotadas si firmó AMBAS tandas de ESTA elección
+        const tieneAmbas = nuevasTandas.includes(`${eleccionId}_Embajadora`) &&
+                           nuevasTandas.includes(`${eleccionId}_Embajador`);
 
-  if (tieneAmbas || esUltimaTanda) {
-    const eleccionesVotadas = userData['eleccionesVotadas'] || [];
-    if (!eleccionesVotadas.includes(eleccionId)) {
-      updates.eleccionesVotadas = [...eleccionesVotadas, eleccionId];
-    }
-  }
+        if (tieneAmbas || esUltimaTanda) {
+          const eleccionesVotadas = userData['eleccionesVotadas'] || [];
+          if (!eleccionesVotadas.includes(eleccionId)) {
+            updates.eleccionesVotadas = [...eleccionesVotadas, eleccionId];
+          }
+        }
 
-  transaction.update(userDocRef, updates);
-}
+        transaction.update(userDocRef, updates);
+      }
     });
   }
 
-  // Suma los puntajes de cada criterio de forma segura
+  // Obtener el acta oficial firmada para mostrarla en modo solo lectura
+  async getVotoFirmado(eleccionId: string, userId: string, categoria: 'Embajadora' | 'Embajador'): Promise<any | null> {
+    const votoDocRef = doc(this.firestore, `votos_jurados/voto_${eleccionId}_${userId}_${categoria}`);
+    const snap = await getDoc(votoDocRef);
+    return snap.exists() ? snap.data() : null;
+  }
+
+  // Suma segura de criterios
   private mergeCriterios(existente: any, nuevos: any) {
     const res = { ...existente };
     for (const key in nuevos) {
@@ -109,6 +116,4 @@ if (userSnap.exists()) {
     }
     return res;
   }
-
-
 }

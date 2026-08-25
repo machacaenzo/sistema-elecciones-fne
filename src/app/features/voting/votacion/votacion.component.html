@@ -1,49 +1,14 @@
 <div class="w-full min-h-screen bg-transparent text-neutral-100 font-sans p-4 sm:p-8 animate-fadeIn">
 
   <!-- ========================================================= -->
-  <!-- PANTALLA 1: LISTADO DE ELECCIONES                         -->
+  <!-- PANTALLA 1: LISTADO DE ELECCIONES (sub-componente)        -->
   <!-- ========================================================= -->
   @if (!isVotingMode()) {
-    <header class="mb-12 text-center space-y-2">
-       <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] tracking-tight uppercase drop-shadow-2xl">
-         Centro de Votación
-       </h1>
-       <p class="text-xs sm:text-sm tracking-[0.3em] text-[#F3E7C4] font-black uppercase opacity-80">
-         Mesa de Escrutinio Oficial del Jurado
-       </p>
-    </header>
-
-    <div class="max-w-5xl mx-auto space-y-5">
-      @for (eleccion of todasLasElecciones(); track eleccion.id) {
-        <div class="group relative overflow-hidden rounded-[2.5rem] transition-all duration-300 hover:scale-[1.01] shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
-          <div class="backdrop-blur-xl bg-white/[0.03] border border-white/10 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 transition-all">
-            <div class="flex items-center gap-6">
-              <div class="w-16 h-16 sm:w-18 sm:h-18 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/50 flex flex-col items-center justify-center shadow-lg shrink-0 p-2">
-                <span class="text-[10px] font-black text-[#C5A059] uppercase">{{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'MMM' }}</span>
-                <span class="text-2xl sm:text-3xl font-black text-white">{{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd' }}</span>
-              </div>
-              <div>
-                <h3 class="text-xl sm:text-2xl font-black text-white group-hover:text-[#F3E7C4] transition-colors tracking-tight">{{ eleccion.nombre }}</h3>
-                <div class="flex items-center gap-2 mt-1">
-                  <span class="w-2 h-2 rounded-full" [ngClass]="eleccion.estado === 'Activa' ? 'bg-emerald-400 animate-pulse' : 'bg-[#C5A059]'"></span>
-                  <span class="text-[10px] font-bold text-[#F3E7C4] uppercase tracking-widest">{{ eleccion.estado }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center gap-3 w-full md:w-auto justify-end">
-              <button (click)="openDetalleMode(eleccion)" class="flex-1 md:flex-none px-6 py-3 rounded-2xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all uppercase tracking-wider">Ver Nómina</button>
-              @if (!haVotado(eleccion.id!) && eleccion.estado === 'Activa') {
-                <button (click)="openVotingMode(eleccion)" class="flex-1 md:flex-none px-8 py-3 rounded-2xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black shadow-lg hover:scale-105 active:scale-95 transition-all uppercase tracking-wider">Ingresar</button>
-              } @else if (haVotado(eleccion.id!)) {
-                <span class="px-6 py-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-400 text-xs font-bold flex items-center gap-2">
-                  <i class="bi bi-check-circle-fill"></i> Completada
-                </span>
-              }
-            </div>
-          </div>
-        </div>
-      }
-    </div>
+    <app-eleccion-lista
+      [todasLasElecciones]="todasLasElecciones()"
+      (verDetalle)="openDetalleMode($event)"
+      (ingresarVotar)="openVotingMode($event)">
+    </app-eleccion-lista>
   }
 
   <!-- ========================================================= -->
@@ -51,8 +16,8 @@
   <!-- ========================================================= -->
   @if (isVotingMode() && selectedEleccion(); as eleccion) {
     <div class="fixed inset-0 z-[60] flex flex-col bg-black/40 backdrop-blur-3xl animate-fadeIn overflow-hidden">
-      
-      <!-- NAV FIJO -->
+
+      <!-- NAV FIJO — compartido por Pantallas A, B y C -->
       <nav class="px-6 sm:px-10 py-4 sm:py-5 border-b border-white/10 bg-black/40 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-4">
           <img src="assets/logo-fne.png" class="w-8 h-8 sm:w-9 sm:h-9 object-contain" alt="FNE">
@@ -67,131 +32,46 @@
 
         <!-- PANTALLA A: SELECCIONAR TANDA -->
         @if (!categoriaSeleccionada()) {
-          <div class="flex-1 flex flex-col items-center justify-center p-6 gap-8 overflow-y-auto">
-            <h2 class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] uppercase drop-shadow-lg text-center">Seleccionar Tanda Oficial</h2>
-            <div class="flex flex-col md:flex-row gap-6 w-full max-w-4xl px-4">
-              <button (click)="seleccionarTanda('Embajadora')" class="flex-1 group relative aspect-[4/5] max-h-[380px] rounded-[3rem] overflow-hidden border-2 transition-all duration-500 shadow-2xl bg-[#0A0A0A]" [ngClass]="tandaFirmada('Embajadora') ? 'border-emerald-500 opacity-60' : 'border-[#C5A059]/40 hover:border-[#C5A059]'">
-                <img src="assets/REYNA.png" class="absolute inset-0 w-full h-full object-contain p-8 group-hover:scale-110 transition-transform">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                <div class="absolute bottom-8 w-full text-center px-4">
-                  <span class="text-2xl font-black text-white uppercase tracking-wider">Embajadoras</span>
-                  @if(tandaFirmada('Embajadora')) { <p class="text-emerald-400 text-[10px] font-bold mt-2 uppercase tracking-widest">ACTA FIRMADA ✓</p> }
-                </div>
-              </button>
-              <button (click)="seleccionarTanda('Embajador')" class="flex-1 group relative aspect-[4/5] max-h-[380px] rounded-[3rem] overflow-hidden border-2 transition-all duration-500 shadow-2xl bg-[#0A0A0A]" [ngClass]="tandaFirmada('Embajador') ? 'border-emerald-500 opacity-60' : 'border-[#C5A059]/40 hover:border-[#C5A059]'">
-                <img src="assets/REY.png" class="absolute inset-0 w-full h-full object-contain p-8 group-hover:scale-110 transition-transform">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                <div class="absolute bottom-8 w-full text-center px-4">
-                  <span class="text-2xl font-black text-white uppercase tracking-wider">Embajadores</span>
-                  @if(tandaFirmada('Embajador')) { <p class="text-emerald-400 text-[10px] font-bold mt-2 uppercase tracking-widest">ACTA FIRMADA ✓</p> }
-                </div>
-              </button>
-            </div>
-          </div>
+          <app-votacion-tanda
+            [eleccionId]="eleccion.id!"
+            (tandaSeleccionada)="seleccionarTanda($event)">
+          </app-votacion-tanda>
         }
 
-        <!-- PANTALLA B: CALIFICACIÓN -->
+        <!-- PANTALLA B: MESA DE CALIFICACIÓN -->
         @else if (!isReviewMode()) {
-          <!-- BARRA SUPERIOR FIJA (CARRUSEL) -->
-          <div class="w-full bg-black/40 border-b border-white/5 py-3 px-4 sm:px-8 shrink-0 shadow-lg z-20">
-            <div class="flex items-center gap-3">
-              <button (click)="categoriaSeleccionada.set(null)" class="p-2.5 rounded-2xl bg-[#0A0A0A] text-neutral-400 border border-[#C5A059]/30 transition-all flex items-center gap-2 text-xs font-bold shrink-0">
-                <i class="bi bi-grid-fill text-[#C5A059]"></i> <span class="hidden sm:inline">Tandas</span>
-              </button>
-              <div class="flex-1 flex gap-3 overflow-x-auto pb-1 custom-scrollbar">
-                @for (c of getCandidatasFiltradas(); track c.id) {
-                  <button (click)="selectCandidate(c)" class="relative w-16 h-20 sm:w-24 sm:h-32 rounded-2xl overflow-hidden shrink-0 border-2 transition-all duration-300 group" [ngClass]="currentStep() === candidatas().indexOf(c) ? 'border-[#C5A059] ring-2 ring-[#C5A059] scale-105 shadow-[0_0_15px_#C5A059]' : 'border-white/10 opacity-60'">
-                    <img [src]="c.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-full h-full object-cover">
-                    <span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-[#C5A059] text-[#0A0D14] font-black text-[9px]">#{{ formatNumero(c.numero) }}</span>
-                    <div class="absolute bottom-1 inset-x-1 text-center"><span class="bg-black/80 text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white">{{ calculateTotalScore(candidatas().indexOf(c)) }} pts</span></div>
-                  </button>
-                }
-              </div>
-            </div>
-          </div>
-
-          <!-- PANEL DE PUNTUACIÓN (SCROLL INDEPENDIENTE CORREGIDO) -->
-          <div class="flex-1 overflow-y-auto p-4 sm:p-8 md:p-10 custom-scrollbar">
-            <form [formGroup]="votacionForm" class="min-h-full flex flex-col justify-start py-6 sm:py-0 max-w-6xl mx-auto">
-              <div formArrayName="evaluaciones">
-                @for (c of candidatas(); track c.id; let i = $index) {
-                  @if (currentStep() === i) {
-                    <div [formGroupName]="i" class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center animate-fadeIn">
-                      
-                      <!-- LADO IZQUIERDO: FOTO -->
-                      <div class="lg:col-span-5 flex flex-col items-center gap-5">
-                        <div class="relative w-[220px] h-[300px] sm:w-[330px] sm:h-[440px] rounded-[3.5rem] overflow-hidden border-2 border-[#C5A059]/50 bg-black shadow-2xl relative animate-float">
-                           @for (foto of c.fotosURL; track $index) {
-                             <img [src]="foto" class="absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out" [ngClass]="carouselImageIndex() === $index ? 'opacity-100 z-10' : 'opacity-0 z-0'">
-                           }
-                           <div class="absolute bottom-6 right-6 w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-[#C5A059] bg-black/90 backdrop-blur-xl flex items-center justify-center z-20"><span class="text-2xl sm:text-3xl font-black text-[#F3E7C4]">#{{ formatNumero(c.numero) }}</span></div>
-                        </div>
-                        <div class="text-center"><h3 class="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight leading-tight">{{ c.nombre }} {{ c.apellido }}</h3><p class="text-[10px] font-black text-[#C5A059] uppercase tracking-[0.4em] mt-1">{{ c.cursoDivision }}</p></div>
-                      </div>
-
-                      <!-- LADO DERECHO: SLIDERS -->
-                      <div class="lg:col-span-7">
-                        <div class="backdrop-blur-3xl bg-white/[0.03] border border-white/10 rounded-[3rem] p-6 sm:p-10 shadow-2xl space-y-6 sm:space-y-8 relative overflow-hidden">
-                          @if (tandaFirmada(categoriaSeleccionada()!)) {
-                            <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-50 flex items-center justify-center pointer-events-none">
-                               <div class="bg-[#C5A059] text-black px-8 py-3 rounded-full font-black text-xs uppercase tracking-widest shadow-2xl border-2 border-white rotate-[-3deg]">ACTA ENVIADA - SOLO LECTURA</div>
-                            </div>
-                          }
-                          <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                             <span class="text-xs font-black uppercase text-white/40 tracking-[0.3em]">Planilla Oficial</span>
-                             <span class="text-3xl sm:text-5xl font-black text-[#F3E7C4] tabular-nums">{{ calculateTotalScore(i) }}<span class="text-sm font-bold ml-1">pts</span></span>
-                          </div>
-                          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 sm:gap-y-8">
-                            @for (crit of getCriteriosParaCandidata(c, eleccion); track crit) {
-                              <div class="space-y-2">
-                                <div class="flex justify-between items-center text-xs"><span class="text-[11px] font-black uppercase text-neutral-300 tracking-widest">{{ crit }}</span><span class="text-xl font-black text-[#F3E7C4]">{{ getEvaluacionValue(i, crit) }} / 10</span></div>
-                                <input type="range" min="0" max="10" step="1" [formControlName]="crit" (input)="updateSliderValue(i, crit, $event)" [disabled]="tandaFirmada(categoriaSeleccionada()!)" class="custom-gold-slider w-full cursor-pointer disabled:opacity-40">
-                              </div>
-                            }
-                          </div>
-                          <div class="pt-4"><button (click)="enterReviewMode()" class="w-full py-4 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-[#0A0D14] font-black uppercase text-[10px] tracking-[0.4em] shadow-xl active:scale-95 transition-all">Revisar y Firmar Planilla</button></div>
-                        </div>
-                      </div>
-                    </div>
-                  }
-                }
-              </div>
-            </form>
-          </div>
+          <app-votacion-mesa
+            [candidatas]="candidatas()"
+            [candidatasFiltradas]="getCandidatasFiltradas()"
+            [eleccion]="eleccion"
+            [categoriaSeleccionada]="categoriaSeleccionada()!"
+            [currentStep]="currentStep()"
+            [carouselImageIndex]="carouselImageIndex()"
+            [votacionForm]="votacionForm"
+            [tandaFirmada]="tandaFirmada(categoriaSeleccionada()!)"
+            (volverATandas)="categoriaSeleccionada.set(null)"
+            (candidatoSeleccionado)="selectCandidate($event)"
+            (sliderActualizado)="updateSliderValue($event.index, $event.controlName, $event.event)"
+            (irARevisar)="enterReviewMode()">
+          </app-votacion-mesa>
         }
 
-        <!-- PANTALLA C: RESUMEN -->
+        <!-- PANTALLA C: AUDITORÍA Y FIRMA -->
         @else {
-          <div class="flex-1 overflow-y-auto p-6 sm:p-10 custom-scrollbar pb-32 animate-fadeIn">
-            <div class="max-w-4xl mx-auto space-y-8">
-              <div class="text-center space-y-2"><h2 class="text-3xl sm:text-5xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059]">Auditoría</h2><p class="text-[10px] text-white/40 mt-4 tracking-[0.6em]">VERIFICÁ LOS PUNTAJES ANTES DEL ENVÍO</p></div>
-              <div class="flex justify-center pt-2">
-                <div class="inline-flex items-center p-1.5 rounded-full bg-[#0A0A0A] border-2 border-[#C5A059]/50 shadow-lg">
-                  <span class="px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-all" [ngClass]="categoriaSeleccionada() === 'Embajadora' ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14]' : 'text-neutral-400'">Embajadoras</span>
-                  <span class="px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-all" [ngClass]="categoriaSeleccionada() === 'Embajador' ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14]' : 'text-neutral-400'">Embajadores</span>
-                </div>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                @for (c of getCandidatasFiltradas(); track c.id) {
-                  <div class="bg-white/[0.04] border border-white/10 p-4 rounded-3xl flex items-center justify-between shadow-lg backdrop-blur-md">
-                    <div class="flex items-center gap-3 min-w-0"><img [src]="c.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-14 h-14 rounded-2xl object-cover border border-white/20 bg-black shrink-0"><div class="min-w-0"><span class="text-[9px] font-black text-[#C5A059] uppercase block">#{{ formatNumero(c.numero) }}</span><p class="text-sm font-bold text-white uppercase truncate">{{ c.nombre }} {{ c.apellido }}</p></div></div>
-                    <div class="flex items-center gap-3 shrink-0"><span class="text-xl sm:text-2xl font-black text-[#F3E7C4]">{{ calculateTotalScore(candidatas().indexOf(c)) }} pts</span>
-                    @if (!tandaFirmada(categoriaSeleccionada()!)) { <button (click)="selectCandidate(c)" class="p-2.5 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all"><i class="bi bi-pencil-fill"></i></button> }
-                    @else { <i class="bi bi-shield-lock-fill text-[#C5A059] text-xl"></i> }</div>
-                  </div>
-                }
-              </div>
-              <div class="flex flex-col items-center gap-6 pt-10">
-                @if (!tandaFirmada(categoriaSeleccionada()!)) {
-                  <button (click)="onSubmit()" [disabled]="isSubmitting()" class="px-24 py-6 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-[#0A0D14] font-black uppercase text-base tracking-[0.4em] shadow-[0_0_80px_rgba(197,160,89,0.5)] animate-pulse">@if(isSubmitting()){ FIRMANDO... }@else{ FIRMAR ACTA OFICIAL }</button>
-                } @else {
-                  <div class="px-24 py-6 rounded-full bg-emerald-950/40 border-2 border-emerald-500/50 text-emerald-400 font-black uppercase text-base tracking-[0.4em] shadow-lg">ACTA REGISTRADA ✓</div>
-                  <button (click)="categoriaSeleccionada.set(null)" class="text-[#F3E7C4] font-black text-[10px] uppercase tracking-[0.4em] hover:underline transition-all">← Ir a la siguiente tanda</button>
-                }
-              </div>
-            </div>
-          </div>
+          <app-votacion-auditoria
+            [candidatas]="candidatas()"
+            [candidatasFiltradas]="getCandidatasFiltradas()"
+            [eleccion]="eleccion"
+            [categoriaSeleccionada]="categoriaSeleccionada()!"
+            [votacionForm]="votacionForm"
+            [tandaFirmada]="tandaFirmada(categoriaSeleccionada()!)"
+            [isSubmitting]="isSubmitting()"
+            (editarCandidato)="selectCandidate($event)"
+            (firmarActa)="onSubmit()"
+            (volverATandas)="categoriaSeleccionada.set(null)">
+          </app-votacion-auditoria>
         }
+
       </div>
     </div>
   }
@@ -200,7 +80,12 @@
   @if (isDetalleMode() && selectedEleccionParaDetalle(); as eleccion) {
     <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn" (click)="closeDetalleMode()">
       <div class="w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden" (click)="$event.stopPropagation()">
-        <app-detalle-eleccion [eleccion]="eleccion" [haVotado]="haVotado(eleccion.id!)" (closeModal)="closeDetalleMode()" (iniciarVotacion)="handleIniciarVotacion(eleccion)"></app-detalle-eleccion>
+        <app-detalle-eleccion
+          [eleccion]="eleccion"
+          [haVotado]="haVotado(eleccion.id!)"
+          (closeModal)="closeDetalleMode()"
+          (iniciarVotacion)="handleIniciarVotacion(eleccion)">
+        </app-detalle-eleccion>
       </div>
     </div>
   }

@@ -1,0 +1,36 @@
+<div class="flex-1 flex flex-col items-center justify-center p-6 gap-8 overflow-y-auto">
+  <h2 class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] uppercase drop-shadow-lg text-center">
+    Seleccionar Tanda Oficial
+  </h2>
+  <div class="flex flex-col md:flex-row gap-6 w-full max-w-4xl px-4">
+
+    <!-- TANDA EMBAJADORAS -->
+    <button (click)="tandaSeleccionada.emit('Embajadora')"
+      class="flex-1 group relative aspect-[4/5] max-h-[380px] rounded-[3rem] overflow-hidden border-2 transition-all duration-500 shadow-2xl bg-[#0A0A0A]"
+      [ngClass]="tandaFirmada('Embajadora') ? 'border-emerald-500 opacity-60' : 'border-[#C5A059]/40 hover:border-[#C5A059]'">
+      <img src="assets/REYNA.png" class="absolute inset-0 w-full h-full object-contain p-8 group-hover:scale-110 transition-transform">
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+      <div class="absolute bottom-8 w-full text-center px-4">
+        <span class="text-2xl font-black text-white uppercase tracking-wider">Embajadoras</span>
+        @if (tandaFirmada('Embajadora')) {
+          <p class="text-emerald-400 text-[10px] font-bold mt-2 uppercase tracking-widest">ACTA FIRMADA ✓</p>
+        }
+      </div>
+    </button>
+
+    <!-- TANDA EMBAJADORES -->
+    <button (click)="tandaSeleccionada.emit('Embajador')"
+      class="flex-1 group relative aspect-[4/5] max-h-[380px] rounded-[3rem] overflow-hidden border-2 transition-all duration-500 shadow-2xl bg-[#0A0A0A]"
+      [ngClass]="tandaFirmada('Embajador') ? 'border-emerald-500 opacity-60' : 'border-[#C5A059]/40 hover:border-[#C5A059]'">
+      <img src="assets/REY.png" class="absolute inset-0 w-full h-full object-contain p-8 group-hover:scale-110 transition-transform">
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+      <div class="absolute bottom-8 w-full text-center px-4">
+        <span class="text-2xl font-black text-white uppercase tracking-wider">Embajadores</span>
+        @if (tandaFirmada('Embajador')) {
+          <p class="text-emerald-400 text-[10px] font-bold mt-2 uppercase tracking-widest">ACTA FIRMADA ✓</p>
+        }
+      </div>
+    </button>
+
+  </div>
+</div>

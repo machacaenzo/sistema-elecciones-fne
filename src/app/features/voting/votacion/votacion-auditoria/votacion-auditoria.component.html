@@ -1,0 +1,71 @@
+<div class="flex-1 overflow-y-auto p-6 sm:p-10 custom-scrollbar pb-32 animate-fadeIn">
+  <div class="max-w-4xl mx-auto space-y-8">
+
+    <!-- TÍTULO -->
+    <div class="text-center space-y-2">
+      <h2 class="text-3xl sm:text-5xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059]">Auditoría</h2>
+      <p class="text-[10px] text-white/40 mt-4 tracking-[0.6em]">VERIFICÁ LOS PUNTAJES ANTES DEL ENVÍO</p>
+    </div>
+
+    <!-- INDICADOR DE TANDA ACTIVA -->
+    <div class="flex justify-center pt-2">
+      <div class="inline-flex items-center p-1.5 rounded-full bg-[#0A0A0A] border-2 border-[#C5A059]/50 shadow-lg">
+        <span class="px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-all"
+          [ngClass]="categoriaSeleccionada === 'Embajadora' ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14]' : 'text-neutral-400'">
+          Embajadoras
+        </span>
+        <span class="px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-all"
+          [ngClass]="categoriaSeleccionada === 'Embajador' ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14]' : 'text-neutral-400'">
+          Embajadores
+        </span>
+      </div>
+    </div>
+
+    <!-- TABLA DE PUNTAJES -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      @for (c of candidatasFiltradas; track c.id) {
+        <div class="bg-white/[0.04] border border-white/10 p-4 rounded-3xl flex items-center justify-between shadow-lg backdrop-blur-md">
+          <div class="flex items-center gap-3 min-w-0">
+            <img [src]="c.fotosURL?.[0] || 'assets/user-default.jpg'"
+              class="w-14 h-14 rounded-2xl object-cover border border-white/20 bg-black shrink-0">
+            <div class="min-w-0">
+              <span class="text-[9px] font-black text-[#C5A059] uppercase block">#{{ formatNumero(c.numero) }}</span>
+              <p class="text-sm font-bold text-white uppercase truncate">{{ c.nombre }} {{ c.apellido }}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 shrink-0">
+            <span class="text-xl sm:text-2xl font-black text-[#F3E7C4]">
+              {{ calculateTotalScore(candidatas.indexOf(c)) }} pts
+            </span>
+            @if (!tandaFirmada) {
+              <button (click)="editarCandidato.emit(c)" class="p-2.5 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all">
+                <i class="bi bi-pencil-fill"></i>
+              </button>
+            } @else {
+              <i class="bi bi-shield-lock-fill text-[#C5A059] text-xl"></i>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ACCIONES: FIRMAR o ACTA REGISTRADA -->
+    <div class="flex flex-col items-center gap-6 pt-10">
+      @if (!tandaFirmada) {
+        <button (click)="firmarActa.emit()" [disabled]="isSubmitting"
+          class="px-24 py-6 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-[#0A0D14] font-black uppercase text-base tracking-[0.4em] shadow-[0_0_80px_rgba(197,160,89,0.5)] animate-pulse">
+          @if (isSubmitting) { FIRMANDO... } @else { FIRMAR ACTA OFICIAL }
+        </button>
+      } @else {
+        <div class="px-24 py-6 rounded-full bg-emerald-950/40 border-2 border-emerald-500/50 text-emerald-400 font-black uppercase text-base tracking-[0.4em] shadow-lg">
+          ACTA REGISTRADA ✓
+        </div>
+        <button (click)="volverATandas.emit()"
+          class="text-[#F3E7C4] font-black text-[10px] uppercase tracking-[0.4em] hover:underline transition-all">
+          ← Ir a la siguiente tanda
+        </button>
+      }
+    </div>
+
+  </div>
+</div>

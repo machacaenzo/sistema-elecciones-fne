@@ -1,26 +1,24 @@
 @if (eleccion) {
-  <!-- CONTENEDOR PRINCIPAL: MODAL DE GALA GLASS CON LA FOTO DE FONDO -->
+  <!-- CONTENEDOR PRINCIPAL: MODAL DE GALA GLASS (DISEÑO ORIGINAL) -->
   <div class="w-full max-w-5xl max-h-[92vh] flex flex-col backdrop-blur-3xl bg-[#050505]/90 border-2 border-[#C5A059]/50 rounded-3xl shadow-[0_0_80px_rgba(197,160,89,0.25)] text-white overflow-hidden animate-fadeIn" (click)="$event.stopPropagation()">
     
     <!-- CABECERA ILUMINADA -->
     <div class="px-6 py-5 sm:px-8 sm:py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#C5A059]/20 bg-gradient-to-r from-[#C5A059]/15 via-black/40 to-transparent">
       
-      <!-- Título con Destellos -->
       <div>
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-[#121212] border border-[#C5A059]/50 shadow-[0_0_20px_rgba(197,160,89,0.35)] flex items-center justify-center text-[#F3E7C4] text-lg p-1">
             <img src="assets/logo-fne.png" alt="Logo FNE" class="w-full h-full object-contain">
           </div>
           <div>
-            <h2 class="text-xl sm:text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#F3E7C4] via-[#C5A059] to-[#FFF3D1]">
+            <h2 class="text-xl sm:text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D]">
               {{ eleccion.nombre }}
             </h2>
-            <p class="text-xs sm:text-sm text-[#F3E7C4]/80 font-medium">Nómina Oficial de Participantes &bull; Fiesta Nacional de los Estudiantes</p>
+            <p class="text-xs sm:text-sm text-[#F3E7C4]/80 font-medium">Nómina Oficial de Participantes</p>
           </div>
         </div>
       </div>
 
-      <!-- BOTÓN CERRAR CON TU IMAGEN ASSETS/BOTON.PNG -->
       <button 
         type="button" 
         (click)="closeModal.emit()"
@@ -31,45 +29,40 @@
       </button>
     </div>
 
-    <!-- PESTAÑAS (REINA VS CHICO 10) -->
+    <!-- PESTAÑAS (CAMBIO DE ICONOS POR REYNA Y REY - SIN EMOJIS) -->
     <div class="px-6 sm:px-8 py-3 bg-black/60 border-b border-[#C5A059]/20 flex items-center gap-2 sm:gap-3 overflow-x-auto">
       
-      <!-- Pestaña: Todas -->
       <button 
         type="button" 
         (click)="setCategory('Todas')"
         class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 whitespace-nowrap"
         [ngClass]="selectedCategory() === 'Todas' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60 scale-105' : 'bg-[#141414] text-neutral-300 hover:bg-[#202020] border border-[#C5A059]/30'"
       >
-        <i class="bi bi-grid-fill"></i>
         <span>Todos ({{ candidatas().length }})</span>
       </button>
 
-      <!-- Pestaña: Representantes / Embajadoras -->
       <button 
         type="button" 
         (click)="setCategory('Embajadora')"
-        class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 whitespace-nowrap"
+        class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-3 whitespace-nowrap"
         [ngClass]="selectedCategory() === 'Embajadora' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60 scale-105' : 'bg-[#141414] text-neutral-300 hover:bg-[#202020] border border-[#C5A059]/30'"
       >
-        <i class="bi bi-flower1 text-sm text-[#C5A059]"></i>
-        <span>🌸 Representantes / Embajadoras</span>
+        <img src="assets/REYNA.png" class="w-5 h-5 object-contain" [class.brightness-0]="selectedCategory() === 'Embajadora'">
+        <span>Representantes / Embajadoras</span>
       </button>
 
-      <!-- Pestaña: Chico 10 / Pajes -->
       <button 
         type="button" 
         (click)="setCategory('Embajador')"
-        class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 whitespace-nowrap"
+        class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-3 whitespace-nowrap"
         [ngClass]="selectedCategory() === 'Embajador' ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] shadow-[0_4px_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/60 scale-105' : 'bg-[#141414] text-neutral-300 hover:bg-[#202020] border border-[#C5A059]/30'"
       >
-        <i class="bi bi-trophy text-sm text-[#C5A059]"></i>
-        <span>👑 Chico 10 / Pajes</span>
+        <img src="assets/REY.png" class="w-5 h-5 object-contain" [class.brightness-0]="selectedCategory() === 'Embajador'">
+        <span>Chico 10 / Pajes</span>
       </button>
-
     </div>
 
-    <!-- CUERPO / GRILLA DE CANDIDATAS Y PAJES -->
+    <!-- CUERPO / GRILLA (DISEÑO ORIGINAL) -->
     <div class="p-6 sm:p-8 overflow-y-auto flex-1 custom-scrollbar bg-black/40">
       @if (isLoading()) {
         <div class="flex flex-col items-center justify-center py-20 gap-3">
@@ -79,18 +72,14 @@
       } @else {
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5 sm:gap-6">
           @for (candidata of candidatasFiltradas(); track candidata.id; let i = $index) {
-            <!-- TARJETA CANDIDATA -->
             <div 
               (click)="openGallery(candidata)"
               class="group relative backdrop-blur-2xl bg-[#0A0A0A]/90 hover:bg-[#121212] border border-[#C5A059]/30 hover:border-[#C5A059]/80 rounded-3xl p-3.5 flex flex-col items-center text-center cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_35px_rgba(197,160,89,0.3)]"
             >
-              
-              <!-- NÚMERO DE PASADA FLOTANTE -->
               <div class="absolute top-2.5 left-2.5 z-20 w-10 h-10 rounded-full bg-[#C5A059] text-[#0A0D14] font-black text-xs flex items-center justify-center shadow-lg border border-[#FFF3D1]/50 group-hover:scale-110 transition-transform">
                 #{{ getNumeroPasada(candidata, i) }}
               </div>
 
-              <!-- FOTO EDITORIAL -->
               <div class="w-full aspect-[3/4] rounded-2xl overflow-hidden mb-3 border border-[#C5A059]/30 group-hover:border-[#C5A059] transition-colors relative bg-black/60 shadow-lg">
                 <img 
                   [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'" 
@@ -100,7 +89,6 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 group-hover:opacity-60 transition-opacity"></div>
               </div>
 
-              <!-- NOMBRE Y CURSO -->
               <h3 class="text-sm sm:text-base font-extrabold text-white group-hover:text-[#F3E7C4] transition-colors line-clamp-1 tracking-tight">
                 {{ candidata.nombre }} {{ candidata.apellido }}
               </h3>
@@ -109,28 +97,17 @@
                 {{ candidata.cursoDivision || '5to Año' }}
               </span>
 
-              <!-- BOTÓN "VER FICHA" -->
               <div class="mt-3 w-full py-2 rounded-xl bg-[#141414] group-hover:bg-gradient-to-b group-hover:from-[#F3E7C4] group-hover:via-[#C5A059] group-hover:to-[#8C6D2D] group-hover:text-[#0A0D14] text-[#F3E7C4] text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 border border-[#C5A059]/30">
                 <span>Ver Ficha</span>
                 <i class="bi bi-arrow-right-short text-base"></i>
               </div>
-
-            </div>
-          } @empty {
-            <div class="col-span-full py-16 flex flex-col items-center justify-center text-center">
-              <div class="w-16 h-16 rounded-full bg-[#121212] border border-[#C5A059]/30 flex items-center justify-center text-[#C5A059] mb-3">
-                <i class="bi bi-flower3 text-2xl"></i>
-              </div>
-              <h4 class="text-base font-bold text-white">Sin participantes en esta categoría</h4>
-              <p class="text-xs text-neutral-400 mt-1 max-w-sm">No se encontraron postulantes registrados bajo esta categoría.</p>
             </div>
           }
         </div>
       }
     </div>
 
-    <!-- PIE DE MODAL (BOTÓN INICIAR EVALUACIÓN) -->
-    @if (eleccion.estado === 'Activa' && (eleccion.fechaFin?.toDate() ?? today) >= today && !haVotado) {
+    @if (eleccion.estado === 'Activa' && !haVotado) {
       <div class="px-6 py-4 sm:px-8 sm:py-5 border-t border-[#C5A059]/20 bg-[#000000]/90 flex justify-center">
         <button 
           (click)="onVotarClick()"
@@ -144,68 +121,63 @@
   </div>
 
   <!-- ================================================================================== -->
-  <!-- ===== MODAL DE FICHA TÉCNICA (CON BOTON.PNG PARA CERRAR) ========================== -->
+  <!-- ===== MODAL DE FICHA TÉCNICA (CON CARRUSEL AUTOMÁTICO) ========================== -->
   <!-- ================================================================================== -->
   @if (isGalleryOpen() && selectedCandidata(); as candidata) {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/90 backdrop-blur-md animate-fadeIn" (click)="closeGallery()">
       
-      <!-- TARJETA DE FICHA -->
       <div 
-        class="relative w-full max-w-4xl max-h-[90vh] p-6 sm:p-10 rounded-[2.5rem] bg-[#0A0A0A]/95 backdrop-blur-3xl border border-[#C5A059]/50 shadow-[0_0_80px_rgba(0,0,0,0.9),0_0_40px_rgba(197,160,89,0.2)] overflow-y-auto custom-scrollbar" 
+        class="relative w-full max-w-4xl max-h-[90vh] p-6 sm:p-10 rounded-[2.5rem] bg-[#0A0A0A]/95 backdrop-blur-3xl border border-[#C5A059]/50 shadow-[0_0_80px_rgba(0,0,0,0.9)] overflow-y-auto custom-scrollbar" 
         (click)="$event.stopPropagation()"
       >
         
-        <!-- BOTÓN CERRAR SUPERIOR CON ASSETS/BOTON.PNG -->
         <button 
           type="button" 
           (click)="closeGallery()"
-          title="Cerrar Ficha"
-          class="absolute top-6 right-6 p-1 rounded-full hover:bg-white/10 transition-all z-10 group"
+          class="absolute top-6 right-6 p-1 rounded-full hover:bg-white/10 transition-all z-50 group"
         >
-          <img src="assets/BOTON.png" alt="Cerrar" class="w-9 h-9 object-contain group-hover:rotate-90 group-hover:scale-110 active:scale-95 transition-transform duration-300">
+          <img src="assets/BOTON.png" alt="Cerrar" class="w-9 h-9 object-contain group-hover:rotate-90 group-hover:scale-110 transition-transform duration-300">
         </button>
 
-        <!-- LAYOUT 2 COLUMNAS: FOTOS EN 2x2 A LA IZQUIERDA + PÍLDORAS A LA DERECHA -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center pt-2">
           
-          <!-- COLUMNA IZQUIERDA: FOTOS EN CUADRÍCULA 2x2 -->
+          <!-- COLUMNA IZQUIERDA: CARRUSEL AUTOMÁTICO -->
           <div class="w-full">
-            @if (candidata.fotosURL && candidata.fotosURL.length > 1) {
-              <div class="grid grid-cols-2 gap-3.5">
-                @for (foto of candidata.fotosURL.slice(0, 4); track $index) {
-                  <div class="aspect-[3/4] rounded-2xl overflow-hidden border border-[#C5A059]/40 shadow-lg bg-black/60 hover:border-[#C5A059] hover:scale-[1.02] transition-all duration-300">
-                    <img [src]="foto" alt="Foto candidata" class="w-full h-full object-cover">
-                  </div>
+            <div class="relative aspect-[3/4] rounded-2xl overflow-hidden border border-[#C5A059]/40 shadow-lg bg-black/60">
+              @if (candidata.fotosURL && candidata.fotosURL.length > 0) {
+                @for (foto of candidata.fotosURL; track $index) {
+                  <img 
+                    [src]="foto" 
+                    alt="Foto candidata" 
+                    class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                    [class.opacity-100]="selectedPhotoIndex() === $index"
+                    [class.opacity-0]="selectedPhotoIndex() !== $index"
+                  >
                 }
-              </div>
-            } @else {
-              <div class="w-full aspect-[3/4] max-w-sm mx-auto rounded-3xl overflow-hidden border-2 border-[#C5A059]/50 shadow-[0_0_30px_rgba(197,160,89,0.2)] bg-black/60">
-                <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'" alt="Foto candidata" class="w-full h-full object-cover">
-              </div>
-            }
+              } @else {
+                <img src="assets/user-default.jpg" alt="Default" class="w-full h-full object-cover">
+              }
+            </div>
           </div>
 
-          <!-- COLUMNA DERECHA: PÍLDORAS REDONDEADAS COMPLETAS -->
+          <!-- COLUMNA DERECHA: PÍLDORAS ORIGINALES -->
           <div class="flex flex-col gap-4 justify-center">
             
-            <!-- Nombre y Número -->
             <div class="mb-1 flex items-center gap-3">
               <span class="px-3.5 py-1 rounded-full bg-[#C5A059] text-[#0A0D14] font-black text-xs shadow-md border border-[#FFF3D1]/50">
-                #{{ getNumeroPasada(candidata) }}
+                #{{ formatNumero(candidata.numero) }}
               </span>
               <h3 class="text-2xl font-black text-white tracking-tight">{{ candidata.nombre }} {{ candidata.apellido }}</h3>
             </div>
 
-            <!-- PÍLDORA 1: CURSO -->
-            <div class="w-full rounded-full border border-[#C5A059]/50 bg-[#121212] px-6 py-3.5 flex items-center justify-between shadow-sm hover:border-[#C5A059] transition-all">
+            <div class="w-full rounded-full border border-[#C5A059]/50 bg-[#121212] px-6 py-3.5 flex items-center justify-between shadow-sm">
               <span class="text-xs font-semibold text-neutral-300">Curso / División: <strong class="text-[#F3E7C4] font-bold ml-1">{{ candidata.cursoDivision || '5to 1ra' }}</strong></span>
               <i class="bi bi-mortarboard-fill text-[#C5A059] text-sm"></i>
             </div>
 
-            <!-- PÍLDORAS DINÁMICAS (HOBBIES, PROYECTO, ETC.) -->
             @if (eleccion.camposCandidata && eleccion.camposCandidata.length > 0) {
               @for (campo of eleccion.camposCandidata; track campo) {
-                <div class="w-full rounded-full border border-[#C5A059]/50 bg-[#121212] px-6 py-3.5 flex items-center justify-between shadow-sm hover:border-[#C5A059] transition-all">
+                <div class="w-full rounded-full border border-[#C5A059]/50 bg-[#121212] px-6 py-3.5 flex items-center justify-between shadow-sm">
                   <div class="flex flex-col">
                     <span class="text-[10px] uppercase tracking-wider text-[#C5A059] font-bold">{{ campo }}</span>
                     <span class="text-xs font-medium text-neutral-200">{{ candidata.camposPersonalizados?.[campo] || 'No especificado' }}</span>
@@ -214,31 +186,22 @@
                 </div>
               }
             } @else {
-              <div class="w-full rounded-full border border-[#C5A059]/50 bg-[#121212] px-6 py-3.5 flex items-center justify-between shadow-sm hover:border-[#C5A059] transition-all">
-                <span class="text-xs font-semibold text-neutral-300">Hobbies: <strong class="text-[#F3E7C4] ml-1">{{ candidata.camposPersonalizados?.['Hobbies'] || 'Danza y Fotografía' }}</strong></span>
+              <div class="w-full rounded-full border border-[#C5A059]/50 bg-[#121212] px-6 py-3.5 flex items-center justify-between shadow-sm">
+                <span class="text-xs font-semibold text-neutral-300">Hobbies: <strong class="text-[#F3E7C4] ml-1">{{ candidata.camposPersonalizados?.['Hobbies'] || 'Sin especificar' }}</strong></span>
                 <i class="bi bi-palette-fill text-[#C5A059] text-sm"></i>
-              </div>
-              <div class="w-full rounded-full border border-[#C5A059]/50 bg-[#121212] px-6 py-3.5 flex items-center justify-between shadow-sm hover:border-[#C5A059] transition-all">
-                <span class="text-xs font-semibold text-neutral-300">Proyecto: <strong class="text-[#F3E7C4] ml-1">{{ candidata.camposPersonalizados?.['Proyecto'] || 'Cuidado del medio ambiente' }}</strong></span>
-                <i class="bi bi-stars text-[#C5A059] text-sm"></i>
               </div>
             }
 
-            <!-- BOTÓN VOLVER DORADO METÁLICO (ESTILO ENZO) -->
             <button 
               type="button" 
               (click)="closeGallery()"
-              class="w-full mt-3 py-3.5 px-8 rounded-xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs tracking-wider uppercase shadow-[0_4px_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              class="w-full mt-3 py-3.5 px-8 rounded-xl bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs tracking-wider uppercase shadow-[0_4px_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/50 hover:scale-[1.02] active:scale-95 transition-all"
             >
               Volver a la Nómina
             </button>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
   }
 }

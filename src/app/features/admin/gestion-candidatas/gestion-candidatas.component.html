@@ -19,27 +19,6 @@
         </div>
       </div>
 
-      <!-- Botones de Exportación PDF -->
-<div class="flex items-center gap-2">
-  <!-- Botón Guión Locutor -->
-  <button type="button"
-          (click)="descargarGuionLocutor()"
-          title="Descargar Fichas para el Locutor"
-          class="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all hover:scale-105 shadow-sm">
-    <i class="bi bi-file-earmark-person-fill text-[#C5A059]"></i>
-    <span class="hidden sm:inline">Guión Locutor</span>
-  </button>
-
-  <!-- Botón Planilla Jurado -->
-  <button type="button"
-          (click)="descargarPlanillaJurados()"
-          title="Descargar Planillas de contingencia para Jurados"
-          class="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all hover:scale-105 shadow-sm">
-    <i class="bi bi-file-earmark-spreadsheet-fill text-[#C5A059]"></i>
-    <span class="hidden sm:inline">Planilla Jurados</span>
-  </button>
-</div>
-
       <!-- BOTÓN CERRAR CON ASSETS/BOTON.PNG GIRATORIO -->
       <button type="button"
               (click)="closeModal.emit()"
@@ -96,7 +75,7 @@
           </button>
         </div>
 
-        <!-- Grilla de Tarjetas de Participantes -->
+        <!-- Grilla de Tarjetas de Participantes (Sin DNI) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
           @for (candidata of participantesFiltrados(); track candidata.id) {
             <div class="relative group bg-[#0A0A0A] hover:bg-[#121212] border border-[#C5A059]/30 hover:border-[#C5A059]/80 rounded-3xl p-3.5 sm:p-4 transition-all duration-300 flex flex-col justify-between shadow-md">
@@ -111,7 +90,7 @@
                 </span>
               </div>
 
-              <!-- Foto del Participante (Aspect Ratio 3:4 Vertical) -->
+              <!-- Foto del Participante (3:4 Vertical) -->
               <div class="w-full aspect-[3/4] rounded-2xl overflow-hidden mb-3 bg-black relative border border-white/5 shadow-inner">
                 <img [src]="candidata.fotosURL?.[0] || 'assets/user-default.jpg'"
                      [alt]="candidata.nombre"
@@ -119,13 +98,12 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
               </div>
 
-              <!-- Datos Personales -->
+              <!-- Datos Personales (Nombre y Curso) -->
               <div class="space-y-1">
                 <h4 class="text-sm sm:text-base font-bold text-white truncate">{{ candidata.nombre }} {{ candidata.apellido }}</h4>
                 <div class="inline-block px-3 py-0.5 rounded-full bg-[#050505] border border-[#C5A059]/30 text-[11px] font-semibold text-[#F3E7C4]">
-                  {{ candidata.cursoDivision || 'Sin curso' }}
+                  {{ candidata.cursoDivision || 'Sin curso asignado' }}
                 </div>
-                <p class="text-[11px] text-neutral-400">DNI: {{ candidata.dni }}</p>
               </div>
 
               <!-- Botones de Acción -->
@@ -157,7 +135,7 @@
       }
 
       <!-- ========================================================= -->
-      <!-- VISTA 2: FORMULARIO DE ALTA Y EDICIÓN                     -->
+      <!-- VISTA 2: FORMULARIO DE ALTA Y EDICIÓN (SIN CAMPO DNI)     -->
       <!-- ========================================================= -->
       @if (isFormVisible()) {
         <form [formGroup]="candidataForm" (ngSubmit)="onSubmit()" class="space-y-5 sm:space-y-6">
@@ -177,7 +155,7 @@
             <!-- Columnas 1 y 2: Formulario de Datos -->
             <div class="lg:col-span-2 space-y-4 sm:space-y-5">
 
-              <!-- Categoría y N° de Pasarela (Auto-calculado) -->
+              <!-- Categoría y N° de Pasarela -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 sm:p-5 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 shadow-inner">
                 <div>
                   <label class="block text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1.5">
@@ -199,7 +177,7 @@
                 </div>
               </div>
 
-              <!-- Datos Personales -->
+              <!-- Datos Personales (Nombre, Apellido y Curso) -->
               <div class="p-4 sm:p-5 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 space-y-4">
                 <h3 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider flex items-center gap-2">
                   <i class="bi bi-person-vcard-fill text-[#C5A059]"></i> Datos del Participante
@@ -218,22 +196,14 @@
                   </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs font-medium text-neutral-300 mb-1">Documento (DNI)</label>
-                    <input type="text" formControlName="dni" placeholder="Ej: 45123456"
-                           class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
-                  </div>
-                  <div>
-                    <label class="block text-xs font-medium text-neutral-300 mb-1">Curso y División</label>
-                    <input type="text" formControlName="cursoDivision" placeholder="Ej: 5to 1ra Humanidades"
-                           class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
-                  </div>
+                <div>
+                  <label class="block text-xs font-medium text-neutral-300 mb-1">Curso y División</label>
+                  <input type="text" formControlName="cursoDivision" placeholder="Ej: 5to 1ra Humanidades"
+                         class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
                 </div>
               </div>
 
               <!-- Preguntas dinámicas del perfil -->
-              <!-- Preguntas dinámicas del perfil (100% dinámico) -->
               @if (eleccion.camposCandidata && eleccion.camposCandidata.length > 0) {
                 <div class="p-4 sm:p-5 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 space-y-4" formGroupName="camposPersonalizados">
                   <div class="flex items-center justify-between">
@@ -248,7 +218,7 @@
                       <div>
                         <label class="block text-xs font-medium text-neutral-300 mb-1">{{ campo }}</label>
                         <input type="text" [formControlName]="campo" [placeholder]="'Ingresar ' + campo"
-                              class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
+                               class="w-full px-4 py-3 bg-[#050505] border border-[#C5A059]/35 focus:border-[#C5A059] rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#C5A059] transition-all">
                       </div>
                     }
                   </div>
@@ -256,7 +226,7 @@
               }
             </div>
 
-            <!-- Columna 3: Galería de Fotos con Compresor Automático -->
+            <!-- Columna 3: Galería de Fotos -->
             <div class="p-4 sm:p-5 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 space-y-4 flex flex-col justify-between">
               <div>
                 <h3 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mb-1 flex items-center gap-2">
@@ -265,7 +235,6 @@
                 <p class="text-[11px] text-neutral-400 mb-3">Las fotos se optimizan automáticamente.</p>
 
                 <div class="space-y-3">
-                  <!-- Miniaturas -->
                   <div class="grid grid-cols-2 gap-2.5 max-h-56 overflow-y-auto custom-scrollbar">
                     @for (preview of imagePreviews(); track $index) {
                       <div class="relative aspect-[3/4] rounded-xl overflow-hidden bg-black border border-[#C5A059]/40 group shadow-md">
@@ -278,14 +247,13 @@
                     }
                   </div>
 
-                  <!-- Botón Subir Fotos -->
                   <label for="file-upload-candidata"
                          class="flex flex-col items-center justify-center p-5 border-2 border-dashed border-[#C5A059]/40 hover:border-[#C5A059] rounded-2xl cursor-pointer bg-[#050505] hover:bg-[#121212] transition-all text-center group">
                     <i class="bi bi-cloud-arrow-up text-3xl text-[#C5A059] mb-1 group-hover:scale-110 transition-transform"></i>
                     <span class="text-xs font-bold text-[#F3E7C4]">
                       {{ isProcessingImages() ? 'Optimizando fotos...' : 'Subir Fotos' }}
                     </span>
-                    <span class="text-[10px] text-neutral-400 mt-0.5">JPG o PNG</span>
+                    <span class="text-[10px] text-neutral-400 mt-0.5">JPG, PNG o WebP</span>
                   </label>
                   <input id="file-upload-candidata" type="file" (change)="onFileSelected($event)" accept="image/*" multiple hidden>
                 </div>
@@ -294,26 +262,26 @@
 
           </div>
 
-         <!-- Pie del Formulario con Bloqueo Anti Doble Clic y Spinner -->
-<div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 sm:pt-6 border-t border-[#C5A059]/30">
-  <button type="button"
-          (click)="hideForm()"
-          [disabled]="isSubmitting()"
-          class="px-6 py-3.5 rounded-xl border border-[#C5A059]/40 text-neutral-300 hover:text-white hover:bg-white/10 text-xs font-bold uppercase tracking-wider transition-all text-center disabled:opacity-40">
-    Cancelar
-  </button>
+          <!-- Pie del Formulario -->
+          <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 sm:pt-6 border-t border-[#C5A059]/30">
+            <button type="button"
+                    (click)="hideForm()"
+                    [disabled]="isSubmitting()"
+                    class="px-6 py-3.5 rounded-xl border border-[#C5A059]/40 text-neutral-300 hover:text-white hover:bg-white/10 text-xs font-bold uppercase tracking-wider transition-all text-center disabled:opacity-40">
+              Cancelar
+            </button>
 
-  <button type="submit"
-          [disabled]="candidataForm.invalid || isProcessingImages() || isSubmitting()"
-          class="px-8 py-3.5 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_0_30px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/70 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none text-center flex items-center justify-center gap-2">
-    @if (isSubmitting()) {
-      <span class="inline-block w-4 h-4 border-2 border-[#0A0D14] border-t-transparent rounded-full animate-spin"></span>
-      <span>Guardando...</span>
-    } @else {
-      <span>{{ isEditing() ? 'Guardar Cambios' : 'Completar Inscripción' }}</span>
-    }
-  </button>
-</div>
+            <button type="submit"
+                    [disabled]="candidataForm.invalid || isProcessingImages() || isSubmitting()"
+                    class="px-8 py-3.5 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_0_30px_rgba(197,160,89,0.4)] border border-[#FFF3D1]/70 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none text-center flex items-center justify-center gap-2">
+              @if (isSubmitting()) {
+                <span class="inline-block w-4 h-4 border-2 border-[#0A0D14] border-t-transparent rounded-full animate-spin"></span>
+                <span>Guardando...</span>
+              } @else {
+                <span>{{ isEditing() ? 'Guardar Cambios' : 'Completar Inscripción' }}</span>
+              }
+            </button>
+          </div>
 
         </form>
       }

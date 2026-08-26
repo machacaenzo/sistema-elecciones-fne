@@ -6,7 +6,6 @@ import { CandidataService } from '../gestion-elecciones/candidata.service';
 import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Eleccion } from '../../../core/models/eleccion.model';
 import { Candidata, CategoriaParticipante } from '../../../core/models/candidata.model';
-import { PdfExportService } from '../../../core/services/pdf-export.service';
 
 @Component({
   selector: 'app-gestion-candidatas',
@@ -22,10 +21,7 @@ export class GestionCandidatasComponent implements OnInit {
   private candidataService = inject(CandidataService);
   private notificationService = inject(NotificacionService);
   private fb = inject(FormBuilder);
-  private pdfService = inject(PdfExportService);
 
-
-  // Signals de estado
   participantes = signal<Candidata[]>([]);
   categoriaFiltro = signal<'Todas' | CategoriaParticipante>('Todas');
 
@@ -34,12 +30,10 @@ export class GestionCandidatasComponent implements OnInit {
   editingCandidataId = signal<string | null>(null);
   imagePreviews = signal<string[]>([]);
   isProcessingImages = signal(false);
-
-  isSubmitting = signal(false); // 👈 Agrega esto
+  isSubmitting = signal(false);
 
   candidataForm: FormGroup;
 
-  // Lista filtrada por categoría y siempre ordenada por número de pasada (1, 2, 3...)
   participantesFiltrados = computed(() => {
     let lista = [...this.participantes()];
     if (this.categoriaFiltro() !== 'Todas') {
@@ -54,14 +48,12 @@ export class GestionCandidatasComponent implements OnInit {
       categoria: ['Embajadora' as CategoriaParticipante, Validators.required],
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
-      dni: ['', Validators.required],
       cursoDivision: ['', Validators.required],
       fotosURL: this.fb.array([]),
       nuevasImagenes: this.fb.array([]),
       camposPersonalizados: this.fb.group({})
     });
 
-    // Recalcular número automáticamente si cambia la categoría durante el alta
     this.candidataForm.get('categoria')?.valueChanges.subscribe((nuevaCat: CategoriaParticipante) => {
       if (!this.isEditing() && this.isFormVisible()) {
         const sigNum = this.calcularSiguienteNumero(nuevaCat);
@@ -72,7 +64,7 @@ export class GestionCandidatasComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.eleccion?.id) {
-      this.notificationService.showAlertError('Error', 'No se especificó la elección a gestionar.');
+      this.notificationService.showAlertError('Error', 'No se especificó la elección.');
       this.closeModal.emit();
       return;
     }
@@ -86,7 +78,6 @@ export class GestionCandidatasComponent implements OnInit {
     });
   }
 
-  // Calcula el próximo número disponible específico para esa categoría
   calcularSiguienteNumero(categoria: CategoriaParticipante): number {
     const listaCat = this.participantes().filter(p => (p.categoria || 'Embajadora') === categoria);
     if (listaCat.length === 0) return 1;
@@ -101,7 +92,8 @@ export class GestionCandidatasComponent implements OnInit {
   buildDynamicFormFields(): void {
     const camposGroup = this.camposPersonalizadosGroup;
     Object.keys(camposGroup.controls).forEach(key => camposGroup.removeControl(key));
-    this.eleccion.camposCandidata?.forEach(campo => {
+    const campos = this.eleccion.camposCandidata || [];
+    campos.forEach(campo => {
       camposGroup.addControl(campo, this.fb.control(''));
     });
   }
@@ -109,8 +101,8 @@ export class GestionCandidatasComponent implements OnInit {
   openCreateForm(): void {
     this.isEditing.set(false);
     this.editingCandidataId.set(null);
+    this.isSubmitting.set(false);
 
-    // Determinar categoría por defecto según filtro actual
     const catInicial: CategoriaParticipante = (this.categoriaFiltro() === 'Embajador') ? 'Embajador' : 'Embajadora';
     const siguienteNumero = this.calcularSiguienteNumero(catInicial);
 
@@ -119,7 +111,6 @@ export class GestionCandidatasComponent implements OnInit {
       categoria: catInicial,
       nombre: '',
       apellido: '',
-      dni: '',
       cursoDivision: ''
     });
 
@@ -133,6 +124,7 @@ export class GestionCandidatasComponent implements OnInit {
   openEditForm(candidata: Candidata): void {
     this.isEditing.set(true);
     this.editingCandidataId.set(candidata.id!);
+    this.isSubmitting.set(false);
     this.buildDynamicFormFields();
 
     this.candidataForm.patchValue({
@@ -140,7 +132,6 @@ export class GestionCandidatasComponent implements OnInit {
       categoria: candidata.categoria || 'Embajadora',
       nombre: candidata.nombre,
       apellido: candidata.apellido,
-      dni: candidata.dni,
       cursoDivision: candidata.cursoDivision || '',
       camposPersonalizados: candidata.camposPersonalizados || {}
     });
@@ -154,10 +145,12 @@ export class GestionCandidatasComponent implements OnInit {
     this.isFormVisible.set(true);
   }
 
-  
+  hideForm(): void {
+    this.isFormVisible.set(false);
+    this.isSubmitting.set(false);
+  }
 
-  // Compresor de fotos con Canvas en el navegador
-  private compressImage(file: File, maxWidth = 800, quality = 0.7): Promise<string> {
+  private compressImage(file: File, maxWidth = 600, quality = 0.65): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -179,8 +172,7 @@ export class GestionCandidatasComponent implements OnInit {
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
 
-          const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
-          resolve(compressedBase64);
+          resolve(canvas.toDataURL('image/webp', quality));
         };
         img.onerror = err => reject(err);
       };
@@ -195,7 +187,7 @@ export class GestionCandidatasComponent implements OnInit {
       try {
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
-          const compressed = await this.compressImage(file, 800, 0.7);
+          const compressed = await this.compressImage(file, 600, 0.65);
           this.imagePreviews.update(current => [...current, compressed]);
           (this.candidataForm.get('nuevasImagenes') as FormArray).push(this.fb.control(compressed));
         }
@@ -222,80 +214,75 @@ export class GestionCandidatasComponent implements OnInit {
     }
   }
 
-async onSubmit(): Promise<void> {
-  // 1. Si ya se está enviando, frena en seco cualquier segundo clic
-  if (this.isSubmitting()) return;
+  async onSubmit(): Promise<void> {
+    if (this.isSubmitting()) return;
 
-  if (this.candidataForm.invalid) {
-    this.notificationService.showAlertWarning('Formulario Incompleto', 'Por favor completá los campos obligatorios.');
-    return;
-  }
-
-  const formValue = this.candidataForm.value;
-  const num = Number(formValue.numero);
-  const cat = formValue.categoria as CategoriaParticipante;
-  const editId = this.editingCandidataId();
-
-  // 2. Validación de número duplicado (Ignorando correctamente al participante que se está editando)
-  const existeDuplicado = this.participantes().some(p => {
-    const mismaCat = (p.categoria || 'Embajadora') === cat;
-    const mismoNumero = Number(p.numero) === num;
-    const esOtroParticipante = p.id !== editId; // Si es el mismo que editas, NO da duplicado
-    return mismaCat && mismoNumero && esOtroParticipante;
-  });
-
-  if (existeDuplicado) {
-    this.notificationService.showAlertWarning(
-      'Número Duplicado',
-      `Ya existe un/a participante con el N° ${num} en la categoría "${cat}". Elegí otro número.`
-    );
-    return;
-  }
-
-  // 3. Bloqueamos el botón y empezamos a guardar
-  this.isSubmitting.set(true);
-
-  const finalFotosURL = [...formValue.fotosURL, ...formValue.nuevasImagenes];
-
-  const data: Omit<Candidata, 'id'> = {
-    eleccionId: this.eleccion.id!,
-    numero: num,
-    categoria: cat,
-    nombre: formValue.nombre.trim(),
-    apellido: formValue.apellido.trim(),
-    dni: formValue.dni.trim(),
-    cursoDivision: formValue.cursoDivision.trim(),
-    fotosURL: finalFotosURL,
-    camposPersonalizados: formValue.camposPersonalizados || {},
-    puntuacionPorCriterio: {},
-    puntuacionTotal: 0,
-    cantidadDeVotos: 0,
-  };
-
-  try {
-    if (this.isEditing() && editId) {
-      const anterior = this.participantes().find(p => p.id === editId);
-      data.puntuacionTotal = anterior?.puntuacionTotal || 0;
-      data.cantidadDeVotos = anterior?.cantidadDeVotos || 0;
-      data.puntuacionPorCriterio = anterior?.puntuacionPorCriterio || {};
-
-      await this.candidataService.updateCandidata(editId, data);
-      this.notificationService.showSuccessToast('Ficha actualizada correctamente');
-    } else {
-      await this.candidataService.createCandidata(data);
-      this.notificationService.showSuccessToast('Participante inscripto/a con éxito');
+    if (this.candidataForm.invalid) {
+      this.notificationService.showAlertWarning('Formulario Incompleto', 'Por favor completá los campos requeridos.');
+      return;
     }
-    this.hideForm();
-  } catch (error) {
-    this.notificationService.showAlertError('Error', 'No se pudo guardar la ficha en la base de datos.');
-  } finally {
-    // 4. Liberamos el botón al terminar
-    this.isSubmitting.set(false);
+
+    const formValue = this.candidataForm.value;
+    const num = Number(formValue.numero);
+    const cat = formValue.categoria as CategoriaParticipante;
+    const editId = this.editingCandidataId();
+
+    const existeDuplicado = this.participantes().some(p => {
+      const mismaCat = (p.categoria || 'Embajadora') === cat;
+      const mismoNumero = Number(p.numero) === num;
+      const esOtroParticipante = p.id !== editId;
+      return mismaCat && mismoNumero && esOtroParticipante;
+    });
+
+    if (existeDuplicado) {
+      this.notificationService.showAlertWarning(
+        'Número Duplicado',
+        `Ya existe un/a participante con el N° ${num} en la categoría "${cat}". Elegí otro número.`
+      );
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    const finalFotosURL = [...formValue.fotosURL, ...formValue.nuevasImagenes];
+
+    const data: Omit<Candidata, 'id'> = {
+      eleccionId: this.eleccion.id!,
+      numero: num,
+      categoria: cat,
+      nombre: formValue.nombre.trim(),
+      apellido: formValue.apellido.trim(),
+      cursoDivision: formValue.cursoDivision.trim(),
+      fotosURL: finalFotosURL,
+      camposPersonalizados: formValue.camposPersonalizados || {},
+      puntuacionPorCriterio: {},
+      puntuacionTotal: 0,
+      cantidadDeVotos: 0,
+    };
+
+    try {
+      if (this.isEditing() && editId) {
+        const anterior = this.participantes().find(p => p.id === editId);
+        data.puntuacionTotal = anterior?.puntuacionTotal || 0;
+        data.cantidadDeVotos = anterior?.cantidadDeVotos || 0;
+        data.puntuacionPorCriterio = anterior?.puntuacionPorCriterio || {};
+
+        await this.candidataService.updateCandidata(editId, data);
+        this.notificationService.showSuccessToast('Ficha actualizada correctamente');
+      } else {
+        await this.candidataService.createCandidata(data);
+        this.notificationService.showSuccessToast('Participante inscripto/a con éxito');
+      }
+      this.hideForm();
+    } catch (error) {
+      this.notificationService.showAlertError('Error', 'No se pudo guardar la ficha en la base de datos.');
+    } finally {
+      this.isSubmitting.set(false);
+    }
   }
-}
+
   async confirmDelete(candidata: Candidata): Promise<void> {
     if (candidata.cantidadDeVotos > 0) {
-      this.notificationService.showAlertError('Acción Bloqueada', 'No se puede eliminar un participante que ya tiene votos registrados en la gala.');
+      this.notificationService.showAlertError('Acción Bloqueada', 'No se puede eliminar un participante que ya tiene votos registrados.');
       return;
     }
 
@@ -309,16 +296,4 @@ async onSubmit(): Promise<void> {
       this.notificationService.showSuccessToast('Participante eliminado/a');
     }
   }
-
-  descargarGuionLocutor(): void {
-  this.pdfService.exportarGuionLocutor(this.eleccion, this.participantes());
-}
-
-descargarPlanillaJurados(): void {
-  this.pdfService.exportarPlanillaJurado(this.eleccion, this.participantes());
-}
-hideForm(): void {
-  this.isFormVisible.set(false);
-  this.isSubmitting.set(false);
-}
 }

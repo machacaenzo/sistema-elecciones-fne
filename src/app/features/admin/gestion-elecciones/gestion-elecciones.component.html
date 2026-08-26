@@ -97,6 +97,15 @@
             </button>
           }
           @if (eleccion.estado === 'Activa') {
+
+             <button type="button"
+                            (click)="openMonitoreoModal(eleccion)"
+                            class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/50 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105"
+                            title="Ver jurados que ya votaron en tiempo real">
+                      <i class="bi bi-speedometer2 text-[#C5A059]"></i>
+                      <span>Mesa de Control</span>
+                    </button>
+
             <button type="button"
                     (click)="finalizarVotacion(eleccion)"
                     class="py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/50 text-rose-400 text-xs font-bold flex items-center justify-center gap-1.5">
@@ -231,6 +240,15 @@
 
                   <!-- Cerrar Votación -->
                   @if (eleccion.estado === 'Activa') {
+
+                     <button type="button"
+                            (click)="openMonitoreoModal(eleccion)"
+                            class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/50 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105"
+                            title="Ver jurados que ya votaron en tiempo real">
+                      <i class="bi bi-speedometer2 text-[#C5A059]"></i>
+                      <span>Mesa de Control</span>
+                    </button>
+
                     <button type="button"
                             (click)="finalizarVotacion(eleccion)"
                             class="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/50 text-rose-400 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105">
@@ -540,6 +558,58 @@
               </div>
             </div>
 
+
+
+
+            <!-- ========================================================= -->
+            <!-- 👈 AQUÍ PEGAS EL BLOQUE DE JURADOS ASIGNADOS              -->
+            <!-- ========================================================= -->
+            <div class="p-6 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/30 space-y-4 shadow-sm">
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2.5">
+                  <i class="bi bi-person-check-fill text-[#C5A059] text-base"></i>
+                  <h3 class="text-xs font-bold text-[#F3E7C4] uppercase tracking-wider">Mesa Evaluadora (Jurados Asignados)</h3>
+                </div>
+                <span class="text-xs font-bold text-[#F3E7C4]">
+                  {{ (eleccionForm.get('juradosAsignados')?.value?.length || 0) }} seleccionados
+                </span>
+              </div>
+              <p class="text-xs text-neutral-400">Marcá quiénes tendrán autorización para calificar en este evento.</p>
+
+              <!-- Lista de Jurados con Checkboxes -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+                @for (jurado of juradosDisponibles(); track jurado.uid) {
+                  <div (click)="toggleJurado(jurado.uid)"
+                       class="p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 shadow-sm select-none"
+                       [ngClass]="isJuradoSelected(jurado.uid)
+                         ? 'bg-[#141414] border-[#C5A059] shadow-[0_0_15px_rgba(197,160,89,0.2)]'
+                         : 'bg-[#050505] border-white/10 hover:border-[#C5A059]/40'">
+
+                    <div class="flex items-center gap-3 min-w-0">
+                      <img [src]="jurado.fotoURL || 'assets/user-default.jpg'"
+                           class="w-10 h-10 rounded-xl object-cover border border-[#C5A059]/40 flex-shrink-0 bg-black">
+                      <div class="min-w-0">
+                        <h4 class="text-xs font-bold text-white truncate">{{ jurado.nombre }} {{ jurado.apellido }}</h4>
+                        <p class="text-[10px] text-neutral-400 truncate">{{ jurado.email }}</p>
+                      </div>
+                    </div>
+
+                    <div class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
+                         [ngClass]="isJuradoSelected(jurado.uid) ? 'bg-[#C5A059] text-[#0A0D14]' : 'border border-neutral-700 bg-[#0A0A0A]'">
+                      @if (isJuradoSelected(jurado.uid)) {
+                        <i class="bi bi-check-lg text-sm font-black"></i>
+                      }
+                    </div>
+                  </div>
+                } @empty {
+                  <div class="col-span-full py-6 text-center text-neutral-500 border border-dashed border-[#C5A059]/20 rounded-2xl">
+                    <p class="text-xs text-neutral-400">No hay jurados habilitados en el Padrón.</p>
+                  </div>
+                }
+              </div>
+            </div>
+
+
             <!-- PIE DEL MODAL (BOTONES FULL EN CELULAR, ROW EN PC) -->
             <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 sm:pt-6 border-t border-[#C5A059]/30">
               <button type="button" (click)="closeModal()"
@@ -567,4 +637,13 @@
     </app-gestion-candidatas>
   }
 
+
+  <!-- MODAL DE MONITOREO DE JURADOS EN VIVO -->
+  @if (isMonitoreoModalOpen() && selectedEleccion()) {
+    <app-monitoreo-jurados
+      [eleccion]="selectedEleccion()!"
+      (closeModal)="closeMonitoreoModal()">
+    </app-monitoreo-jurados>
+  }
+  
 </div>

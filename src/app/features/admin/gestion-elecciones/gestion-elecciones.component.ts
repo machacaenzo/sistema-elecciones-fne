@@ -8,6 +8,10 @@ import { EleccionService } from './eleccion.service';
 import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Eleccion, EstadoEleccion } from '../../../core/models/eleccion.model';
 import { GestionCandidatasComponent } from '../gestion-candidatas/gestion-candidatas.component';
+import { UserService } from '../../../core/services/user.service';
+import { User } from '../../../core/models/user.model';
+import { MonitoreoJuradosComponent } from '../monitoreo-jurados/monitoreo-jurados.component';
+
 
 @Component({
   selector: 'app-gestion-elecciones',
@@ -16,7 +20,8 @@ import { GestionCandidatasComponent } from '../gestion-candidatas/gestion-candid
     CommonModule,
     ReactiveFormsModule,
     DatePipe,
-    GestionCandidatasComponent
+    GestionCandidatasComponent,
+    MonitoreoJuradosComponent
   ],
   templateUrl: './gestion-elecciones.component.html',
   styleUrls: ['./gestion-elecciones.component.scss']
@@ -26,6 +31,12 @@ export class GestionEleccionesComponent implements OnInit {
   private notificationService = inject(NotificacionService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
+
+
+  private userService = inject(UserService); // 👈 Agregar inyección
+
+// Signal para cargar la lista de jurados disponibles
+juradosDisponibles = signal<User[]>([]);
 
   // Signals de estado
   elecciones = signal<Eleccion[]>([]);
@@ -41,6 +52,7 @@ export class GestionEleccionesComponent implements OnInit {
     this.eleccionForm = this.fb.group({
       nombre: ['', Validators.required],
       fechaEvento: ['', Validators.required],
+      juradosAsignados: [[] as string[]],
       puestosFemeninos: this.fb.array([]),
       puestosMasculinos: this.fb.array([]),
       criteriosFemeninos: this.fb.array([]),
@@ -56,6 +68,9 @@ export class GestionEleccionesComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarElecciones();
+     this.userService.getAllUsers().subscribe(users => {
+    this.juradosDisponibles.set(users.filter(u => u.rol === 'Jurado' && u.EsActivo));
+  });
   }
 
   cargarElecciones(): void {
@@ -130,7 +145,7 @@ export class GestionEleccionesComponent implements OnInit {
   }
   removeCampoCandidata(index: number): void { this.camposCandidataArray.removeAt(index); }
 
-  // Abrir Modal de Creación con pre-cargas individuales oficiales
+  // Abrir Modal de Creación
   openCreateModal(): void {
     this.isEditing.set(false);
     this.editingEleccionId.set(null);
@@ -141,6 +156,9 @@ export class GestionEleccionesComponent implements OnInit {
     this.criteriosFemeninosArray.clear();
     this.criteriosMasculinosArray.clear();
     this.camposCandidataArray.clear();
+
+    // Resetear lista de jurados asignados para que empiece vacía
+    this.eleccionForm.get('juradosAsignados')?.setValue([]);
 
     // 1. Títulos Femeninos pre-cargados
     ['Embajadora', '1ra Princesa', '2da Princesa', '1ra Dama de Honor', '2da Dama de Honor', 'Miss Elegancia', 'Miss Simpatía']
@@ -194,14 +212,15 @@ export class GestionEleccionesComponent implements OnInit {
 
     (eleccion.camposCandidata || ['Hobbies', 'Mensaje a la Juventud']).forEach(cc => this.camposCandidataArray.push(this.fb.control(cc)));
 
+    // Cargamos los datos de la elección incluyendo los jurados que ya tenía
     this.eleccionForm.patchValue({
       nombre: eleccion.nombre,
-      fechaEvento: fecha
+      fechaEvento: fecha,
+      juradosAsignados: eleccion.juradosAsignados || []
     });
 
     this.isModalOpen.set(true);
   }
-
   closeModal(): void {
     this.isModalOpen.set(false);
   }
@@ -220,6 +239,7 @@ export class GestionEleccionesComponent implements OnInit {
       nombre: formValue.nombre,
       fechaEvento: timestampFecha,
       estado: 'Configuracion' as EstadoEleccion,
+      juradosAsignados: formValue.juradosAsignados || [],
       puestosFemeninos: formValue.puestosFemeninos || [],
       puestosMasculinos: formValue.puestosMasculinos || [],
       criteriosFemeninos: formValue.criteriosFemeninos || [],
@@ -301,4 +321,34 @@ export class GestionEleccionesComponent implements OnInit {
       }
     }
   }
+
+  isJuradoSelected(uid: string): boolean {
+  const seleccionados: string[] = this.eleccionForm.get('juradosAsignados')?.value || [];
+  return seleccionados.includes(uid);
+}
+
+toggleJurado(uid: string): void {
+  const control = this.eleccionForm.get('juradosAsignados');
+  let seleccionados: string[] = [...(control?.value || [])];
+
+  if (seleccionados.includes(uid)) {
+    seleccionados = seleccionados.filter(id => id !== uid);
+  } else {
+    seleccionados.push(uid);
+  }
+
+  control?.setValue(seleccionados);
+  this.eleccionForm.markAsDirty();
+}
+
+isMonitoreoModalOpen = signal(false);
+
+openMonitoreoModal(eleccion: Eleccion): void {
+  this.selectedEleccion.set(eleccion);
+  this.isMonitoreoModalOpen.set(true);
+}
+
+closeMonitoreoModal(): void {
+  this.isMonitoreoModalOpen.set(false);
+}
 }

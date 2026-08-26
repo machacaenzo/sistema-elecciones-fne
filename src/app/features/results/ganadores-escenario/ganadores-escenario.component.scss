@@ -1,0 +1,160 @@
+:host {
+  display: block;
+  background: transparent !important;
+}
+
+// =========================================================
+// RAYO DE LUZ CENITAL (SPOTLIGHT DEL ESCENARIO)
+// =========================================================
+.spotlight-beam {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 550px;
+  height: 750px;
+  background: radial-gradient(ellipse at top, rgba(197, 160, 89, 0.28) 0%, rgba(243, 231, 196, 0.1) 45%, transparent 75%);
+  filter: blur(25px);
+  pointer-events: none;
+  animation: pulseSpotlight 6s ease-in-out infinite alternate;
+}
+
+@keyframes pulseSpotlight {
+  0% { opacity: 0.7; transform: translateX(-50%) scaleX(0.92); }
+  100% { opacity: 1; transform: translateX(-50%) scaleX(1.08); }
+}
+
+// =========================================================
+// ANIMACIONES CINEMÁTICAS DE ENTRADA
+// =========================================================
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-victory {
+  animation: victoryEntrance 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.8s ease-out forwards 0.3s;
+}
+
+@keyframes victoryEntrance {
+  from { opacity: 0; transform: translateY(60px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1.1); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-60px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(60px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; filter: blur(8px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+// Levitación de Corona
+.animate-floatCrown {
+  animation: floatCrown 4.5s ease-in-out infinite;
+}
+
+@keyframes floatCrown {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-1deg); }
+}
+
+// =========================================================
+// FUEGOS ARTIFICIALES EN CSS PURO
+// =========================================================
+.firework {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 #C5A059, 0 0 #C5A059, 0 0 #C5A059, 0 0 #C5A059,
+    0 0 #F3E7C4, 0 0 #F3E7C4, 0 0 #F3E7C4, 0 0 #F3E7C4;
+  animation: fireworks 2.2s infinite;
+}
+
+@keyframes fireworks {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% {
+    transform: translate(-50%, -50%) scale(50);
+    opacity: 0;
+    box-shadow:
+      120px -120px #C5A059, -120px 120px #C5A059, 120px 120px #F3E7C4, -120px -120px #F3E7C4,
+      0 -160px #C5A059, 160px 0 #F3E7C4, 0 160px #C5A059, -160px 0 #F3E7C4;
+  }
+}
+
+.firework:nth-child(2) { left: 20%; top: 25%; animation-delay: 0.5s; }
+.firework:nth-child(3) { left: 80%; top: 30%; animation-delay: 1.1s; }
+.firework:nth-child(4) { left: 50%; top: 40%; animation-delay: 1.7s; }
+
+// =========================================================
+// PARTICULAS Y BOKEH DORADO
+// =========================================================
+.gold-particles-container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gold-particle {
+  position: absolute;
+  top: -30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(243, 231, 196, 0.8) 10%, rgba(197, 160, 89, 0.4) 60%, transparent 100%);
+  opacity: 0;
+  animation: cascadeGold linear infinite;
+}
+
+.bokeh-lg {
+  background: radial-gradient(circle, rgba(197, 160, 89, 0.35) 0%, rgba(140, 109, 45, 0.15) 60%, transparent 100%);
+  filter: blur(3px);
+}
+
+@keyframes cascadeGold {
+  0% { transform: translateY(0) translateX(0) scale(0.6); opacity: 0; }
+  20% { opacity: 0.55; }
+  50% { transform: translateY(50vh) translateX(25px) scale(1); opacity: 0.45; }
+  80% { opacity: 0.35; }
+  100% { transform: translateY(105vh) translateX(-20px) scale(0.5); opacity: 0; }
+}
+
+.p1  { left: 5%;  width: 4px;  height: 4px;  animation-duration: 11s; animation-delay: 0s; }
+.p2  { left: 18%; width: 6px;  height: 6px;  animation-duration: 14s; animation-delay: 3s; }
+.p3  { left: 32%; width: 5px;  height: 5px;  animation-duration: 10s; animation-delay: 6s; }
+.p4  { left: 46%; width: 4px;  height: 4px;  animation-duration: 12s; animation-delay: 1s; }
+.p5  { left: 58%; width: 6px;  height: 6px;  animation-duration: 15s; animation-delay: 5s; }
+.p6  { left: 70%; width: 5px;  height: 5px;  animation-duration: 11s; animation-delay: 2s; }
+.p7  { left: 82%; width: 4px;  height: 4px;  animation-duration: 13s; animation-delay: 7s; }
+.p8  { left: 93%; width: 6px;  height: 6px;  animation-duration: 10s; animation-delay: 4s; }
+
+.p19 { left: 10%; width: 22px; height: 22px; animation-duration: 20s; animation-delay: 1s; }
+.p21 { left: 50%; width: 26px; height: 26px; animation-duration: 19s; animation-delay: 8s; }
+.p23 { left: 85%; width: 24px; height: 24px; animation-duration: 23s; animation-delay: 4s; }

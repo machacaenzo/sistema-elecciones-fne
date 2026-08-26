@@ -374,4 +374,12 @@ descargarActaOficial(eleccion: Eleccion): void {
       error: () => this.notificationService.showAlertError('Error', 'No se pudieron cargar los participantes para generar el acta.')
     });
   }
+
+  // Abre la pantalla del Proyector con los fuegos artificiales y la coronación
+openEscenario(eleccion: Eleccion): void {
+  if (eleccion.id) {
+    this.router.navigate(['/escenario', eleccion.id]);
+  }
 }
+}
+

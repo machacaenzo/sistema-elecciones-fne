@@ -4,13 +4,17 @@ import { publicGuard } from './core/guards/public.guard';
 import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
-  // --- PORTAL PÚBLICO PRINCIPAL ---
+  // =========================================================
+  // 1. ZONA PÚBLICA (Alumnos, Celulares y Portada)
+  // =========================================================
   {
     path: '',
     loadComponent: () => import('./features/public/gala-portal/gala-portal.component').then(c => c.GalaPortalComponent)
   },
-
-  // --- PODIO PÚBLICO DE CORONACIÓN (NUEVO) ---
+  {
+    path: 'gala/:id',
+    loadComponent: () => import('./features/public/gala-portal/gala-portal.component').then(c => c.GalaPortalComponent)
+  },
   {
     path: 'podio',
     loadComponent: () => import('./features/public/podio-publico/podio-publico.component').then(c => c.PodioPublicoComponent)
@@ -20,17 +24,21 @@ export const routes: Routes = [
     loadComponent: () => import('./features/public/podio-publico/podio-publico.component').then(c => c.PodioPublicoComponent)
   },
 
-  // Portada pública principal
+  // =========================================================
+  // 2. PANTALLA GIGANTE DEL ESCENARIO (PROYECTOR HDMI)
+  // =========================================================
   {
-    path: '',
-    loadComponent: () => import('./features/public/gala-portal/gala-portal.component').then(c => c.GalaPortalComponent)
+    path: 'escenario/:id',
+    loadComponent: () => import('./features/results/ganadores-escenario/ganadores-escenario.component').then(c => c.GanadoresEscenarioComponent)
   },
   {
-    path: 'gala/:id',
-    loadComponent: () => import('./features/public/gala-portal/gala-portal.component').then(c => c.GalaPortalComponent)
+    path: 'escenario',
+    loadComponent: () => import('./features/results/ganadores-escenario/ganadores-escenario.component').then(c => c.GanadoresEscenarioComponent)
   },
-  
-  // --- RUTAS DE LOGIN Y REGISTRO ---
+
+  // =========================================================
+  // 3. AUTENTICACIÓN
+  // =========================================================
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login.component').then(c => c.LoginComponent),
@@ -51,7 +59,9 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/verify-email/verify-email.component').then(c => c.VerifyEmailComponent)
   },
 
-  // --- PANEL PRIVADO (DASHBOARD / ADMIN / JURADOS) ---
+  // =========================================================
+  // 4. PANEL DE CONTROL PRIVADO (DASHBOARD)
+  // =========================================================
   {
     path: 'dashboard',
     loadComponent: () => import('./features/dashboard/dashboard.component').then(c => c.DashboardComponent),
@@ -69,6 +79,7 @@ export const routes: Routes = [
         path: 'votacion',
         loadComponent: () => import('./features/voting/votacion/votacion.component').then(c => c.VotacionComponent)
       },
+      // Auditoría técnica de puntajes para el Admin
       {
         path: 'resultados/:id',
         loadComponent: () => import('./features/voting/resultados-eleccion/resultados-eleccion.component').then(c => c.ResultadosEleccionComponent)

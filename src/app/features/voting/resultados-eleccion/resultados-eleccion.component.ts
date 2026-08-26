@@ -33,30 +33,61 @@ export class ResultadosEleccionComponent implements OnInit {
   isAdmin = computed(() => this.authService.currentUser()?.rol === 'Administrador');
 
   // 1. RANKING COMPLETO DE CHICAS (Ordenado con desempates por sus criterios)
+
+
+  // 2. RANKING COMPLETO DE CHICOS (Ordenado con desempates por sus criterios)
+  // ... dentro de la clase ResultadosEleccionComponent
+
+  // 1. RANKING COMPLETO DE CHICAS (Filtrado mejorado)
   rankingEmbajadoras = computed(() => {
-    const chicas = this.candidatas().filter(c => c.categoria === 'Embajadora' || !c.categoria);
+    const chicas = this.candidatas().filter(c =>
+      c.categoria?.toLowerCase() === 'embajadora' || !c.categoria
+    );
     const criterios = this.eleccion()?.criteriosFemeninos || this.eleccion()?.criterios || [];
     return this.ordenarParticipantes(chicas, criterios);
   });
 
-  // 2. RANKING COMPLETO DE CHICOS (Ordenado con desempates por sus criterios)
+  // 2. RANKING COMPLETO DE CHICOS (Filtrado mejorado)
   rankingEmbajadores = computed(() => {
-    const chicos = this.candidatas().filter(c => c.categoria === 'Embajador');
+    const chicos = this.candidatas().filter(c =>
+      c.categoria?.toLowerCase() === 'embajador' || c.categoria?.toLowerCase() === 'paje'
+    );
     const criterios = this.eleccion()?.criteriosMasculinos || this.eleccion()?.criterios || [];
     return this.ordenarParticipantes(chicos, criterios);
   });
 
-  // 3. PODIO FEMENINO DINÁMICO (Toma exactamente la cantidad de puestos configurados)
+  // 3. PODIO FEMENINO (Si no hay puestos configurados, muestra los top 3)
   podioFemenino = computed(() => {
-    const cantidadPuestos = this.eleccion()?.puestosFemeninos?.length || 0;
-    return this.rankingEmbajadoras().slice(0, cantidadPuestos);
+    const puestosConfigurados = this.eleccion()?.puestosFemeninos?.length || 0;
+    const limite = puestosConfigurados > 0 ? puestosConfigurados : 3; // Mínimo 3 para que no se vea vacío
+    return this.rankingEmbajadoras().slice(0, limite);
   });
 
-  // 4. PODIO MASCULINO DINÁMICO (Toma exactamente la cantidad de puestos configurados)
+  // 4. PODIO MASCULINO (Si no hay puestos configurados, muestra los top 3)
   podioMasculino = computed(() => {
-    const cantidadPuestos = this.eleccion()?.puestosMasculinos?.length || 0;
-    return this.rankingEmbajadores().slice(0, cantidadPuestos);
+    const puestosConfigurados = this.eleccion()?.puestosMasculinos?.length || 0;
+    const limite = puestosConfigurados > 0 ? puestosConfigurados : 3; // Mínimo 3 para que no se vea vacío
+    return this.rankingEmbajadores().slice(0, limite);
   });
+
+  // 5. Función de ordenamiento (Aseguramos que trate los puntos como números)
+  private ordenarParticipantes(lista: Candidata[], criterios: string[]): Candidata[] {
+    return [...lista].sort((a, b) => {
+      const puntosA = Number(a.puntuacionTotal) || 0;
+      const puntosB = Number(b.puntuacionTotal) || 0;
+
+      if (puntosB !== puntosA) {
+        return puntosB - puntosA;
+      }
+
+      for (const criterio of criterios) {
+        const cA = Number(a.puntuacionPorCriterio?.[criterio]) || 0;
+        const cB = Number(b.puntuacionPorCriterio?.[criterio]) || 0;
+        if (cB !== cA) return cB - cA;
+      }
+      return (b.cantidadDeVotos || 0) - (a.cantidadDeVotos || 0);
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     const eleccionId = this.route.snapshot.paramMap.get('id');
@@ -85,25 +116,7 @@ export class ResultadosEleccionComponent implements OnInit {
   }
 
   // Ordenamiento matemático oficial por puntajes y desempates dinámicos
-  private ordenarParticipantes(lista: Candidata[], criterios: string[]): Candidata[] {
-    const copia = [...lista];
-    return copia.sort((a, b) => {
-      // 1° Criterio: Mayor Puntaje Total
-      if (b.puntuacionTotal !== a.puntuacionTotal) {
-        return b.puntuacionTotal - a.puntuacionTotal;
-      }
-      // 2° Criterio: Desempate por cada criterio en el orden configurado por el colegio
-      for (const criterio of criterios) {
-        const puntosA = a.puntuacionPorCriterio?.[criterio] || 0;
-        const puntosB = b.puntuacionPorCriterio?.[criterio] || 0;
-        if (puntosB !== puntosA) {
-          return puntosB - puntosA;
-        }
-      }
-      // 3° Criterio: Mayor cantidad de votos recibidos
-      return (b.cantidadDeVotos || 0) - (a.cantidadDeVotos || 0);
-    });
-  }
+
 
   // Obtiene el título exacto configurado para el puesto femenino N° index
   getPuestoFemeninoNombre(index: number): string {
@@ -128,7 +141,7 @@ export class ResultadosEleccionComponent implements OnInit {
 matrizData = computed(() => {
   const e = this.eleccion();
   if (!e) return [];
-  
+
   return [
     {
       titulo: 'EMBAJADORAS',
@@ -142,4 +155,10 @@ matrizData = computed(() => {
     }
   ];
 });
+
+// Agrega este método dentro de la clase en el archivo .ts
+formatNumero(num: number | undefined | null): string {
+  const n = num ?? 0;
+  return n < 10 ? `0${n}` : `${n}`;
+}
 }

@@ -17,3 +17,60 @@
     border-radius: 10px;
   }
 }
+
+// Estilo de los items de navegación
+.nav-item {
+  @apply flex items-center gap-4 px-4 py-4 rounded-2xl text-neutral-400 transition-all border border-transparent;
+
+  // Usamos estilos normales de SCSS para evitar conflictos de @apply
+  background-color: transparent;
+  font-size: 0.875rem;
+  font-weight: 700;
+
+  i {
+    color: #C5A059;
+    font-size: 1.25rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  &:hover {
+    @apply bg-white/5 text-white border-[#C5A059]/20;
+    i { opacity: 1; }
+  }
+}
+
+// Estilo del link activo (Dorado Metálico) - CORREGIDO
+.active-link {
+  @apply font-black shadow-2xl;
+  background: linear-gradient(to bottom, #FFF3D1, #C5A059, #8C6D2D) !important;
+  color: #0A0D14 !important;
+  border: 1px solid rgba(255, 243, 209, 0.6) !important;
+
+  i {
+    color: #0A0D14 !important;
+    opacity: 1 !important;
+  }
+}
+
+// Títulos de sección en el menú
+.section-title {
+  @apply text-[10px] font-black text-[#C5A059] uppercase tracking-[0.4em] pt-8 pb-2 px-4 opacity-60;
+}
+
+// Utilidad para ocultar barras de scroll
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+// Animación de aparición para el overlay móvil
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}

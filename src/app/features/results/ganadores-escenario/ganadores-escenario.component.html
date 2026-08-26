@@ -1,0 +1,287 @@
+<!-- ========================================================================= -->
+<!-- PANTALLA GIGANTE DEL ESCENARIO (PROYECTOR HDMI • MODO SHOW CELEBRACIÓN)   -->
+<!-- ========================================================================= -->
+<div class="min-h-screen w-full relative bg-cover bg-center bg-fixed bg-no-repeat text-neutral-100 font-sans overflow-x-hidden flex flex-col justify-between"
+     style="background-image: url('assets/FONDO.jpg');">
+
+  <!-- CAPA OSCURA DE CINE CON DESENFOQUE -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-[3px] pointer-events-none z-0"></div>
+
+  <!-- RAYO DE LUZ CENITAL (SPOTLIGHT QUE CAE SOBRE LA CORONA CENTRAL) -->
+  <div class="spotlight-beam z-0"></div>
+
+  <!-- DESTELLOS DE LUZ AMBIENTAL -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-[#C5A059]/20 rounded-full blur-[160px] pointer-events-none z-0"></div>
+  <div class="fixed bottom-10 right-10 w-[500px] h-[500px] bg-[#C5A059]/15 rounded-full blur-[140px] pointer-events-none z-0"></div>
+
+  <!-- FUEGOS ARTIFICIALES CONTINUOS -->
+  @if (showFireworks()) {
+    <div class="fixed inset-0 pointer-events-none z-0">
+      <div class="firework"></div>
+      <div class="firework"></div>
+      <div class="firework"></div>
+      <div class="firework"></div>
+    </div>
+  }
+
+  <!-- PARTICULAS DORADAS Y BOKEH EN CASCADA -->
+  <div class="gold-particles-container">
+    <div class="gold-particle p1"></div>
+    <div class="gold-particle p2"></div>
+    <div class="gold-particle p3"></div>
+    <div class="gold-particle p4"></div>
+    <div class="gold-particle p5"></div>
+    <div class="gold-particle p6"></div>
+    <div class="gold-particle p7"></div>
+    <div class="gold-particle p8"></div>
+    <div class="gold-particle bokeh-lg p19"></div>
+    <div class="gold-particle bokeh-lg p21"></div>
+    <div class="gold-particle bokeh-lg p23"></div>
+  </div>
+
+  <!-- CONTENIDO RELATIVO -->
+  <div class="relative z-10 w-full flex flex-col flex-1">
+
+    <!-- ===================================================================== -->
+    <!-- BARRA SUPERIOR (SE OCULTA AUTOMÁTICAMENTE EN MODO PANTALLA COMPLETA)   -->
+    <!-- ===================================================================== -->
+    @if (!isFullscreen()) {
+      <header class="w-full px-4 sm:px-8 py-3.5 backdrop-blur-2xl bg-[#050505]/80 border-b border-[#C5A059]/30 sticky top-0 z-30 shadow-lg animate-fadeIn">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+
+          <!-- Botón Salir al Panel -->
+          <button type="button"
+                  (click)="salir()"
+                  class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all hover:scale-105 cursor-pointer shadow-sm">
+            <i class="bi bi-arrow-left text-base"></i>
+            <span>Volver al Panel</span>
+          </button>
+
+          <!-- Identidad FNE -->
+          <div class="hidden md:flex items-center gap-2.5">
+            <img src="assets/logo-fne.png" alt="FNE" class="w-7 h-7 object-contain">
+            <span class="text-xs font-black tracking-[0.25em] text-[#F3E7C4] uppercase">Proclamación Oficial en Escenario</span>
+          </div>
+
+          <!-- Controles -->
+          <div class="flex items-center gap-2.5">
+            <button type="button"
+                    (click)="toggleAutoPlay()"
+                    [title]="isAutoPlay() ? 'Pausar rotación automática' : 'Reanudar rotación automática cada 15s'"
+                    class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer"
+                    [ngClass]="isAutoPlay() ? 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300' : 'bg-[#0A0A0A] border-[#C5A059]/30 text-neutral-400'">
+              <i class="bi" [ngClass]="isAutoPlay() ? 'bi-pause-circle-fill' : 'bi-play-circle-fill'"></i>
+              <span class="hidden sm:inline">{{ isAutoPlay() ? 'Auto (15s)' : 'Pausado' }}</span>
+            </button>
+
+            <button type="button"
+                    (click)="toggleFullscreen()"
+                    title="Modo Pantalla Completa Proyector (Salir con ESC)"
+                    class="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black uppercase tracking-wider shadow-[0_0_25px_rgba(197,160,89,0.45)] hover:scale-105 transition-all cursor-pointer">
+              <i class="bi bi-arrows-fullscreen"></i>
+              <span>Modo Pantalla Completa</span>
+            </button>
+          </div>
+
+        </div>
+      </header>
+    }
+
+    <!-- ===================================================================== -->
+    <!-- CUERPO PRINCIPAL DEL SHOW                                             -->
+    <!-- ===================================================================== -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-8 py-6 sm:py-8 space-y-8 flex-1">
+
+      @if (isLoading()) {
+        <div class="py-36 flex flex-col items-center justify-center space-y-4">
+          <div class="w-16 h-16 border-4 border-[#C5A059]/20 border-t-[#C5A059] rounded-full animate-spin"></div>
+          <p class="text-xs tracking-[0.3em] font-black uppercase text-[#F3E7C4]">Sincronizando Podio Real...</p>
+        </div>
+      } @else {
+
+        @if (eleccionActiva(); as gala) {
+
+          <!-- TÍTULO DE LA GALA -->
+          <section class="text-center space-y-2 animate-fadeIn">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0A0A0A] border border-[#C5A059]/60 shadow-[0_0_25px_rgba(197,160,89,0.25)] text-[#F3E7C4] text-xs font-black uppercase tracking-widest">
+              <i class="bi bi-stars text-[#C5A059]"></i>
+              <span>PROCLAMACIÓN OFICIAL EN VIVO</span>
+            </div>
+
+            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] drop-shadow-[0_4px_25px_rgba(197,160,89,0.4)] leading-tight max-w-4xl mx-auto">
+              {{ gala.nombre }}
+            </h1>
+
+            <p class="text-xs sm:text-sm text-neutral-300 font-medium">
+              <i class="bi bi-geo-alt-fill text-[#C5A059] mr-1"></i> La Quiaca, Jujuy &bull; Fiesta Nacional de los Estudiantes
+            </p>
+          </section>
+
+          <!-- SELECTOR DE PESTAÑAS (CORTE FEMENINA / MASCULINA) -->
+          <div class="flex justify-center">
+            <div class="flex p-1.5 bg-[#0A0A0A]/90 backdrop-blur-xl rounded-full border border-[#C5A059]/40 shadow-2xl">
+              <button type="button"
+                      (click)="setCategoria('Embajadora')"
+                      [class]="categoriaActiva() === 'Embajadora'
+                        ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black shadow-[0_0_25px_rgba(197,160,89,0.4)] scale-105'
+                        : 'text-neutral-400 hover:text-[#F3E7C4]'"
+                      class="flex items-center gap-2.5 px-7 sm:px-9 py-2.5 rounded-full text-xs font-bold transition-all duration-300 cursor-pointer">
+                <img src="assets/REYNA.png" class="w-4 h-4 object-contain" [class.brightness-0]="categoriaActiva() === 'Embajadora'">
+                <span>Corte Femenina</span>
+              </button>
+
+              <button type="button"
+                      (click)="setCategoria('Embajador')"
+                      [class]="categoriaActiva() === 'Embajador'
+                        ? 'bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black shadow-[0_0_25px_rgba(197,160,89,0.4)] scale-105'
+                        : 'text-neutral-400 hover:text-[#F3E7C4]'"
+                      class="flex items-center gap-2.5 px-7 sm:px-9 py-2.5 rounded-full text-xs font-bold transition-all duration-300 cursor-pointer">
+                <img src="assets/REY.png" class="w-4 h-4 object-contain" [class.brightness-0]="categoriaActiva() === 'Embajador'">
+                <span>Corte Masculina</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- =============================================================== -->
+          <!-- EL PODIO: [ 1RA PRINCESA (IZQ) | EMBAJADORA (CENTRO) | 2DA PRINCESA (DER) ] -->
+          <!-- =============================================================== -->
+          @if (podio().primero) {
+            <section class="space-y-8 animate-fadeIn">
+
+              <!-- Título de la Corte Activa -->
+              <div class="text-center space-y-1">
+                <h2 class="text-lg sm:text-xl font-black text-[#F3E7C4] uppercase tracking-[0.3em]">
+                  {{ categoriaActiva() === 'Embajadora' ? 'Corte de Honor de la Embajadora' : 'Corte de Honor del Embajador' }}
+                </h2>
+              </div>
+
+              <!-- PODIO TOP 3 EN ORDEN FÍSICO ESTRICTO -->
+              <div class="flex flex-col md:flex-row items-end justify-center gap-6 sm:gap-8 max-w-6xl mx-auto pt-10">
+
+                <!-- ========================================== -->
+                <!-- 1. IZQUIERDA: 2DO PUESTO (1ra Princesa / 1er Paje) -->
+                <!-- ========================================== -->
+                @if (podio().segundo; as seg) {
+                  <div class="w-full md:w-[270px] lg:w-[290px] p-6 rounded-[2.5rem] backdrop-blur-3xl bg-gradient-to-b from-white/[0.08] via-black/40 to-black/80 border border-white/20 text-center shadow-2xl space-y-3.5 animate-slideInLeft md:scale-95">
+                    <span class="inline-block px-5 py-1.5 rounded-full bg-slate-300 text-black text-[10px] font-black uppercase tracking-wider shadow">
+                      {{ getPuestoNombre(1) }}
+                    </span>
+
+                    <div class="w-full aspect-[3/4] max-w-[220px] mx-auto rounded-2xl overflow-hidden bg-black relative border border-white/20 shadow-md">
+                      <img [src]="seg.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-full h-full object-cover">
+                      <span class="absolute bottom-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-black/80 text-[#F3E7C4] font-black text-xs border border-[#C5A059]/40">
+                        #{{ formatNumero(seg.numero) }}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h4 class="text-base sm:text-lg font-black text-white uppercase tracking-tight leading-snug">{{ seg.nombre }} {{ seg.apellido }}</h4>
+                      <p class="text-xs text-neutral-400 font-semibold mt-1">{{ seg.cursoDivision }}</p>
+                      <p class="text-xl font-black text-slate-300 mt-2 tabular-nums">{{ seg.puntuacionTotal }} pts</p>
+                    </div>
+                  </div>
+                }
+
+                <!-- ========================================== -->
+                <!-- 2. CENTRO: 1ER PUESTO (EMBAJADORA / EMBAJADOR GIGANTE) -->
+                <!-- ========================================== -->
+                @if (podio().primero; as gan) {
+                  <div class="w-full md:w-[380px] lg:w-[420px] p-7 sm:p-9 rounded-[3.5rem] backdrop-blur-3xl bg-gradient-to-b from-white/[0.12] via-black/50 to-black/90 border-2 border-[#C5A059] text-center shadow-[0_0_80px_rgba(197,160,89,0.55)] relative md:scale-110 space-y-4 animate-victory z-20">
+
+                    <!-- Corona Flotante Levitando Perfectamente Centrada -->
+                    <div class="absolute -top-14 inset-x-0 mx-auto w-28 h-28 pointer-events-none flex items-center justify-center z-30">
+                      <div class="w-full h-full animate-floatCrown">
+                        <img [src]="categoriaActiva() === 'Embajadora' ? 'assets/REYNA.png' : 'assets/REY.png'"
+                             alt="Corona Real"
+                             class="w-full h-full object-contain drop-shadow-[0_0_30px_rgba(197,160,89,1)] brightness-110">
+                      </div>
+                    </div>
+
+                    <!-- Placa Dorada del Título Ganado -->
+                    <span class="inline-block px-8 py-2 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#FFF3D1] to-[#8C6D2D] text-[#0A0D14] text-xs sm:text-sm font-black uppercase tracking-widest shadow-2xl">
+                      {{ getPuestoNombre(0) }}
+                    </span>
+
+                    <!-- Retrato Grande con Borde Dorado -->
+                    <div class="w-full aspect-[3/4] max-w-[270px] mx-auto rounded-[2.5rem] overflow-hidden bg-black relative border-2 border-[#C5A059]/60 shadow-2xl">
+                      <img [src]="gan.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-full h-full object-cover">
+                      <span class="absolute bottom-3 left-3 px-3 py-1 rounded-lg bg-black/90 text-[#F3E7C4] font-black text-xs border border-[#C5A059]">
+                        #{{ formatNumero(gan.numero) }}
+                      </span>
+                    </div>
+
+                    <div>
+                      <!-- Nombre Completo sin Cortar -->
+                      <h3 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white uppercase tracking-tight leading-tight drop-shadow-lg">
+                        {{ gan.nombre }} {{ gan.apellido }}
+                      </h3>
+                      <p class="text-xs sm:text-sm font-bold text-[#F3E7C4] uppercase tracking-widest mt-1.5">{{ gan.cursoDivision }}</p>
+
+                      <div class="mt-4 inline-block px-7 py-1.5 rounded-full bg-[#121212] border border-[#C5A059]/50 text-[#F3E7C4] text-sm sm:text-base font-black tracking-wider shadow">
+                        Puntaje Total: {{ gan.puntuacionTotal }} pts
+                      </div>
+                    </div>
+
+                  </div>
+                }
+
+                <!-- ========================================== -->
+                <!-- 3. DERECHA: 3ER PUESTO (2da Princesa / 2do Paje) -->
+                <!-- ========================================== -->
+                @if (podio().tercero; as ter) {
+                  <div class="w-full md:w-[270px] lg:w-[290px] p-6 rounded-[2.5rem] backdrop-blur-3xl bg-gradient-to-b from-white/[0.08] via-black/40 to-black/80 border border-white/20 text-center shadow-xl space-y-3.5 animate-slideInRight md:scale-95">
+                    <span class="inline-block px-5 py-1.5 rounded-full bg-amber-800 text-white text-[10px] font-black uppercase tracking-wider shadow">
+                      {{ getPuestoNombre(2) }}
+                    </span>
+
+                    <div class="w-full aspect-[3/4] max-w-[220px] mx-auto rounded-2xl overflow-hidden bg-black relative border border-white/20 shadow-md">
+                      <img [src]="ter.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-full h-full object-cover">
+                      <span class="absolute bottom-2.5 left-2.5 px-2.5 py-0.5 rounded-lg bg-black/80 text-[#F3E7C4] font-black text-xs border border-[#C5A059]/40">
+                        #{{ formatNumero(ter.numero) }}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h4 class="text-base sm:text-lg font-black text-white uppercase tracking-tight leading-snug">{{ ter.nombre }} {{ ter.apellido }}</h4>
+                      <p class="text-xs text-neutral-400 font-semibold mt-1">{{ ter.cursoDivision }}</p>
+                      <p class="text-xl font-black text-amber-500 mt-2 tabular-nums">{{ ter.puntuacionTotal }} pts</p>
+                    </div>
+                  </div>
+                }
+
+              </div>
+
+              <!-- RESTO DE LA CORTE (DAMAS DE HONOR / MENCIONES) -->
+              @if (podio().resto.length > 0) {
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto pt-6 animate-fadeInUp pb-12">
+                  @for (c of podio().resto; track c.id; let i = $index) {
+                    <div class="p-3.5 rounded-2xl backdrop-blur-xl bg-white/[0.04] border border-[#C5A059]/30 flex items-center gap-3.5 shadow-md">
+                      <img [src]="c.fotosURL?.[0] || 'assets/user-default.jpg'" class="w-13 h-13 rounded-xl object-cover border border-[#C5A059]/40 flex-shrink-0 bg-black">
+                      <div class="min-w-0">
+                        <span class="text-[8px] font-black text-[#C5A059] uppercase tracking-wider block truncate">{{ getPuestoNombre(i + 3) }}</span>
+                        <h5 class="text-xs font-bold text-white truncate uppercase tracking-tight">{{ c.nombre }} {{ c.apellido }}</h5>
+                        <p class="text-[10px] font-black text-[#F3E7C4] mt-0.5">{{ c.puntuacionTotal }} pts</p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+            </section>
+          } @else {
+            <div class="py-28 text-center space-y-3 max-w-md mx-auto backdrop-blur-2xl bg-[#050505]/80 border border-[#C5A059]/30 p-8 rounded-3xl">
+              <i class="bi bi-trophy text-5xl text-[#C5A059]"></i>
+              <h3 class="text-lg font-bold text-white">Sin representantes en esta categoría</h3>
+              <p class="text-xs text-neutral-400">Verifique la otra tanda oficial</p>
+            </div>
+          }
+
+        }
+
+      }
+
+    </main>
+
+  </div>
+
+</div>

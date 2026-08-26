@@ -1,0 +1,40 @@
+<header class="mb-12 text-center space-y-2">
+  <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] tracking-tight uppercase drop-shadow-2xl">
+    Centro de Votación
+  </h1>
+  <p class="text-xs sm:text-sm tracking-[0.3em] text-[#F3E7C4] font-black uppercase opacity-80">
+    Mesa de Escrutinio Oficial del Jurado
+  </p>
+</header>
+
+<div class="max-w-5xl mx-auto space-y-5">
+  @for (eleccion of todasLasElecciones; track eleccion.id) {
+    <div class="group relative overflow-hidden rounded-[2.5rem] transition-all duration-300 hover:scale-[1.01] shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
+      <div class="backdrop-blur-xl bg-white/[0.03] border border-white/10 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 transition-all">
+        <div class="flex items-center gap-6">
+          <div class="w-16 h-16 sm:w-18 sm:h-18 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/50 flex flex-col items-center justify-center shadow-lg shrink-0 p-2">
+            <span class="text-[10px] font-black text-[#C5A059] uppercase">{{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'MMM' }}</span>
+            <span class="text-2xl sm:text-3xl font-black text-white">{{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd' }}</span>
+          </div>
+          <div>
+            <h3 class="text-xl sm:text-2xl font-black text-white group-hover:text-[#F3E7C4] transition-colors tracking-tight">{{ eleccion.nombre }}</h3>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="w-2 h-2 rounded-full" [ngClass]="eleccion.estado === 'Activa' ? 'bg-emerald-400 animate-pulse' : 'bg-[#C5A059]'"></span>
+              <span class="text-[10px] font-bold text-[#F3E7C4] uppercase tracking-widest">{{ eleccion.estado }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+          <button (click)="verDetalle.emit(eleccion)" class="flex-1 md:flex-none px-6 py-3 rounded-2xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all uppercase tracking-wider">Ver Nómina</button>
+          @if (!haVotado(eleccion.id!) && eleccion.estado === 'Activa') {
+            <button (click)="ingresarVotar.emit(eleccion)" class="flex-1 md:flex-none px-8 py-3 rounded-2xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black shadow-lg hover:scale-105 active:scale-95 transition-all uppercase tracking-wider">Ingresar</button>
+          } @else if (haVotado(eleccion.id!)) {
+            <span class="px-6 py-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-400 text-xs font-bold flex items-center gap-2">
+              <i class="bi bi-check-circle-fill"></i> Completada
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

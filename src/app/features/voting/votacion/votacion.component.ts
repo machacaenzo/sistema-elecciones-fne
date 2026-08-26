@@ -13,10 +13,24 @@ import { Candidata } from '../../../core/models/candidata.model';
 import { EvaluacionPayload, VotacionService } from '../votacion.service';
 import { DetalleEleccionComponent } from '../detalle-eleccion/detalle-eleccion.component';
 
+// Sub-componentes standalone de votación
+import { EleccionListaComponent }     from './eleccion-lista/eleccion-lista.component';
+import { VotacionTandaComponent }     from './votacion-tanda/votacion-tanda.component';
+import { VotacionMesaComponent }      from './votacion-mesa/votacion-mesa.component';
+import { VotacionAuditoriaComponent } from './votacion-auditoria/votacion-auditoria.component';
+
 @Component({
   selector: 'app-votacion',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePipe, DetalleEleccionComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    DetalleEleccionComponent,
+    EleccionListaComponent,
+    VotacionTandaComponent,
+    VotacionMesaComponent,
+    VotacionAuditoriaComponent
+  ],
   templateUrl: './votacion.component.html',
   styleUrls: ['./votacion.component.scss']
 })
@@ -190,7 +204,9 @@ ngOnDestroy(): void {
     return `borrador_gala_${eleccionId}_${userId}_${cat}`;
   }
 
-  private guardarBorradorLocal(): void {
+  // Expuesto como público para que el template pueda invocarlo
+  // desde el output (sliderActualizado) de VotacionMesaComponent
+  guardarBorradorLocal(): void {
     const cat = this.categoriaSeleccionada();
     if (!cat) return;
     const key = this.getDraftStorageKey(cat);

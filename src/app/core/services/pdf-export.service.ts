@@ -9,18 +9,18 @@ import { Candidata } from '../models/candidata.model';
 })
 export class PdfExportService {
 
-  // Función auxiliar para cargar la imagen del logo desde assets
+  // Carga el logo de la Flor FNE de forma asíncrona
   private cargarImagen(url: string): Promise<HTMLImageElement | null> {
     return new Promise((resolve) => {
       const img = new Image();
       img.src = url;
       img.onload = () => resolve(img);
-      img.onerror = () => resolve(null); // Si no la encuentra, sigue sin romper el PDF
+      img.onerror = () => resolve(null);
     });
   }
 
   // =========================================================================
-  // 1. GUION DEL LOCUTOR (CON LOGO DE LA FLOR FNE)
+  // 1. GUION DEL LOCUTOR / FICHAS DE PASARELA (SIN DNI)
   // =========================================================================
   async exportarGuionLocutor(eleccion: Eleccion, candidatas: Candidata[]): Promise<void> {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -34,11 +34,9 @@ export class PdfExportService {
     const embajadores = ordenadas.filter(c => c.categoria === 'Embajador');
 
     const renderHeader = (categoriaTitulo: string) => {
-      // Franja superior
       doc.setFillColor(8, 10, 15);
       doc.rect(0, 0, 210, 26, 'F');
 
-      // Título y Subtítulo
       doc.setTextColor(255, 255, 255);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(12.5);
@@ -49,7 +47,6 @@ export class PdfExportService {
       doc.setTextColor(197, 160, 89);
       doc.text(`GUION OFICIAL DE PASARELA • FECHA: ${fechaStr} • CATEGORÍA: ${categoriaTitulo.toUpperCase()}`, 14, 19);
 
-      // Logo Flor FNE en la esquina superior derecha
       if (logoImg) {
         doc.addImage(logoImg, 'PNG', 182, 3, 20, 20);
       }
@@ -63,7 +60,7 @@ export class PdfExportService {
 
       lista.forEach((candidata, index) => {
         const campos = eleccion.camposCandidata || [];
-        let alturaEstimada = 45;
+        let alturaEstimada = 42;
 
         if (campos.length > 0 && candidata.camposPersonalizados) {
           campos.forEach(c => {
@@ -72,7 +69,7 @@ export class PdfExportService {
             alturaEstimada += 14 + (lineas.length * 5);
           });
         } else {
-          alturaEstimada += 15;
+          alturaEstimada += 12;
         }
 
         if (y + alturaEstimada > 275) {
@@ -102,19 +99,19 @@ export class PdfExportService {
         doc.setFont('helvetica', 'bold');
         doc.text(`${candidata.nombre} ${candidata.apellido}`.toUpperCase(), 38, y + 11);
 
-        // Curso y DNI
+        // Curso (Sin DNI)
         doc.setFontSize(9.5);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(90, 90, 90);
-        doc.text(`Curso / División: ${candidata.cursoDivision || 'No especificado'}    |    DNI: ${candidata.dni || 'S/D'}`, 38, y + 16);
+        doc.text(`Curso / División: ${candidata.cursoDivision || 'Sin curso asignado'}`, 38, y + 16);
 
         // Línea divisoria
         doc.setDrawColor(215, 215, 215);
         doc.setLineWidth(0.3);
-        doc.line(16, y + 21, 194, y + 21);
+        doc.line(16, y + 20, 194, y + 20);
 
         // Preguntas del Perfil
-        let campoY = y + 28;
+        let campoY = y + 26;
 
         if (campos.length > 0 && candidata.camposPersonalizados) {
           campos.forEach(campo => {
@@ -158,7 +155,7 @@ export class PdfExportService {
   }
 
   // =========================================================================
-  // 2. PLANILLA DE JURADOS (CON LOGO DE LA FLOR FNE)
+  // 2. PLANILLA DE CALIFICACIÓN DE JURADOS (PLANILLA FÍSICA)
   // =========================================================================
   async exportarPlanillaJurado(eleccion: Eleccion, candidatas: Candidata[]): Promise<void> {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
@@ -175,25 +172,21 @@ export class PdfExportService {
       doc.setFillColor(8, 10, 15);
       doc.rect(0, 0, 297, 30, 'F');
 
-      // Título
       doc.setTextColor(255, 255, 255);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(13);
       doc.text(eleccion.nombre.toUpperCase(), 14, 9);
 
-      // Subtítulo
       doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(197, 160, 89);
       doc.text(`PLANILLA OFICIAL DE CALIFICACIÓN DE JURADO  •  FECHA: ${fechaStr}  •  CATEGORÍA: ${categoriaTitulo.toUpperCase()}`, 14, 16);
 
-      // Espacio para Nombre del Jurado
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9.5);
       doc.setTextColor(255, 255, 255);
       doc.text('NOMBRE DEL JURADO: ____________________________________________________________________', 14, 24);
 
-      // Logo Flor FNE en la esquina derecha
       if (logoImg) {
         doc.addImage(logoImg, 'PNG', 268, 3, 24, 24);
       }
@@ -266,6 +259,202 @@ export class PdfExportService {
     }
 
     doc.save(`Planilla_Jurados_${this.limpiarNombreArchivo(eleccion.nombre)}.pdf`);
+  }
+
+  // =========================================================================
+  // 3. ACTA OFICIAL DE PROCLAMACIÓN Y RESULTADOS (PARA EL ESCENARIO Y DIRECTIVOS)
+  // =========================================================================
+  // =========================================================================
+  // 3. ACTA OFICIAL DE PROCLAMACIÓN Y RESULTADOS (COMPLETA Y SIN "ESCRUTINIO")
+  // =========================================================================
+  async exportarActaProclamacion(eleccion: Eleccion, candidatas: Candidata[]): Promise<void> {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const logoImg = await this.cargarImagen('assets/logo-fne.png');
+
+    const fechaRef = (eleccion.fechaEvento || eleccion.fechaInicio)?.toDate() || new Date();
+    const dia = fechaRef.getDate();
+    const mes = fechaRef.toLocaleString('es-AR', { month: 'long' });
+    const anio = fechaRef.getFullYear();
+
+    // Ordenar todas las candidatas por puntaje (Ranking Oficial)
+    const chicas = candidatas.filter(c => (c.categoria || 'Embajadora') === 'Embajadora');
+    const ordenadasChicas = [...chicas].sort((a, b) => (b.puntuacionTotal || 0) - (a.puntuacionTotal || 0));
+
+    const chicos = candidatas.filter(c => c.categoria === 'Embajador');
+    const ordenadosChicos = [...chicos].sort((a, b) => (b.puntuacionTotal || 0) - (a.puntuacionTotal || 0));
+
+    const puestosFem = eleccion.puestosFemeninos || eleccion.puestos || ['Embajadora', '1ra Princesa', '2da Princesa'];
+    const puestosMasc = eleccion.puestosMasculinos || ['Embajador', '1er Paje'];
+
+    // --- ENCABEZADO DE GALA ---
+    doc.setFillColor(8, 10, 15);
+    doc.rect(0, 0, 210, 30, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.text('ACTA OFICIAL DE PROCLAMACIÓN Y RESULTADOS', 14, 12);
+
+    doc.setFontSize(8.5);
+    doc.setTextColor(197, 160, 89);
+    doc.text(`${eleccion.nombre.toUpperCase()} • FIESTA NACIONAL DE LOS ESTUDIANTES`, 14, 19);
+    doc.text(`LA QUIACA, JUJUY • REPÚBLICA ARGENTINA`, 14, 24);
+
+    if (logoImg) {
+      doc.addImage(logoImg, 'PNG', 180, 4, 22, 22);
+    }
+
+    let y = 38;
+
+    // --- PÁRRAFO INSTITUCIONAL (SIN LA PALABRA ESCRUTINIO) ---
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(50, 50, 50);
+    const textoActa = `En la ciudad de La Quiaca, a los ${dia} días del mes de ${mes} del año ${anio}, habiendo finalizado la noche de gala y el cómputo oficial de votos, el Honorable Jurado y las Autoridades presentes dan fe de los resultados finales y proceden a la proclamación oficial de los nuevos Representantes Estudiantiles:`;
+    const lineasIntro = doc.splitTextToSize(textoActa, 182);
+    doc.text(lineasIntro, 14, y);
+    y += (lineasIntro.length * 4.5) + 4;
+
+    // =========================================================================
+    // SECCIÓN 1: CUADRO DE HONOR (REINA, PRINCESAS Y EMBAJADORES)
+    // =========================================================================
+    if (ordenadasChicas.length > 0) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.setTextColor(140, 109, 45);
+      doc.text('CUADRO DE HONOR: CORTE DE LA EMBAJADORA (FEMENINO)', 14, y);
+      y += 2.5;
+
+      const bodyChicas = puestosFem.map((puesto, idx) => {
+        const ganadora = ordenadasChicas[idx];
+        return [
+          puesto.toUpperCase(),
+          ganadora ? `#${ganadora.numero || ''} ${ganadora.nombre} ${ganadora.apellido}`.toUpperCase() : 'VACANTE',
+          ganadora?.cursoDivision || '—',
+          ganadora ? `${ganadora.puntuacionTotal} pts` : '—'
+        ];
+      });
+
+      autoTable(doc, {
+        head: [['Título / Distinción Oficial', 'Estudiante Electa', 'Curso / División', 'Puntaje']],
+        body: bodyChicas,
+        startY: y,
+        theme: 'grid',
+        headStyles: { fillColor: [18, 22, 30], textColor: [243, 231, 196], fontSize: 8.5, fontStyle: 'bold' },
+        bodyStyles: { textColor: [10, 10, 10], fontSize: 8.5, minCellHeight: 7.5 },
+        columnStyles: {
+          0: { fontStyle: 'bold', cellWidth: 55 },
+          1: { cellWidth: 70, fontStyle: 'bold' },
+          3: { halign: 'center', fontStyle: 'bold' }
+        },
+        styles: { lineColor: [180, 180, 180], lineWidth: 0.2 }
+      });
+
+      y = (doc as any).lastAutoTable.finalY + 6;
+    }
+
+    if (ordenadosChicos.length > 0) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.setTextColor(140, 109, 45);
+      doc.text('CUADRO DE HONOR: CORTE DEL EMBAJADOR (MASCULINO)', 14, y);
+      y += 2.5;
+
+      const bodyChicos = puestosMasc.map((puesto, idx) => {
+        const ganador = ordenadosChicos[idx];
+        return [
+          puesto.toUpperCase(),
+          ganador ? `#${ganador.numero || ''} ${ganador.nombre} ${ganador.apellido}`.toUpperCase() : 'VACANTE',
+          ganador?.cursoDivision || '—',
+          ganador ? `${ganador.puntuacionTotal} pts` : '—'
+        ];
+      });
+
+      autoTable(doc, {
+        head: [['Título / Distinción Oficial', 'Estudiante Electo', 'Curso / División', 'Puntaje']],
+        body: bodyChicos,
+        startY: y,
+        theme: 'grid',
+        headStyles: { fillColor: [18, 22, 30], textColor: [243, 231, 196], fontSize: 8.5, fontStyle: 'bold' },
+        bodyStyles: { textColor: [10, 10, 10], fontSize: 8.5, minCellHeight: 7.5 },
+        columnStyles: {
+          0: { fontStyle: 'bold', cellWidth: 55 },
+          1: { cellWidth: 70, fontStyle: 'bold' },
+          3: { halign: 'center', fontStyle: 'bold' }
+        },
+        styles: { lineColor: [180, 180, 180], lineWidth: 0.2 }
+      });
+
+      y = (doc as any).lastAutoTable.finalY + 8;
+    }
+
+    // =========================================================================
+    // SECCIÓN 2: NÓMINA COMPLETA DE TODAS LAS PARTICIPANTES Y PUNTAJES
+    // =========================================================================
+    if (y > 200) {
+      doc.addPage();
+      y = 25;
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10.5);
+    doc.setTextColor(140, 109, 45);
+    doc.text('NÓMINA COMPLETA DE PARTICIPACIÓN Y PUNTAJES GENERALES', 14, y);
+    y += 2.5;
+
+    // Unimos todas las candidatas ordenadas por posición
+    const todasLasCandidatas = [
+      ...ordenadasChicas.map((c, i) => [`${i + 1}°`, 'Embajadora', `#${c.numero || ''}`, `${c.nombre} ${c.apellido}`, c.cursoDivision || '—', `${c.puntuacionTotal} pts`]),
+      ...ordenadosChicos.map((c, i) => [`${i + 1}°`, 'Embajador', `#${c.numero || ''}`, `${c.nombre} ${c.apellido}`, c.cursoDivision || '—', `${c.puntuacionTotal} pts`])
+    ];
+
+    autoTable(doc, {
+      head: [['Posición', 'Categoría', 'N°', 'Estudiante Postulante', 'Curso / División', 'Puntaje Total']],
+      body: todasLasCandidatas,
+      startY: y,
+      theme: 'grid',
+      headStyles: { fillColor: [30, 35, 45], textColor: [255, 255, 255], fontSize: 8, fontStyle: 'bold', halign: 'center' },
+      bodyStyles: { textColor: [30, 30, 30], fontSize: 8, minCellHeight: 6.5 },
+      columnStyles: {
+        0: { halign: 'center', fontStyle: 'bold', cellWidth: 16 },
+        1: { cellWidth: 26 },
+        2: { halign: 'center', cellWidth: 12, fontStyle: 'bold' },
+        3: { fontStyle: 'bold' },
+        5: { halign: 'center', fontStyle: 'bold', cellWidth: 24 }
+      },
+      styles: { lineColor: [200, 200, 200], lineWidth: 0.2 }
+    });
+
+    y = (doc as any).lastAutoTable.finalY + 12;
+
+    // =========================================================================
+    // SECCIÓN 3: FIRMAS INSTITUCIONALES AL PIE
+    // =========================================================================
+    if (y > 250) {
+      doc.addPage();
+      y = 35;
+    }
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(60, 60, 60);
+    doc.text('No habiendo más asuntos que tratar, se labra y firma la presente acta oficial en conformidad:', 14, y);
+    y += 16;
+
+    // 3 Líneas de firmas oficiales
+    doc.setDrawColor(150, 150, 150);
+    doc.line(16, y, 68, y);
+    doc.line(78, y, 132, y);
+    doc.line(142, y, 194, y);
+
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(20, 20, 20);
+    doc.text('Firma / Sello Directivo', 42, y + 4.5, { align: 'center' });
+    doc.text('Presidente de Mesa de Votación', 105, y + 4.5, { align: 'center' });
+    doc.text('Representante del Jurado', 168, y + 4.5, { align: 'center' });
+
+    doc.save(`Acta_Oficial_Proclamacion_${this.limpiarNombreArchivo(eleccion.nombre)}.pdf`);
   }
 
   private limpiarNombreArchivo(texto: string): string {

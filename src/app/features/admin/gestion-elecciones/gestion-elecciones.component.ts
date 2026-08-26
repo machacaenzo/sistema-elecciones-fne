@@ -11,6 +11,10 @@ import { GestionCandidatasComponent } from '../gestion-candidatas/gestion-candid
 import { UserService } from '../../../core/services/user.service';
 import { User } from '../../../core/models/user.model';
 import { MonitoreoJuradosComponent } from '../monitoreo-jurados/monitoreo-jurados.component';
+import { PdfExportService } from '../../../core/services/pdf-export.service';
+import { CandidataService } from './candidata.service';
+import { Candidata } from '../../../core/models/candidata.model';
+import { first } from 'rxjs';
 
 
 @Component({
@@ -32,6 +36,8 @@ export class GestionEleccionesComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
+  private pdfExportService = inject(PdfExportService);
+private candidataService = inject(CandidataService);
 
   private userService = inject(UserService); // 👈 Agregar inyección
 
@@ -351,4 +357,21 @@ openMonitoreoModal(eleccion: Eleccion): void {
 closeMonitoreoModal(): void {
   this.isMonitoreoModalOpen.set(false);
 }
+
+// Descarga el Acta Oficial en PDF con la lista de ganadores y firmas
+descargarActaOficial(eleccion: Eleccion): void {
+    if (!eleccion.id) return;
+
+    this.candidataService.getCandidatasPorEleccion(eleccion.id).pipe(first()).subscribe({
+      next: async (candidatas: Candidata[]) => {
+        if (!candidatas || candidatas.length === 0) {
+          this.notificationService.showAlertWarning('Sin Datos', 'No hay participantes registrados para emitir el acta.');
+          return;
+        }
+        await this.pdfExportService.exportarActaProclamacion(eleccion, candidatas);
+        this.notificationService.showSuccessToast('Acta Oficial descargada con éxito');
+      },
+      error: () => this.notificationService.showAlertError('Error', 'No se pudieron cargar los participantes para generar el acta.')
+    });
+  }
 }

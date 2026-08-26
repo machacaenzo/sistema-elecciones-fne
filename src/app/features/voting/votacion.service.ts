@@ -50,14 +50,17 @@ export class VotacionService {
       // ==========================================================
 
       // A. Sumar puntos y votos a cada candidato de la tanda
+      // A. Sumar puntos y votos a cada candidato de la tanda (BLINDADO)
       for (const item of candidatosData) {
         if (item.snap.exists()) {
           const data = item.snap.data();
           const anteriorPorCriterio = data['puntuacionPorCriterio'] || {};
+          const puntosPrevios = Number(data['puntuacionTotal']) || 0;
+          const puntosNuevos = Number(item.evalData.puntuacion) || 0;
 
           transaction.update(item.ref, {
-            puntuacionTotal: (data['puntuacionTotal'] || 0) + item.evalData.puntuacion,
-            cantidadDeVotos: (data['cantidadDeVotos'] || 0) + 1,
+            puntuacionTotal: puntosPrevios + puntosNuevos,
+            cantidadDeVotos: (Number(data['cantidadDeVotos']) || 0) + 1,
             puntuacionPorCriterio: this.mergeCriterios(anteriorPorCriterio, item.evalData.puntuacionPorCriterio)
           });
         }
@@ -108,11 +111,13 @@ export class VotacionService {
     return snap.exists() ? snap.data() : null;
   }
 
-  // Suma segura de criterios
+  // Suma matemática 100% segura contra errores de texto
   private mergeCriterios(existente: any, nuevos: any) {
     const res = { ...existente };
     for (const key in nuevos) {
-      res[key] = (res[key] || 0) + (nuevos[key] || 0);
+      const previo = Number(res[key]) || 0;
+      const nuevo = Number(nuevos[key]) || 0;
+      res[key] = previo + nuevo;
     }
     return res;
   }

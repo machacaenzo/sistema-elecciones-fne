@@ -11,27 +11,19 @@ import { Candidata } from '../../../../core/models/candidata.model';
   templateUrl: './votacion-auditoria.component.html'
 })
 export class VotacionAuditoriaComponent {
-  /** Lista completa de candidatas (necesaria para calcular el índice global) */
   @Input({ required: true }) candidatas: Candidata[] = [];
-  /** Candidatas filtradas por la tanda activa */
   @Input({ required: true }) candidatasFiltradas: Candidata[] = [];
   @Input({ required: true }) eleccion!: Eleccion;
   @Input({ required: true }) categoriaSeleccionada!: 'Embajadora' | 'Embajador';
-  /** FormGroup del padre — pasado por referencia para leer los puntajes */
   @Input({ required: true }) votacionForm!: FormGroup;
-  /** Si la tanda activa ya fue firmada */
   @Input({ required: true }) tandaFirmada!: boolean;
-  /** Si el padre está procesando el envío */
   @Input({ required: true }) isSubmitting!: boolean;
 
-  /** Emite el candidato cuya fila de edición fue pulsada */
   @Output() editarCandidato = new EventEmitter<Candidata>();
-  /** Emite cuando se pulsa "Firmar Acta Oficial" */
   @Output() firmarActa = new EventEmitter<void>();
-  /** Emite cuando se pulsa "← Ir a la siguiente tanda" */
   @Output() volverATandas = new EventEmitter<void>();
-
-  // ── Helpers ──────────────────────────────────────────────
+  @Output() volverAMesa = new EventEmitter<void>();
+  @Output() alternarTanda = new EventEmitter<void>();
 
   get evaluacionesArray(): FormArray {
     return this.votacionForm.get('evaluaciones') as FormArray;

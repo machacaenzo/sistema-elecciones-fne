@@ -1,33 +1,64 @@
-<div class="flex-1 flex flex-col items-center justify-center p-6 gap-8 overflow-y-auto">
-  <h2 class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] uppercase drop-shadow-lg text-center">
-    Seleccionar Tanda Oficial
-  </h2>
-  <div class="flex flex-col md:flex-row gap-6 w-full max-w-4xl px-4">
+<div class="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 gap-6 sm:gap-8 overflow-y-auto custom-scrollbar">
 
-    <!-- TANDA EMBAJADORAS -->
-    <button (click)="tandaSeleccionada.emit('Embajadora')"
-      class="flex-1 group relative aspect-[4/5] max-h-[380px] rounded-[3rem] overflow-hidden border-2 transition-all duration-500 shadow-2xl bg-[#0A0A0A]"
-      [ngClass]="tandaFirmada('Embajadora') ? 'border-emerald-500 opacity-60' : 'border-[#C5A059]/40 hover:border-[#C5A059]'">
-      <img src="assets/REYNA.png" class="absolute inset-0 w-full h-full object-contain p-8 group-hover:scale-110 transition-transform">
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-      <div class="absolute bottom-8 w-full text-center px-4">
-        <span class="text-2xl font-black text-white uppercase tracking-wider">Embajadoras</span>
+  <!-- Título de la Pantalla -->
+  <div class="text-center space-y-1">
+    <h2 class="text-xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] uppercase tracking-wider drop-shadow-lg">
+      Seleccionar Tanda Oficial
+    </h2>
+    <p class="text-xs text-neutral-400">Elegí la categoría que está desfilando en la pasarela</p>
+  </div>
+
+  <!-- Contenedor de Tarjetas (En columna en celular, en fila en PC) -->
+  <div class="flex flex-col md:flex-row gap-5 sm:gap-8 w-full max-w-4xl px-2 sm:px-4">
+
+    <!-- TANDA 1: EMBAJADORAS (CHICAS) -->
+    <button type="button"
+      (click)="tandaSeleccionada.emit('Embajadora')"
+      class="w-full md:flex-1 h-56 sm:h-72 md:h-[360px] group relative rounded-3xl sm:rounded-[3rem] overflow-hidden border-2 transition-all duration-500 shadow-2xl bg-[#0A0A0A] cursor-pointer"
+      [ngClass]="tandaFirmada('Embajadora') ? 'border-emerald-500 opacity-60' : 'border-[#C5A059]/40 hover:border-[#C5A059] active:scale-95'">
+
+      <!-- Corona Reina -->
+      <img src="assets/REYNA.png"
+           alt="Corona Reina"
+           class="absolute inset-0 w-full h-full object-contain p-6 sm:p-8 group-hover:scale-110 transition-transform duration-700">
+
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent pointer-events-none"></div>
+
+      <div class="absolute bottom-5 sm:bottom-8 inset-x-0 text-center px-4">
+        <span class="text-xl sm:text-2xl font-black text-white uppercase tracking-wider block">Embajadoras</span>
+
         @if (tandaFirmada('Embajadora')) {
-          <p class="text-emerald-400 text-[10px] font-bold mt-2 uppercase tracking-widest">ACTA FIRMADA ✓</p>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-500/50 text-[10px] font-bold uppercase tracking-wider mt-1.5 shadow">
+            <i class="bi bi-check-circle-fill"></i> Acta Firmada
+          </span>
+        } @else {
+          <span class="text-[11px] sm:text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mt-1 block">Tocar para calificar</span>
         }
       </div>
     </button>
 
-    <!-- TANDA EMBAJADORES -->
-    <button (click)="tandaSeleccionada.emit('Embajador')"
-      class="flex-1 group relative aspect-[4/5] max-h-[380px] rounded-[3rem] overflow-hidden border-2 transition-all duration-500 shadow-2xl bg-[#0A0A0A]"
-      [ngClass]="tandaFirmada('Embajador') ? 'border-emerald-500 opacity-60' : 'border-[#C5A059]/40 hover:border-[#C5A059]'">
-      <img src="assets/REY.png" class="absolute inset-0 w-full h-full object-contain p-8 group-hover:scale-110 transition-transform">
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-      <div class="absolute bottom-8 w-full text-center px-4">
-        <span class="text-2xl font-black text-white uppercase tracking-wider">Embajadores</span>
+    <!-- TANDA 2: EMBAJADORES (CHICOS) -->
+    <button type="button"
+      (click)="tandaSeleccionada.emit('Embajador')"
+      class="w-full md:flex-1 h-56 sm:h-72 md:h-[360px] group relative rounded-3xl sm:rounded-[3rem] overflow-hidden border-2 transition-all duration-500 shadow-2xl bg-[#0A0A0A] cursor-pointer"
+      [ngClass]="tandaFirmada('Embajador') ? 'border-emerald-500 opacity-60' : 'border-[#C5A059]/40 hover:border-[#C5A059] active:scale-95'">
+
+      <!-- Corona Rey -->
+      <img src="assets/REY.png"
+           alt="Corona Rey"
+           class="absolute inset-0 w-full h-full object-contain p-6 sm:p-8 group-hover:scale-110 transition-transform duration-700">
+
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent pointer-events-none"></div>
+
+      <div class="absolute bottom-5 sm:bottom-8 inset-x-0 text-center px-4">
+        <span class="text-xl sm:text-2xl font-black text-white uppercase tracking-wider block">Embajadores</span>
+
         @if (tandaFirmada('Embajador')) {
-          <p class="text-emerald-400 text-[10px] font-bold mt-2 uppercase tracking-widest">ACTA FIRMADA ✓</p>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-500/50 text-[10px] font-bold uppercase tracking-wider mt-1.5 shadow">
+            <i class="bi bi-check-circle-fill"></i> Acta Firmada
+          </span>
+        } @else {
+          <span class="text-[11px] sm:text-xs font-bold text-[#F3E7C4] uppercase tracking-wider mt-1 block">Tocar para calificar</span>
         }
       </div>
     </button>

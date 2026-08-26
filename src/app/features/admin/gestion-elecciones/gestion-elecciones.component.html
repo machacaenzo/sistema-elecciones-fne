@@ -141,8 +141,19 @@
                     class="col-span-2 py-2.5 px-3 rounded-xl bg-[#0A0A0A] border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold flex items-center justify-center gap-1.5">
               <i class="bi bi-eye"></i> Ver Resultados Finales
             </button>
+
           }
 
+          <!-- Botón Descargar Acta Oficial (Aparece cuando la votación ya cerró o está publicada) -->
+@if (eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada') {
+  <button type="button"
+          (click)="descargarActaOficial(eleccion)"
+          class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105"
+          title="Descargar Acta Oficial para anunciar ganadores y Libro de Actas">
+    <i class="bi bi-file-earmark-pdf-fill text-[#C5A059]"></i>
+    <span>Acta Oficial</span>
+  </button>
+}
           <!-- Editar Configuración -->
           @if (eleccion.estado === 'Configuracion') {
             <button type="button"
@@ -238,6 +249,16 @@
                     </button>
                   }
 
+                  <!-- Botón Descargar Acta Oficial (Aparece cuando la votación ya cerró o está publicada) -->
+@if (eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada') {
+  <button type="button"
+          (click)="descargarActaOficial(eleccion)"
+          class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105"
+          title="Descargar Acta Oficial para anunciar ganadores y Libro de Actas">
+    <i class="bi bi-file-earmark-pdf-fill text-[#C5A059]"></i>
+    <span>Acta Oficial</span>
+  </button>
+}
                   <!-- Cerrar Votación -->
                   @if (eleccion.estado === 'Activa') {
 
@@ -645,5 +666,5 @@
       (closeModal)="closeMonitoreoModal()">
     </app-monitoreo-jurados>
   }
-  
+
 </div>

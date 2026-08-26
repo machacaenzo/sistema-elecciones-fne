@@ -116,3 +116,20 @@ body {
 
 // Para que los inputs no tengan el fondo blanco de navegador
 input { background-color: transparent !important; }
+
+
+// =========================================================
+// CORRECCIÓN GLOBAL DE ALTURA Y SCROLL PARA SUB-COMPONENTES
+// =========================================================
+app-votacion-mesa,
+app-votacion-auditoria,
+app-votacion-tanda,
+app-eleccion-lista {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}

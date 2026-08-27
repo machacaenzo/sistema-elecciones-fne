@@ -2,10 +2,13 @@ import { Component, computed, EventEmitter, inject, Input, OnInit, Output, signa
 import { CommonModule, DatePipe } from '@angular/common';
 import { collection, collectionData, Firestore, query, where } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 import { Eleccion } from '../../../core/models/eleccion.model';
 import { User } from '../../../core/models/user.model';
+import { Candidata } from '../../../core/models/candidata.model';
 import { UserService } from '../../../core/services/user.service';
+import { CandidataService } from '../gestion-elecciones/candidata.service';
 
 export interface JuradoEstadoMonitoreo {
   uid: string;
@@ -14,9 +17,9 @@ export interface JuradoEstadoMonitoreo {
   email: string;
   fotoURL?: string;
   firmoEmbajadora: boolean;
-  fechaEmbajadora?: any;
+  actaEmbajadora?: any;
   firmoEmbajador: boolean;
-  fechaEmbajador?: any;
+  actaEmbajador?: any;
   estadoGeneral: 'COMPLETO' | 'PARCIAL' | 'PENDIENTE';
 }
 
@@ -33,18 +36,28 @@ export class MonitoreoJuradosComponent implements OnInit {
 
   private firestore = inject(Firestore);
   private userService = inject(UserService);
+  private candidataService = inject(CandidataService);
 
   jurados = signal<User[]>([]);
+  candidatas = signal<Candidata[]>([]);
   actasFirmadas = signal<any[]>([]);
   isLoading = signal(true);
 
-  // Lista procesada con el estado en tiempo real de cada jurado
+  // Modal para inspeccionar el acta de un jurado específico
+  selectedDetalleActa = signal<{
+    jurado: JuradoEstadoMonitoreo;
+    categoria: 'Embajadora' | 'Embajador';
+    acta: any;
+  } | null>(null);
+
+  isActaModalOpen = signal(false);
+
+  // Lista procesada de jurados con sus actas vinculadas
   juradosEstado = computed<JuradoEstadoMonitoreo[]>(() => {
     const actas = this.actasFirmadas();
     const listaJurados = this.jurados();
 
     return listaJurados.map(jurado => {
-      // Buscar actas firmadas por este jurado para esta elección
       const actaChicas = actas.find(a => a.juradoUid === jurado.uid && a.categoria === 'Embajadora');
       const actaChicos = actas.find(a => a.juradoUid === jurado.uid && a.categoria === 'Embajador');
 
@@ -65,15 +78,14 @@ export class MonitoreoJuradosComponent implements OnInit {
         email: jurado.email,
         fotoURL: jurado.fotoURL,
         firmoEmbajadora,
-        fechaEmbajadora: actaChicas?.fechaFirma,
+        actaEmbajadora: actaChicas,
         firmoEmbajador,
-        fechaEmbajador: actaChicos?.fechaFirma,
+        actaEmbajador: actaChicos,
         estadoGeneral
       };
     });
   });
 
-  // Métricas globales en tiempo real
   completadosCount = computed(() => this.juradosEstado().filter(j => j.estadoGeneral === 'COMPLETO').length);
   parcialesCount = computed(() => this.juradosEstado().filter(j => j.estadoGeneral === 'PARCIAL').length);
   pendientesCount = computed(() => this.juradosEstado().filter(j => j.estadoGeneral === 'PENDIENTE').length);
@@ -89,15 +101,19 @@ export class MonitoreoJuradosComponent implements OnInit {
       this.closeModal.emit();
       return;
     }
-
-    this.cargarJuradosYActas();
+    this.cargarDatos();
   }
 
-  private cargarJuradosYActas(): void {
+  private cargarDatos(): void {
     this.isLoading.set(true);
 
-    // 1. Cargar jurados asignados (o todos los jurados activos si no se especificaron)
-    this.userService.getAllUsers().subscribe(users => {
+    // 1. Cargar participantes para tener sus nombres y fotos
+    this.candidataService.getCandidatasPorEleccion(this.eleccion.id!).pipe(first()).subscribe(cands => {
+      this.candidatas.set(cands);
+    });
+
+    // 2. Cargar jurados asignados
+    this.userService.getAllUsers().pipe(first()).subscribe(users => {
       const asignadosIds = this.eleccion.juradosAsignados || [];
       let juradosFiltrados: User[] = [];
 
@@ -110,7 +126,7 @@ export class MonitoreoJuradosComponent implements OnInit {
       this.jurados.set(juradosFiltrados);
     });
 
-    // 2. Escuchar en tiempo real las actas firmadas en /votos_jurados para esta elección
+    // 3. Escuchar en tiempo real las actas firmadas
     const votosRef = collection(this.firestore, 'votos_jurados');
     const q = query(votosRef, where('eleccionId', '==', this.eleccion.id));
 
@@ -120,9 +136,35 @@ export class MonitoreoJuradosComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('Error al monitorear actas de jurados:', err);
+        console.error('Error al monitorear actas:', err);
         this.isLoading.set(false);
       }
     });
+  }
+
+  // Abrir modal de inspección de la planilla de un jurado
+  verDetalleActa(jurado: JuradoEstadoMonitoreo, categoria: 'Embajadora' | 'Embajador'): void {
+    const acta = (categoria === 'Embajadora') ? jurado.actaEmbajadora : jurado.actaEmbajador;
+    if (!acta) return;
+
+    this.selectedDetalleActa.set({
+      jurado,
+      categoria,
+      acta
+    });
+    this.isActaModalOpen.set(true);
+  }
+
+  cerrarDetalleActa(): void {
+    this.isActaModalOpen.set(false);
+    this.selectedDetalleActa.set(null);
+  }
+
+  getCandidata(candidataId: string): Candidata | undefined {
+    return this.candidatas().find(c => c.id === candidataId);
+  }
+
+  getCriteriosKeys(puntajesObj: any): string[] {
+    return puntajesObj ? Object.keys(puntajesObj) : [];
   }
 }

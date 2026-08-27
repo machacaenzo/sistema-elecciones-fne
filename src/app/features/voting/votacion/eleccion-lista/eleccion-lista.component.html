@@ -3,7 +3,7 @@
     Centro de Votación
   </h1>
   <p class="text-xs sm:text-sm tracking-[0.3em] text-[#F3E7C4] font-black uppercase opacity-80">
-    Mesa de Escrutinio Oficial del Jurado
+    Mesa Oficial de Calificación del Jurado
   </p>
 </header>
 
@@ -11,6 +11,8 @@
   @for (eleccion of todasLasElecciones; track eleccion.id) {
     <div class="group relative overflow-hidden rounded-[2.5rem] transition-all duration-300 hover:scale-[1.01] shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
       <div class="backdrop-blur-xl bg-white/[0.03] border border-white/10 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 transition-all">
+
+        <!-- Datos del Evento -->
         <div class="flex items-center gap-6">
           <div class="w-16 h-16 sm:w-18 sm:h-18 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/50 flex flex-col items-center justify-center shadow-lg shrink-0 p-2">
             <span class="text-[10px] font-black text-[#C5A059] uppercase">{{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'MMM' }}</span>
@@ -24,15 +26,36 @@
             </div>
           </div>
         </div>
+
+        <!-- Botonera Condicionada por Asignación de Jurado -->
         <div class="flex items-center gap-3 w-full md:w-auto justify-end">
-          <button (click)="verDetalle.emit(eleccion)" class="flex-1 md:flex-none px-6 py-3 rounded-2xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all uppercase tracking-wider">Ver Nómina</button>
-          @if (!haVotado(eleccion.id!) && eleccion.estado === 'Activa') {
-            <button (click)="ingresarVotar.emit(eleccion)" class="flex-1 md:flex-none px-8 py-3 rounded-2xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black shadow-lg hover:scale-105 active:scale-95 transition-all uppercase tracking-wider">Ingresar</button>
-          } @else if (haVotado(eleccion.id!)) {
+
+          <!-- Ver Nómina (Siempre visible para explorar) -->
+          <button (click)="verDetalle.emit(eleccion)"
+                  class="flex-1 md:flex-none px-6 py-3 rounded-2xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all uppercase tracking-wider cursor-pointer">
+            Ver Nómina
+          </button>
+
+          <!-- 1. Si ESTÁ ASIGNADO y la elección está Activa y no terminó de votar -->
+          @if (estaAsignado(eleccion) && !haVotado(eleccion.id!) && eleccion.estado === 'Activa') {
+            <button (click)="ingresarVotar.emit(eleccion)"
+                    class="flex-1 md:flex-none px-8 py-3 rounded-2xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black shadow-[0_0_25px_rgba(197,160,89,0.35)] hover:scale-105 active:scale-95 transition-all uppercase tracking-wider cursor-pointer">
+              Ingresar a Calificar
+            </button>
+          }
+          <!-- 2. Si ya completó ambas tandas -->
+          @else if (estaAsignado(eleccion) && haVotado(eleccion.id!)) {
             <span class="px-6 py-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-400 text-xs font-bold flex items-center gap-2">
-              <i class="bi bi-check-circle-fill"></i> Completada
+              <i class="bi bi-check-circle-fill"></i> Actas Completadas
             </span>
           }
+          <!-- 3. Si NO está asignado a esta mesa -->
+          @else if (!estaAsignado(eleccion)) {
+            <span class="px-5 py-2.5 rounded-2xl bg-neutral-900/80 border border-neutral-800 text-neutral-500 text-xs font-semibold flex items-center gap-2">
+              <i class="bi bi-lock-fill"></i> No Asignado a esta Mesa
+            </span>
+          }
+
         </div>
       </div>
     </div>

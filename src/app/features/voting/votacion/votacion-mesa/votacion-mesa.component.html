@@ -1,3 +1,11 @@
+<!-- CARTEL FLOTANTE VERDE DE CONFIRMACIÓN RÁPIDA (DESAPARECE EN 1.5s) -->
+@if (mensajeGuardado()) {
+  <div class="fixed top-20 sm:top-24 left-1/2 -translate-x-1/2 z-50 px-5 sm:px-8 py-3 rounded-full bg-emerald-950/95 border-2 border-emerald-400 text-emerald-300 font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_50px_rgba(16,185,129,0.6)] flex items-center gap-3 backdrop-blur-md animate-bounce pointer-events-none">
+    <i class="bi bi-check-circle-fill text-emerald-400 text-lg"></i>
+    <span>{{ mensajeGuardado() }}</span>
+  </div>
+}
+
 <!-- ======================================================= -->
 <!-- BARRA SUPERIOR DE CONTROL Y CARRUSEL COLAPSABLE        -->
 <!-- ======================================================= -->
@@ -17,45 +25,57 @@
         <span class="hidden sm:inline">Tandas</span>
       </button>
 
-      <!-- Botón Circular Dorado ◀ (Anterior Candidato) -->
+      <!-- Botón Circular Dorado ◀ (Anterior) -->
       <button type="button"
         (click)="prevCandidate()"
+        [disabled]="esPrimerCandidato()"
         title="Candidato Anterior"
-        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/70 hover:scale-105 active:scale-95 transition-all cursor-pointer">
+        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/70 hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-30 disabled:pointer-events-none">
         <i class="bi bi-chevron-left text-sm sm:text-base font-black"></i>
       </button>
 
-      <!-- Indicador de Candidato Actual en Modo Minimizado -->
+      <!-- Indicador en Modo Minimizado -->
       @if (isHeaderMinimized() && candidatas[currentStep]; as actual) {
         <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-[#0A0A0A] border border-[#C5A059]/40 animate-fadeIn">
           <span class="w-6 h-6 rounded-full bg-[#C5A059] text-[#0A0D14] font-black text-xs flex items-center justify-center">
             #{{ formatNumero(actual.numero) }}
           </span>
-          <span class="text-xs font-bold text-white truncate max-w-[140px] sm:max-w-[200px]">
+          <span class="text-xs font-bold text-white truncate max-w-[130px] sm:max-w-[200px]">
             {{ actual.nombre }} {{ actual.apellido }}
           </span>
         </div>
       }
 
-      <!-- Botón Circular Dorado ▶ (Siguiente Candidato) -->
+      <!-- Botón Circular Dorado ▶ (Siguiente) -->
       <button type="button"
         (click)="nextCandidate()"
+        [disabled]="esUltimoCandidato()"
         title="Siguiente Candidato"
-        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/70 hover:scale-105 active:scale-95 transition-all cursor-pointer">
+        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/70 hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-30 disabled:pointer-events-none">
         <i class="bi bi-chevron-right text-sm sm:text-base font-black"></i>
       </button>
     </div>
 
-    <!-- LADO DERECHO: BOTÓN MINIMIZAR / EXPANDIR + BOTÓN CERRAR MESA -->
+    <!-- LADO DERECHO: BOTÓN AUDITORÍA (REVISAR) + PANTALLA COMPLETA + CERRAR -->
     <div class="flex items-center gap-2 sm:gap-3">
+
+      <!-- BOTÓN REUBICADO: IR A AUDITORÍA / FIRMA DE PLANILLA -->
+      <button type="button"
+        (click)="irARevisar.emit()"
+        title="Ir a revisar y firmar planilla oficial"
+        class="flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/70 hover:scale-105 active:scale-95 transition-all cursor-pointer">
+        <i class="bi bi-clipboard-check-fill text-sm"></i>
+        <span class="hidden sm:inline">Auditoría y Firma</span>
+        <span class="sm:hidden">Firmar</span>
+      </button>
 
       <!-- Botón Minimizar/Expandir Carrusel -->
       <button type="button"
         (click)="toggleHeaderMinimize()"
-        [title]="isHeaderMinimized() ? 'Expandir barra de candidatos' : 'Minimizar barra para ganar pantalla completa'"
-        class="px-3 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/30 text-[#F3E7C4] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+        [title]="isHeaderMinimized() ? 'Expandir nómina de fotos' : 'Ganar pantalla completa'"
+        class="px-2.5 sm:px-3 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/30 text-[#F3E7C4] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
         <i class="bi" [ngClass]="isHeaderMinimized() ? 'bi-arrows-expand' : 'bi-arrows-collapse'"></i>
-        <span class="hidden md:inline">{{ isHeaderMinimized() ? 'Mostrar Nómina' : 'Pantalla Completa' }}</span>
+        <span class="hidden md:inline">{{ isHeaderMinimized() ? 'Expandir' : 'Enfoque' }}</span>
       </button>
 
       <!-- Botón Cerrar Mesa con BOTON.PNG -->
@@ -70,7 +90,7 @@
 
   </div>
 
-  <!-- CARRUSEL DE MINIATURAS (SE OCULTA SI ESTÁ MINIMIZADO) -->
+  <!-- CARRUSEL DE MINIATURAS (SE OCULTA EN MODO ENFOQUE) -->
   @if (!isHeaderMinimized()) {
     <div class="mt-2.5 pt-2 border-t border-[#C5A059]/15 animate-fadeIn">
       <div #carouselContainer class="flex gap-2.5 sm:gap-3 overflow-x-auto pb-1 custom-scrollbar scroll-smooth">
@@ -106,7 +126,7 @@
 </div>
 
 <!-- ======================================================= -->
-<!-- PANEL DE PUNTUACIÓN (DISEÑO AJUSTADO PARA LAPTOPS 12-14") -->
+<!-- PANEL DE PUNTUACIÓN                                     -->
 <!-- ======================================================= -->
 <div class="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 custom-scrollbar">
   <form [formGroup]="votacionForm" class="min-h-full flex flex-col justify-center max-w-6xl mx-auto pb-6">
@@ -116,11 +136,11 @@
         @if (currentStep === i) {
           <div [formGroupName]="i" class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center animate-fadeIn">
 
-            <!-- LADO IZQUIERDO: FOTO CON MONEDA DORADA GIGANTE #01 -->
+            <!-- LADO IZQUIERDO: FOTO -->
             <div class="lg:col-span-5 flex flex-col items-center gap-3 sm:gap-4">
-              <div class="relative w-[200px] h-[270px] sm:w-[260px] sm:h-[350px] lg:w-[300px] lg:h-[400px] rounded-3xl sm:rounded-[3rem] overflow-hidden border-2 border-[#C5A059]/50 bg-black shadow-[0_0_35px_rgba(197,160,89,0.25)] animate-float">
+              <div class="relative w-[190px] h-[260px] sm:w-[260px] sm:h-[350px] lg:w-[300px] lg:h-[400px] rounded-3xl sm:rounded-[3rem] overflow-hidden border-2 border-[#C5A059]/50 bg-black shadow-[0_0_35px_rgba(197,160,89,0.25)] animate-float">
 
-                <!-- Galería con Crossfade Suave -->
+                <!-- Galería con Crossfade -->
                 @if (c.fotosURL && c.fotosURL.length > 0) {
                   @for (foto of c.fotosURL; track $index) {
                     <img [src]="foto"
@@ -133,9 +153,9 @@
 
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none z-10"></div>
 
-                <!-- MONEDA DORADA GIGANTE CON NÚMERO EN NEGRO INTENSO -->
-                <div class="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-[#C5A059] via-[#F3E7C4] to-[#FFF3D1] border-2 sm:border-4 border-white flex items-center justify-center z-20 shadow-[0_0_25px_rgba(197,160,89,0.9)]">
-                  <span class="text-2xl sm:text-4xl font-black text-[#0A0D14]">#{{ formatNumero(c.numero) }}</span>
+                <!-- Moneda Dorada N° de Pasada -->
+                <div class="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 w-14 h-14 sm:w-18 sm:h-18 rounded-full bg-gradient-to-tr from-[#C5A059] via-[#F3E7C4] to-[#FFF3D1] border-2 border-white flex items-center justify-center z-20 shadow-[0_0_25px_rgba(197,160,89,0.9)]">
+                  <span class="text-xl sm:text-3xl font-black text-[#0A0D14]">#{{ formatNumero(c.numero) }}</span>
                 </div>
               </div>
 
@@ -146,9 +166,9 @@
               </div>
             </div>
 
-            <!-- LADO DERECHO: SLIDERS DEL 5 AL 10 -->
+            <!-- LADO DERECHO: SLIDERS CON ESCALA TÁCTIL (5 A 10) -->
             <div class="lg:col-span-7">
-              <div class="backdrop-blur-3xl bg-white/[0.03] border border-white/10 rounded-3xl sm:rounded-[3rem] p-5 sm:p-7 md:p-8 shadow-2xl space-y-5 sm:space-y-6 relative overflow-hidden">
+              <div class="backdrop-blur-3xl bg-white/[0.03] border border-white/10 rounded-3xl sm:rounded-[3rem] p-5 sm:p-7 md:p-8 shadow-2xl space-y-5 relative overflow-hidden">
 
                 <!-- Overlay de solo lectura si ya está firmada -->
                 @if (tandaFirmada) {
@@ -159,43 +179,84 @@
                   </div>
                 }
 
-                <!-- Encabezado de puntaje total -->
+                <!-- Encabezado con Total y Señal de Guardado -->
                 <div class="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span class="text-xs font-black uppercase text-white/40 tracking-widest">Planilla Oficial</span>
+                  <div>
+                    <span class="text-xs font-black uppercase text-white/40 tracking-widest block">Planilla de Criterios</span>
+                    <span class="text-[10px] font-bold text-emerald-400 flex items-center gap-1 mt-0.5">
+                      <i class="bi bi-shield-fill-check"></i> Guardado en dispositivo
+                    </span>
+                  </div>
                   <div class="text-right">
                     <span class="block text-[8px] font-black text-[#C5A059] uppercase tracking-widest">Total Acumulado</span>
-                    <span class="text-3xl sm:text-5xl font-black text-[#F3E7C4] tabular-nums">
-                      {{ calculateTotalScore(i) }}<span class="text-xs sm:text-sm font-bold ml-1 text-neutral-400">pts</span>
+                    <span class="text-3xl sm:text-4xl font-black text-[#F3E7C4] tabular-nums">
+                      {{ calculateTotalScore(i) }}<span class="text-xs font-bold ml-1 text-neutral-400">pts</span>
                     </span>
                   </div>
                 </div>
 
-                <!-- Grid de criterios / sliders del 5 al 10 -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-4 sm:gap-y-5">
+                <!-- Grilla de Sliders con Escala Táctil (5 a 10) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-5">
                   @for (crit of getCriteriosParaCandidata(c, eleccion); track crit) {
                     <div class="space-y-1.5">
+
                       <div class="flex justify-between items-center text-xs">
                         <span class="text-[11px] font-bold uppercase text-neutral-300 tracking-wider">{{ crit }}</span>
                         <span class="text-base sm:text-lg font-black text-[#F3E7C4] tabular-nums">{{ getEvaluacionValue(i, crit) }} / 10</span>
                       </div>
-                      <!-- Slider con rango mínimo en 5 y máximo en 10 -->
+
+                      <!-- Riel del Slider -->
                       <input
                         type="range" min="5" max="10" step="1"
                         [formControlName]="crit"
                         (input)="sliderActualizado.emit({ index: i, controlName: crit, event: $event })"
                         [disabled]="tandaFirmada"
                         class="custom-gold-slider w-full cursor-pointer disabled:opacity-40">
+
+                      <!-- REGLA NUMÉRICA TÁCTIL (ATAJO 5 A 10) -->
+                      <div class="flex justify-between items-center px-1 text-[10px] font-bold text-neutral-500 select-none">
+                        @for (num of escalaNumerica; track num) {
+                          <span
+                            (click)="setScoreDirect(i, crit, num)"
+                            class="cursor-pointer hover:text-[#F3E7C4] transition-colors p-0.5 rounded"
+                            [ngClass]="getEvaluacionValue(i, crit) === num ? 'text-[#C5A059] font-black scale-125' : ''">
+                            {{ num }}
+                          </span>
+                        }
+                      </div>
+
                     </div>
                   }
                 </div>
 
-                <!-- Botón continuar a revisión -->
-                <div class="pt-2 border-t border-white/10">
+                <!-- BOTONERA INFERIOR: PASO NATURAL [ ANTERIOR | SIGUIENTE ] -->
+                <div class="pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+
+                  <!-- Botón Anterior -->
                   <button type="button"
-                    (click)="irARevisar.emit()"
-                    class="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black uppercase text-xs tracking-widest shadow-[0_0_25px_rgba(197,160,89,0.35)] hover:scale-[1.01] active:scale-95 transition-all cursor-pointer">
-                    Revisar y Firmar Planilla
+                    (click)="prevCandidate()"
+                    [disabled]="esPrimerCandidato()"
+                    class="px-5 py-3 rounded-xl border border-white/20 text-neutral-300 hover:text-white hover:bg-white/10 text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-20 disabled:pointer-events-none cursor-pointer">
+                    &larr; Anterior
                   </button>
+
+                  <!-- Botón Siguiente Candidato O Finalizar si es el último -->
+                  @if (!esUltimoCandidato()) {
+                    <button type="button"
+                      (click)="nextCandidate()"
+                      class="px-6 sm:px-8 py-3.5 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black uppercase text-xs tracking-wider shadow-[0_0_20px_rgba(197,160,89,0.35)] hover:scale-[1.02] active:scale-95 transition-all cursor-pointer flex items-center gap-2">
+                      <span>Siguiente Candidato</span>
+                      <i class="bi bi-chevron-right font-black"></i>
+                    </button>
+                  } @else {
+                    <button type="button"
+                      (click)="irARevisar.emit()"
+                      class="px-6 sm:px-8 py-3.5 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black uppercase text-xs tracking-wider shadow-[0_0_20px_rgba(197,160,89,0.4)] hover:scale-[1.02] active:scale-95 transition-all cursor-pointer flex items-center gap-2">
+                      <i class="bi bi-clipboard-check-fill"></i>
+                      <span>Revisar Planilla Completa</span>
+                    </button>
+                  }
+
                 </div>
 
               </div>

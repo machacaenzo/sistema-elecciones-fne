@@ -261,11 +261,8 @@ export class PdfExportService {
     doc.save(`Planilla_Jurados_${this.limpiarNombreArchivo(eleccion.nombre)}.pdf`);
   }
 
-  // =========================================================================
-  // 3. ACTA OFICIAL DE PROCLAMACIÓN Y RESULTADOS (PARA EL ESCENARIO Y DIRECTIVOS)
-  // =========================================================================
-  // =========================================================================
-  // 3. ACTA OFICIAL DE PROCLAMACIÓN Y RESULTADOS (COMPLETA Y SIN "ESCRUTINIO")
+ // =========================================================================
+  // 3. ACTA OFICIAL DE PROCLAMACIÓN (CERO ENCIMES Y CONTROL DE ALTURA DINÁMICO)
   // =========================================================================
   async exportarActaProclamacion(eleccion: Eleccion, candidatas: Candidata[]): Promise<void> {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -276,86 +273,93 @@ export class PdfExportService {
     const mes = fechaRef.toLocaleString('es-AR', { month: 'long' });
     const anio = fechaRef.getFullYear();
 
-    // Ordenar todas las candidatas por puntaje (Ranking Oficial)
-    const chicas = candidatas.filter(c => (c.categoria || 'Embajadora') === 'Embajadora');
-    const ordenadasChicas = [...chicas].sort((a, b) => (b.puntuacionTotal || 0) - (a.puntuacionTotal || 0));
-
+    // 1. Ordenamos candidatos por puntaje oficial
     const chicos = candidatas.filter(c => c.categoria === 'Embajador');
-    const ordenadosChicos = [...chicos].sort((a, b) => (b.puntuacionTotal || 0) - (a.puntuacionTotal || 0));
+    const ordenadosChicos = [...chicos].sort((a, b) => (Number(b.puntuacionTotal) || 0) - (Number(a.puntuacionTotal) || 0));
 
-    const puestosFem = eleccion.puestosFemeninos || eleccion.puestos || ['Embajadora', '1ra Princesa', '2da Princesa'];
+    const chicas = candidatas.filter(c => (c.categoria || 'Embajadora') === 'Embajadora');
+    const ordenadasChicas = [...chicas].sort((a, b) => (Number(b.puntuacionTotal) || 0) - (Number(a.puntuacionTotal) || 0));
+
     const puestosMasc = eleccion.puestosMasculinos || ['Embajador', '1er Paje'];
+    const puestosFem = eleccion.puestosFemeninos || eleccion.puestos || ['Embajadora', '1ra Princesa', '2da Princesa'];
 
-    // --- ENCABEZADO DE GALA ---
+    // Función inteligente para dibujar las 3 firmas sin pisar nunca el contenido
+    const dibujarBloqueFirmas = (posY: number) => {
+      let currentY = posY;
+
+      // Si no quedan al menos 40mm libres antes del final de la hoja (297mm), salta de página
+      if (currentY + 40 > 275) {
+        doc.addPage();
+
+        // Membrete de continuidad en la nueva página
+        doc.setFillColor(8, 10, 15);
+        doc.rect(0, 0, 210, 20, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('ACTA OFICIAL DE PROCLAMACIÓN • FIRMAS DE CONFORMIDAD', 14, 12);
+
+        if (logoImg) {
+          doc.addImage(logoImg, 'PNG', 185, 3, 14, 14);
+        }
+        currentY = 35;
+      }
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(60, 60, 60);
+      doc.text('En conformidad de lo actuado, se labra y firma la presente acta oficial por las partes intervinientes:', 14, currentY + 6);
+
+      const lineY = currentY + 22;
+
+      doc.setDrawColor(150, 150, 150);
+      doc.line(16, lineY, 68, lineY);
+      doc.line(78, lineY, 132, lineY);
+      doc.line(142, lineY, 194, lineY);
+
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(20, 20, 20);
+      doc.text('Firma / Sello Directivo', 42, lineY + 4.5, { align: 'center' });
+      doc.text('Presidente de Mesa de Votación', 105, lineY + 4.5, { align: 'center' });
+      doc.text('Representante del Jurado', 168, lineY + 4.5, { align: 'center' });
+    };
+
+    // =========================================================================
+    // 📄 PÁGINA 1: CUADRO DE HONOR Y PROCLAMACIÓN OFICIAL
+    // =========================================================================
     doc.setFillColor(8, 10, 15);
-    doc.rect(0, 0, 210, 30, 'F');
+    doc.rect(0, 0, 210, 28, 'F');
 
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(13);
-    doc.text('ACTA OFICIAL DE PROCLAMACIÓN Y RESULTADOS', 14, 12);
+    doc.text('ACTA OFICIAL DE PROCLAMACIÓN Y RESULTADOS', 14, 11);
 
     doc.setFontSize(8.5);
     doc.setTextColor(197, 160, 89);
-    doc.text(`${eleccion.nombre.toUpperCase()} • FIESTA NACIONAL DE LOS ESTUDIANTES`, 14, 19);
-    doc.text(`LA QUIACA, JUJUY • REPÚBLICA ARGENTINA`, 14, 24);
+    doc.text(`${eleccion.nombre.toUpperCase()} • FIESTA NACIONAL DE LOS ESTUDIANTES`, 14, 18);
+    doc.text(`LA QUIACA, JUJUY • REPÚBLICA ARGENTINA`, 14, 23);
 
     if (logoImg) {
-      doc.addImage(logoImg, 'PNG', 180, 4, 22, 22);
+      doc.addImage(logoImg, 'PNG', 180, 3, 22, 22);
     }
 
-    let y = 38;
+    let y = 35;
 
-    // --- PÁRRAFO INSTITUCIONAL (SIN LA PALABRA ESCRUTINIO) ---
+    // Párrafo Institucional Hoja 1
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
+    doc.setFontSize(8.5);
     doc.setTextColor(50, 50, 50);
-    const textoActa = `En la ciudad de La Quiaca, a los ${dia} días del mes de ${mes} del año ${anio}, habiendo finalizado la noche de gala y el cómputo oficial de votos, el Honorable Jurado y las Autoridades presentes dan fe de los resultados finales y proceden a la proclamación oficial de los nuevos Representantes Estudiantiles:`;
+    const textoActa = `En la ciudad de La Quiaca, a los ${dia} días del mes de ${mes} del año ${anio}, habiendo finalizado la noche de gala y el cómputo oficial de votos, el Honorable Jurado y las Autoridades presentes dan fe de los resultados finales y proceden a la proclamación oficial de los Representantes Estudiantiles electos:`;
     const lineasIntro = doc.splitTextToSize(textoActa, 182);
     doc.text(lineasIntro, 14, y);
-    y += (lineasIntro.length * 4.5) + 4;
+    y += (lineasIntro.length * 4) + 4;
 
-    // =========================================================================
-    // SECCIÓN 1: CUADRO DE HONOR (REINA, PRINCESAS Y EMBAJADORES)
-    // =========================================================================
-    if (ordenadasChicas.length > 0) {
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10.5);
-      doc.setTextColor(140, 109, 45);
-      doc.text('CUADRO DE HONOR: CORTE DE LA EMBAJADORA (FEMENINO)', 14, y);
-      y += 2.5;
-
-      const bodyChicas = puestosFem.map((puesto, idx) => {
-        const ganadora = ordenadasChicas[idx];
-        return [
-          puesto.toUpperCase(),
-          ganadora ? `#${ganadora.numero || ''} ${ganadora.nombre} ${ganadora.apellido}`.toUpperCase() : 'VACANTE',
-          ganadora?.cursoDivision || '—',
-          ganadora ? `${ganadora.puntuacionTotal} pts` : '—'
-        ];
-      });
-
-      autoTable(doc, {
-        head: [['Título / Distinción Oficial', 'Estudiante Electa', 'Curso / División', 'Puntaje']],
-        body: bodyChicas,
-        startY: y,
-        theme: 'grid',
-        headStyles: { fillColor: [18, 22, 30], textColor: [243, 231, 196], fontSize: 8.5, fontStyle: 'bold' },
-        bodyStyles: { textColor: [10, 10, 10], fontSize: 8.5, minCellHeight: 7.5 },
-        columnStyles: {
-          0: { fontStyle: 'bold', cellWidth: 55 },
-          1: { cellWidth: 70, fontStyle: 'bold' },
-          3: { halign: 'center', fontStyle: 'bold' }
-        },
-        styles: { lineColor: [180, 180, 180], lineWidth: 0.2 }
-      });
-
-      y = (doc as any).lastAutoTable.finalY + 6;
-    }
-
+    // 1. Tabla: Corte Embajadores (Chicos)
     if (ordenadosChicos.length > 0) {
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10.5);
+      doc.setFontSize(10);
       doc.setTextColor(140, 109, 45);
       doc.text('CUADRO DE HONOR: CORTE DEL EMBAJADOR (MASCULINO)', 14, y);
       y += 2.5;
@@ -375,84 +379,173 @@ export class PdfExportService {
         body: bodyChicos,
         startY: y,
         theme: 'grid',
-        headStyles: { fillColor: [18, 22, 30], textColor: [243, 231, 196], fontSize: 8.5, fontStyle: 'bold' },
-        bodyStyles: { textColor: [10, 10, 10], fontSize: 8.5, minCellHeight: 7.5 },
+        headStyles: { fillColor: [18, 22, 30], textColor: [243, 231, 196], fontSize: 8, fontStyle: 'bold' },
+        bodyStyles: { textColor: [10, 10, 10], fontSize: 8, minCellHeight: 6.5 },
         columnStyles: {
           0: { fontStyle: 'bold', cellWidth: 55 },
           1: { cellWidth: 70, fontStyle: 'bold' },
           3: { halign: 'center', fontStyle: 'bold' }
         },
-        styles: { lineColor: [180, 180, 180], lineWidth: 0.2 }
+        styles: { lineColor: [180, 180, 180], lineWidth: 0.2 },
+        margin: { left: 14, right: 14 }
       });
 
-      y = (doc as any).lastAutoTable.finalY + 8;
+      y = (doc as any).lastAutoTable.finalY + 6;
     }
 
-    // =========================================================================
-    // SECCIÓN 2: NÓMINA COMPLETA DE TODAS LAS PARTICIPANTES Y PUNTAJES
-    // =========================================================================
-    if (y > 200) {
-      doc.addPage();
-      y = 25;
+    // 2. Tabla: Corte Embajadoras (Chicas)
+    if (ordenadasChicas.length > 0) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(140, 109, 45);
+      doc.text('CUADRO DE HONOR: CORTE DE LA EMBAJADORA (FEMENINO)', 14, y);
+      y += 2.5;
+
+      const bodyChicas = puestosFem.map((puesto, idx) => {
+        const ganadora = ordenadasChicas[idx];
+        return [
+          puesto.toUpperCase(),
+          ganadora ? `#${ganadora.numero || ''} ${ganadora.nombre} ${ganadora.apellido}`.toUpperCase() : 'VACANTE',
+          ganadora?.cursoDivision || '—',
+          ganadora ? `${ganadora.puntuacionTotal} pts` : '—'
+        ];
+      });
+
+      autoTable(doc, {
+        head: [['Título / Distinción Oficial', 'Estudiante Electa', 'Curso / División', 'Puntaje']],
+        body: bodyChicas,
+        startY: y,
+        theme: 'grid',
+        headStyles: { fillColor: [18, 22, 30], textColor: [243, 231, 196], fontSize: 8, fontStyle: 'bold' },
+        bodyStyles: { textColor: [10, 10, 10], fontSize: 8, minCellHeight: 6.5 },
+        columnStyles: {
+          0: { fontStyle: 'bold', cellWidth: 55 },
+          1: { cellWidth: 70, fontStyle: 'bold' },
+          3: { halign: 'center', fontStyle: 'bold' }
+        },
+        styles: { lineColor: [180, 180, 180], lineWidth: 0.2 },
+        margin: { left: 14, right: 14 }
+      });
+
+      y = (doc as any).lastAutoTable.finalY + 6;
     }
 
+    // Firmas Hoja 1 (posicionadas al final de la hoja 1)
+    dibujarBloqueFirmas(Math.max(y, 240));
+
+    // =========================================================================
+    // 📄 PÁGINA 2: NÓMINA GENERAL SEPARADA POR CATEGORÍAS
+    // =========================================================================
+    doc.addPage();
+
+    // Encabezado Hoja 2
+    doc.setFillColor(8, 10, 15);
+    doc.rect(0, 0, 210, 26, 'F');
+
+    doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10.5);
-    doc.setTextColor(140, 109, 45);
-    doc.text('NÓMINA COMPLETA DE PARTICIPACIÓN Y PUNTAJES GENERALES', 14, y);
-    y += 2.5;
+    doc.setFontSize(12);
+    doc.text('NÓMINA GENERAL DE PARTICIPANTES Y CÓMPUTO FINAL', 14, 11);
 
-    // Unimos todas las candidatas ordenadas por posición
-    const todasLasCandidatas = [
-      ...ordenadasChicas.map((c, i) => [`${i + 1}°`, 'Embajadora', `#${c.numero || ''}`, `${c.nombre} ${c.apellido}`, c.cursoDivision || '—', `${c.puntuacionTotal} pts`]),
-      ...ordenadosChicos.map((c, i) => [`${i + 1}°`, 'Embajador', `#${c.numero || ''}`, `${c.nombre} ${c.apellido}`, c.cursoDivision || '—', `${c.puntuacionTotal} pts`])
-    ];
+    doc.setFontSize(8);
+    doc.setTextColor(197, 160, 89);
+    doc.text(`${eleccion.nombre.toUpperCase()} • REGISTRO GENERAL DE PUNTUACIONES`, 14, 18);
 
-    autoTable(doc, {
-      head: [['Posición', 'Categoría', 'N°', 'Estudiante Postulante', 'Curso / División', 'Puntaje Total']],
-      body: todasLasCandidatas,
-      startY: y,
-      theme: 'grid',
-      headStyles: { fillColor: [30, 35, 45], textColor: [255, 255, 255], fontSize: 8, fontStyle: 'bold', halign: 'center' },
-      bodyStyles: { textColor: [30, 30, 30], fontSize: 8, minCellHeight: 6.5 },
-      columnStyles: {
-        0: { halign: 'center', fontStyle: 'bold', cellWidth: 16 },
-        1: { cellWidth: 26 },
-        2: { halign: 'center', cellWidth: 12, fontStyle: 'bold' },
-        3: { fontStyle: 'bold' },
-        5: { halign: 'center', fontStyle: 'bold', cellWidth: 24 }
-      },
-      styles: { lineColor: [200, 200, 200], lineWidth: 0.2 }
-    });
-
-    y = (doc as any).lastAutoTable.finalY + 12;
-
-    // =========================================================================
-    // SECCIÓN 3: FIRMAS INSTITUCIONALES AL PIE
-    // =========================================================================
-    if (y > 250) {
-      doc.addPage();
-      y = 35;
+    if (logoImg) {
+      doc.addImage(logoImg, 'PNG', 182, 3, 20, 20);
     }
 
+    let y2 = 33;
+
+    // Párrafo Institucional Hoja 2
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
-    doc.setTextColor(60, 60, 60);
-    doc.text('No habiendo más asuntos que tratar, se labra y firma la presente acta oficial en conformidad:', 14, y);
-    y += 16;
+    doc.setTextColor(50, 50, 50);
+    const textoHoja2 = `A continuación, se detalla el registro completo de puntuaciones obtenidas por todos los estudiantes participantes en sus respectivas categorías oficiales:`;
+    const lineasIntro2 = doc.splitTextToSize(textoHoja2, 182);
+    doc.text(lineasIntro2, 14, y2);
+    y2 += (lineasIntro2.length * 4) + 4;
 
-    // 3 Líneas de firmas oficiales
-    doc.setDrawColor(150, 150, 150);
-    doc.line(16, y, 68, y);
-    doc.line(78, y, 132, y);
-    doc.line(142, y, 194, y);
+    // --- TABLA SEPARADA 1: TODOS LOS EMBAJADORES (CHICOS) ---
+    if (ordenadosChicos.length > 0) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(140, 109, 45);
+      doc.text('NÓMINA GENERAL: EMBAJADORES (MASCULINO)', 14, y2);
+      y2 += 2.5;
 
-    doc.setFontSize(7.5);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(20, 20, 20);
-    doc.text('Firma / Sello Directivo', 42, y + 4.5, { align: 'center' });
-    doc.text('Presidente de Mesa de Votación', 105, y + 4.5, { align: 'center' });
-    doc.text('Representante del Jurado', 168, y + 4.5, { align: 'center' });
+      const filasChicos = ordenadosChicos.map((c, i) => [
+        `${i + 1}°`,
+        `#${c.numero || ''}`,
+        `${c.nombre} ${c.apellido}`.toUpperCase(),
+        c.cursoDivision || '—',
+        `${c.puntuacionTotal} pts`
+      ]);
+
+      autoTable(doc, {
+        head: [['Posición', 'N°', 'Estudiante Postulante', 'Curso / División', 'Puntaje Total']],
+        body: filasChicos,
+        startY: y2,
+        theme: 'grid',
+        headStyles: { fillColor: [25, 30, 40], textColor: [243, 231, 196], fontSize: 8, fontStyle: 'bold', halign: 'center' },
+        bodyStyles: { textColor: [20, 20, 20], fontSize: 8, minCellHeight: 5.5 },
+        columnStyles: {
+          0: { halign: 'center', fontStyle: 'bold', cellWidth: 18 },
+          1: { halign: 'center', fontStyle: 'bold', cellWidth: 14 },
+          2: { fontStyle: 'bold' },
+          4: { halign: 'center', fontStyle: 'bold', cellWidth: 26 }
+        },
+        styles: { lineColor: [190, 190, 190], lineWidth: 0.2 },
+        margin: { left: 14, right: 14 }
+      });
+
+      y2 = (doc as any).lastAutoTable.finalY + 6;
+    }
+
+    // --- TABLA SEPARADA 2: TODAS LAS EMBAJADORAS (CHICAS) ---
+    if (ordenadasChicas.length > 0) {
+      // Si la tabla de chicos ocupó mucho espacio, salta de página antes de arrancar las chicas
+      if (y2 > 160) {
+        doc.addPage();
+        y2 = 25;
+      }
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(140, 109, 45);
+      doc.text('NÓMINA GENERAL: EMBAJADORAS (FEMENINO)', 14, y2);
+      y2 += 2.5;
+
+      const filasChicas = ordenadasChicas.map((c, i) => [
+        `${i + 1}°`,
+        `#${c.numero || ''}`,
+        `${c.nombre} ${c.apellido}`.toUpperCase(),
+        c.cursoDivision || '—',
+        `${c.puntuacionTotal} pts`
+      ]);
+
+      autoTable(doc, {
+        head: [['Posición', 'N°', 'Estudiante Postulante', 'Curso / División', 'Puntaje Total']],
+        body: filasChicas,
+        startY: y2,
+        theme: 'grid',
+        headStyles: { fillColor: [25, 30, 40], textColor: [243, 231, 196], fontSize: 8, fontStyle: 'bold', halign: 'center' },
+        bodyStyles: { textColor: [20, 20, 20], fontSize: 8, minCellHeight: 5.5 },
+        columnStyles: {
+          0: { halign: 'center', fontStyle: 'bold', cellWidth: 18 },
+          1: { halign: 'center', fontStyle: 'bold', cellWidth: 14 },
+          2: { fontStyle: 'bold' },
+          4: { halign: 'center', fontStyle: 'bold', cellWidth: 26 }
+        },
+        styles: { lineColor: [190, 190, 190], lineWidth: 0.2 },
+        margin: { left: 14, right: 14 }
+      });
+
+      y2 = (doc as any).lastAutoTable.finalY + 4;
+    }
+
+    // Dibujar las firmas al final de las tablas de forma 100% segura
+    dibujarBloqueFirmas(y2);
 
     doc.save(`Acta_Oficial_Proclamacion_${this.limpiarNombreArchivo(eleccion.nombre)}.pdf`);
   }

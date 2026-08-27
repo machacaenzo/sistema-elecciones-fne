@@ -28,44 +28,81 @@ export class VotacionMesaComponent {
   @Output() sliderActualizado = new EventEmitter<{ index: number; controlName: string; event: Event }>();
   @Output() irARevisar = new EventEmitter<void>();
 
-  // Signal para colapsar/minimizar la barra superior y ganar 100% de espacio vertical
   isHeaderMinimized = signal(false);
+
+  // Mensaje flotante de confirmación rápida para personas mayores
+  mensajeGuardado = signal<string | null>(null);
+  private mensajeTimeout: any = null;
+
+  escalaNumerica = [5, 6, 7, 8, 9, 10];
 
   toggleHeaderMinimize(): void {
     this.isHeaderMinimized.update(val => !val);
   }
 
-  // Avanzar al siguiente candidato con el botón circular dorado ▶
+  esUltimoCandidato(): boolean {
+    const filtrados = this.candidatasFiltradas;
+    if (filtrados.length === 0) return true;
+    const actual = this.candidatas[this.currentStep];
+    const idx = filtrados.findIndex(c => c.id === actual?.id);
+    return idx === filtrados.length - 1;
+  }
+
+  esPrimerCandidato(): boolean {
+    const filtrados = this.candidatasFiltradas;
+    if (filtrados.length === 0) return true;
+    const actual = this.candidatas[this.currentStep];
+    const idx = filtrados.findIndex(c => c.id === actual?.id);
+    return idx <= 0;
+  }
+
+  // Muestra el aviso verde de confirmación rápida
+  lanzarAvisoGuardado(nombre: string, pts: number): void {
+    if (this.mensajeTimeout) clearTimeout(this.mensajeTimeout);
+    this.mensajeGuardado.set(`✓ Puntaje de #${this.formatNumero(this.candidatas[this.currentStep]?.numero)} ${nombre} guardado (${pts} pts)`);
+    this.mensajeTimeout = setTimeout(() => {
+      this.mensajeGuardado.set(null);
+    }, 1600);
+  }
+
   nextCandidate(): void {
     const filtrados = this.candidatasFiltradas;
     if (filtrados.length === 0) return;
 
     const actual = this.candidatas[this.currentStep];
-    const idxEnFiltrados = filtrados.findIndex(c => c.id === actual?.id);
+    const pts = this.calculateTotalScore(this.currentStep);
 
-    if (idxEnFiltrados < filtrados.length - 1) {
-      const sigCandidato = filtrados[idxEnFiltrados + 1];
-      this.candidatoSeleccionado.emit(sigCandidato);
+    // Disparamos la confirmación visual para que el jurado sepa que se guardó
+    this.lanzarAvisoGuardado(actual.nombre, pts);
+
+    const idx = filtrados.findIndex(c => c.id === actual?.id);
+    if (idx < filtrados.length - 1) {
+      const sig = filtrados[idx + 1];
+      this.candidatoSeleccionado.emit(sig);
       this.scrollCarousel('right');
     }
   }
 
-  // Retroceder al candidato anterior con el botón circular dorado ◀
   prevCandidate(): void {
     const filtrados = this.candidatasFiltradas;
     if (filtrados.length === 0) return;
 
     const actual = this.candidatas[this.currentStep];
-    const idxEnFiltrados = filtrados.findIndex(c => c.id === actual?.id);
+    const idx = filtrados.findIndex(c => c.id === actual?.id);
 
-    if (idxEnFiltrados > 0) {
-      const antCandidato = filtrados[idxEnFiltrados - 1];
-      this.candidatoSeleccionado.emit(antCandidato);
+    if (idx > 0) {
+      const ant = filtrados[idx - 1];
+      this.candidatoSeleccionado.emit(ant);
       this.scrollCarousel('left');
     }
   }
 
-  // Desplazamiento del carrusel con animación suave
+  setScoreDirect(index: number, controlName: string, value: number): void {
+    if (this.tandaFirmada) return;
+    const fakeEvent = { target: { value: value.toString() } } as unknown as Event;
+    this.sliderActualizado.emit({ index, controlName, event: fakeEvent });
+  }
+
   scrollCarousel(direction: 'left' | 'right'): void {
     if (!this.carouselContainer?.nativeElement) return;
     const offset = direction === 'left' ? -220 : 220;
@@ -92,10 +129,11 @@ export class VotacionMesaComponent {
     const group = this.evaluacionesArray.at(idx) as FormGroup;
     if (!group || !this.candidatas[idx] || !this.eleccion) return 0;
     const criterios = this.getCriteriosParaCandidata(this.candidatas[idx], this.eleccion);
-    return criterios.reduce((acc, c) => acc + (group.get(c)?.value || 0), 0);
+    return criterios.reduce((acc, c) => acc + (Number(group.get(c)?.value) || 5), 0);
   }
 
   getEvaluacionValue(index: number, controlName: string): number {
-    return this.evaluacionesArray.at(index)?.get(controlName)?.value || 5;
+    const val = this.evaluacionesArray.at(index)?.get(controlName)?.value;
+    return val !== null && val !== undefined && !isNaN(val) ? Number(val) : 5;
   }
 }

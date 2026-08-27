@@ -85,81 +85,84 @@
           }
         </div>
 
-        <!-- BOTONERA TÁCTIL (GRID DE BOTONES CÓMODOS) -->
+        <!-- BOTONERA TÁCTIL (CELULARES) -->
         <div class="grid grid-cols-2 gap-2 pt-3 border-t border-[#C5A059]/20">
 
-          <!-- Botón Abrir / Cerrar / Proclamar según estado -->
+          <!-- 1. En Configuración: Abrir Votación -->
           @if (eleccion.estado === 'Configuracion') {
             <button type="button"
                     (click)="iniciarVotacion(eleccion)"
-                    class="py-2.5 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xs font-bold flex items-center justify-center gap-1.5">
-              <i class="bi bi-play-fill text-base"></i> Abrir Votos
+                    class="py-2.5 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
+              <i class="bi bi-play-fill text-base"></i>
+              <span>Abrir Votos</span>
             </button>
           }
+
+          <!-- 2. En Activa: Cerrar Votación -->
           @if (eleccion.estado === 'Activa') {
-
-             <button type="button"
-                            (click)="openMonitoreoModal(eleccion)"
-                            class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/50 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105"
-                            title="Ver jurados que ya votaron en tiempo real">
-                      <i class="bi bi-speedometer2 text-[#C5A059]"></i>
-                      <span>Mesa de Control</span>
-                    </button>
-
             <button type="button"
                     (click)="finalizarVotacion(eleccion)"
-                    class="py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/50 text-rose-400 text-xs font-bold flex items-center justify-center gap-1.5">
-              <i class="bi bi-stop-fill text-base"></i> Cerrar Votos
+                    class="py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/50 text-rose-400 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
+              <i class="bi bi-stop-fill text-base"></i>
+              <span>Cerrar Votos</span>
             </button>
           }
+
+          <!-- 3. En Finalizada: Proclamar -->
           @if (eleccion.estado === 'Finalizada') {
             <button type="button"
                     (click)="publishEleccion(eleccion)"
-                    class="py-2.5 px-3 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1">
-              <i class="bi bi-megaphone-fill"></i> Proclamar
+                    class="py-2.5 px-3 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 shadow-md cursor-pointer">
+              <i class="bi bi-megaphone-fill text-xs"></i>
+              <span>Proclamar</span>
             </button>
           }
+
+          <!-- 4. En Publicada: Pantalla Escenario -->
           @if (eleccion.estado === 'Publicada') {
             <button type="button"
-                    (click)="openResultados(eleccion)"
-                    class="py-2.5 px-3 rounded-xl bg-[#0A0A0A] border border-[#C5A059]/60 text-[#F3E7C4] text-xs font-bold flex items-center justify-center gap-1.5">
-              <i class="bi bi-award-fill text-[#C5A059]"></i> Escenario
+                    (click)="openEscenario(eleccion)"
+                    class="py-2.5 px-3 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md cursor-pointer">
+              <i class="bi bi-display text-sm"></i>
+              <span>Escenario</span>
             </button>
           }
 
-          <!-- Botón Participantes -->
+          <!-- 5. MESA DE CONTROL (SIEMPRE VISIBLE EN ACTIVA, FINALIZADA Y PUBLICADA) -->
+          @if (eleccion.estado !== 'Configuracion') {
+            <button type="button"
+                    (click)="openMonitoreoModal(eleccion)"
+                    class="py-2.5 px-3 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+              <i class="bi bi-speedometer2 text-[#C5A059]"></i>
+              <span>Mesa Control</span>
+            </button>
+          }
+
+          <!-- 6. Descargar Acta Oficial PDF (En Finalizada y Publicada) -->
+          @if (eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada') {
+            <button type="button"
+                    (click)="descargarActaOficial(eleccion)"
+                    class="py-2.5 px-3 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+              <i class="bi bi-file-earmark-pdf-fill text-[#C5A059]"></i>
+              <span>Acta PDF</span>
+            </button>
+          }
+
+          <!-- 7. Botón Participantes -->
           <button type="button"
                   (click)="openCandidatasModal(eleccion)"
-                  class="py-2.5 px-3 rounded-xl bg-[#0A0A0A] border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold flex items-center justify-center gap-1.5">
-            <i class="bi bi-people-fill text-[#C5A059]"></i> Participantes
+                  class="py-2.5 px-3 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
+            <i class="bi bi-people-fill text-[#C5A059]"></i>
+            <span>Participantes</span>
           </button>
 
-          <!-- Resultados (Si está Finalizada) -->
-          @if (eleccion.estado === 'Finalizada') {
-            <button type="button"
-                    (click)="openResultados(eleccion)"
-                    class="col-span-2 py-2.5 px-3 rounded-xl bg-[#0A0A0A] border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold flex items-center justify-center gap-1.5">
-              <i class="bi bi-eye"></i> Ver Resultados Finales
-            </button>
-
-          }
-
-          <!-- Botón Descargar Acta Oficial (Aparece cuando la votación ya cerró o está publicada) -->
-@if (eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada') {
-  <button type="button"
-          (click)="descargarActaOficial(eleccion)"
-          class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105"
-          title="Descargar Acta Oficial para anunciar ganadores y Libro de Actas">
-    <i class="bi bi-file-earmark-pdf-fill text-[#C5A059]"></i>
-    <span>Acta Oficial</span>
-  </button>
-}
-          <!-- Editar Configuración -->
+          <!-- 8. Editar Configuración (Solo en Configuración) -->
           @if (eleccion.estado === 'Configuracion') {
             <button type="button"
                     (click)="openEditModal(eleccion)"
-                    class="py-2.5 px-3 rounded-xl bg-[#0A0A0A] border border-[#C5A059]/30 text-neutral-300 text-xs font-medium flex items-center justify-center gap-1.5">
-              <i class="bi bi-pencil"></i> Editar
+                    class="py-2.5 px-3 rounded-xl bg-[#0A0A0A] border border-[#C5A059]/30 text-neutral-300 text-xs font-medium flex items-center justify-center gap-1.5 cursor-pointer">
+              <i class="bi bi-pencil"></i>
+              <span>Editar</span>
             </button>
           }
 
@@ -235,98 +238,87 @@
                 }
               </td>
 
-              <!-- Botones PC -->
+             <!-- BOTONES DE CONTROL (PC Y TABLETS) -->
               <td class="py-4 px-6 text-right">
                 <div class="flex items-center justify-end gap-2">
 
-                  <!-- Abrir Votación -->
+                  <!-- Abrir Votación (Solo en Configuración) -->
                   @if (eleccion.estado === 'Configuracion') {
                     <button type="button"
                             (click)="iniciarVotacion(eleccion)"
-                            class="px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105">
+                            class="px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105 cursor-pointer">
                       <i class="bi bi-play-fill text-base"></i>
                       <span>Abrir Votación</span>
                     </button>
                   }
 
-                  <!-- Botón Descargar Acta Oficial (Aparece cuando la votación ya cerró o está publicada) -->
-@if (eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada') {
-  <button type="button"
-          (click)="descargarActaOficial(eleccion)"
-          class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105"
-          title="Descargar Acta Oficial para anunciar ganadores y Libro de Actas">
-    <i class="bi bi-file-earmark-pdf-fill text-[#C5A059]"></i>
-    <span>Acta Oficial</span>
-  </button>
-}
-
-@if (eleccion.estado === 'Publicada') {
-  <!-- Botón Pantalla Gigante Escenario -->
-  <button type="button"
-          (click)="openEscenario(eleccion)"
-          class="px-4 py-2 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-[0_0_20px_rgba(197,160,89,0.4)] hover:scale-105 cursor-pointer"
-          title="Abrir Pantalla Gigante para el Proyector del Escenario">
-    <i class="bi bi-display text-sm"></i>
-    <span>Pantalla Escenario</span>
-  </button>
-}
-                  <!-- Cerrar Votación -->
-                  @if (eleccion.estado === 'Activa') {
-
-                     <button type="button"
+                  <!-- MESA DE CONTROL (SIEMPRE VISIBLE EN ACTIVA, FINALIZADA Y PUBLICADA) -->
+                  @if (eleccion.estado !== 'Configuracion') {
+                    <button type="button"
                             (click)="openMonitoreoModal(eleccion)"
-                            class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/50 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105"
-                            title="Ver jurados que ya votaron en tiempo real">
+                            class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105 cursor-pointer"
+                            title="Auditar actas y recepción de votos de los jurados">
                       <i class="bi bi-speedometer2 text-[#C5A059]"></i>
                       <span>Mesa de Control</span>
                     </button>
+                  }
 
+                  <!-- Cerrar Votación (Solo en Activa) -->
+                  @if (eleccion.estado === 'Activa') {
                     <button type="button"
                             (click)="finalizarVotacion(eleccion)"
-                            class="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/50 text-rose-400 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105">
+                            class="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/50 text-rose-400 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105 cursor-pointer">
                       <i class="bi bi-stop-fill text-base"></i>
                       <span>Cerrar Votación</span>
                     </button>
                   }
 
-                  <!-- Ver Resultados y Proclamar -->
+                  <!-- Descargar Acta Oficial PDF (En Finalizada y Publicada) -->
+                  @if (eleccion.estado === 'Finalizada' || eleccion.estado === 'Publicada') {
+                    <button type="button"
+                            (click)="descargarActaOficial(eleccion)"
+                            class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105 cursor-pointer"
+                            title="Descargar Acta Oficial para Libro de Actas">
+                      <i class="bi bi-file-earmark-pdf-fill text-[#C5A059]"></i>
+                      <span>Acta Oficial</span>
+                    </button>
+                  }
+
+                  <!-- Proclamar Ganadores (Solo en Finalizada) -->
                   @if (eleccion.estado === 'Finalizada') {
                     <button type="button"
-                            (click)="openResultados(eleccion)"
-                            class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1 shadow-sm hover:scale-105">
-                      <i class="bi bi-eye mr-1"></i> Ver Resultados
-                    </button>
-                    <button type="button"
                             (click)="publishEleccion(eleccion)"
-                            class="px-4 py-2 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 shadow-[0_0_15px_rgba(197,160,89,0.3)] hover:scale-105">
+                            class="px-4 py-2 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1 shadow-[0_0_15px_rgba(197,160,89,0.3)] hover:scale-105 cursor-pointer">
                       <i class="bi bi-megaphone-fill text-xs"></i>
                       <span>Proclamar</span>
                     </button>
                   }
 
-                  <!-- @if (eleccion.estado === 'Publicada') {
+                  <!-- Pantalla Gigante del Escenario (Solo en Publicada) -->
+                  @if (eleccion.estado === 'Publicada') {
                     <button type="button"
-                            (click)="openResultados(eleccion)"
-                            class="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/60 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(197,160,89,0.2)] hover:scale-105">
-                      <i class="bi bi-award-fill text-[#C5A059]"></i>
+                            (click)="openEscenario(eleccion)"
+                            class="px-4 py-2 rounded-xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-[0_0_20px_rgba(197,160,89,0.4)] hover:scale-105 cursor-pointer"
+                            title="Abrir Pantalla Gigante para el Proyector">
+                      <i class="bi bi-display text-sm"></i>
                       <span>Pantalla Escenario</span>
                     </button>
-                  } -->
+                  }
 
                   <!-- Participantes -->
                   <button type="button"
                           (click)="openCandidatasModal(eleccion)"
-                          class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105"
-                          title="Cargar Participantes">
+                          class="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105 cursor-pointer"
+                          title="Cargar y ver Participantes">
                     <i class="bi bi-people-fill text-[#C5A059]"></i>
                     <span>Participantes</span>
                   </button>
 
-                  <!-- Editar -->
+                  <!-- Editar Configuración (Solo en Configuración) -->
                   <button type="button"
                           (click)="openEditModal(eleccion)"
                           [disabled]="eleccion.estado !== 'Configuracion'"
-                          class="p-2.5 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/30 text-neutral-300 hover:text-white transition-all disabled:opacity-30 disabled:pointer-events-none hover:scale-105"
+                          class="p-2.5 rounded-xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/30 text-neutral-300 hover:text-white transition-all disabled:opacity-30 disabled:pointer-events-none hover:scale-105 cursor-pointer"
                           title="Editar">
                     <i class="bi bi-pencil"></i>
                   </button>

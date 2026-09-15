@@ -10,16 +10,10 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   return authState(authService.getAuth()).pipe(
     map(user => {
+      // 👈 Si el usuario inició sesión, entra directo al dashboard sin trabas de correo
       if (user) {
-        if (user.emailVerified) {
-          return true;
-        }
-        else {
-          router.navigate(['/verify-email']);
-          return false;
-        }
-      }
-      else {
+        return true;
+      } else {
         router.navigate(['/login']);
         return false;
       }

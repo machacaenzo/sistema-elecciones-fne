@@ -53,10 +53,31 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-3 shrink-0">
-            <span class="text-lg sm:text-xl font-black text-[#F3E7C4]">
-              {{ calculateTotalScore(candidatas.indexOf(c)) }} <span class="text-[10px] font-normal text-neutral-400">pts</span>
-            </span>
+          <div class="flex items-center gap-4 shrink-0">
+
+  <!-- PUNTAJE FIJO POR PRESENTARSE -->
+  <div class="text-right">
+    <span class="block text-[8px] font-bold uppercase tracking-widest text-neutral-500">
+      Presentarse
+    </span>
+
+    <span class="text-sm font-black text-[#C5A059]">
+      +20
+    </span>
+  </div>
+
+  <!-- TOTAL -->
+  <div class="text-right">
+    <span class="block text-[8px] font-bold uppercase tracking-widest text-neutral-500">
+      Total
+    </span>
+
+    <span class="text-lg sm:text-xl font-black text-[#F3E7C4]">
+      {{ calculateTotalScore(candidatas.indexOf(c)) }}
+      <span class="text-[10px] font-normal text-neutral-400">pts</span>
+    </span>
+  </div>
+
 
             @if (!tandaFirmada) {
               <!-- Botón Lápiz para corregir -->

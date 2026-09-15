@@ -40,3 +40,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+
+# Environments de producción y desarrollo (credenciales secretas)
+/src/environments/environment.ts
+/src/environments/environment.development.ts

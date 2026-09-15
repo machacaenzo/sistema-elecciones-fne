@@ -1,8 +1,9 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, HostListener, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 import { EleccionService } from '../../admin/gestion-elecciones/eleccion.service';
 import { CandidataService } from '../../admin/gestion-elecciones/candidata.service';
@@ -13,7 +14,6 @@ import { Candidata } from '../../../core/models/candidata.model';
 import { EvaluacionPayload, VotacionService } from '../votacion.service';
 import { DetalleEleccionComponent } from '../detalle-eleccion/detalle-eleccion.component';
 
-// Sub-componentes standalone de votación
 import { EleccionListaComponent }     from './eleccion-lista/eleccion-lista.component';
 import { VotacionTandaComponent }     from './votacion-tanda/votacion-tanda.component';
 import { VotacionMesaComponent }      from './votacion-mesa/votacion-mesa.component';
@@ -47,7 +47,6 @@ export class VotacionComponent implements OnInit, OnDestroy {
   isLoading = signal(true);
   today = new Date();
 
-  // Estados de Votación
   isVotingMode = signal(false);
   isReviewMode = signal(false);
   selectedEleccion = signal<Eleccion | null>(null);
@@ -59,10 +58,9 @@ export class VotacionComponent implements OnInit, OnDestroy {
   isSubmitting = signal(false);
 
   private photoSlideshowInterval: any = null;
+  private formAutoSaveSub?: Subscription;
 
-  // Control de tanda activa: 'Embajadora' | 'Embajador'
   categoriaSeleccionada = signal<'Embajadora' | 'Embajador' | null>(null);
-
   isDetalleMode = signal(false);
   selectedEleccionParaDetalle = signal<Eleccion | null>(null);
 
@@ -74,15 +72,28 @@ export class VotacionComponent implements OnInit, OnDestroy {
     return this.votacionForm.get('evaluaciones') as FormArray;
   }
 
+  @HostListener('window:beforeunload', ['$event'])
+  prevenirCierreInvoluntario($event: BeforeUnloadEvent): void {
+    const cat = this.categoriaSeleccionada();
+    if (this.isVotingMode() && cat && !this.tandaFirmada(cat)) {
+      $event.preventDefault();
+      $event.returnValue = '';
+    }
+  }
+
   ngOnInit(): void {
     this.loadElecciones();
     this.iniciarPaseAutomaticoFotos();
   }
 
   ngOnDestroy(): void {
-    if (this.photoSlideshowInterval) {
-      clearInterval(this.photoSlideshowInterval);
-    }
+    if (this.photoSlideshowInterval) clearInterval(this.photoSlideshowInterval);
+    if (this.formAutoSaveSub) this.formAutoSaveSub.unsubscribe();
+  }
+
+  getNombreCriterio(criterio: string): string {
+    if (!criterio) return '';
+    return criterio.includes(':') ? criterio.split(':')[0].trim() : criterio.trim();
   }
 
   loadElecciones(): void {
@@ -110,15 +121,22 @@ export class VotacionComponent implements OnInit, OnDestroy {
     this.categoriaSeleccionada.set(null);
     this.evaluacionesArray.clear();
 
+    if (this.formAutoSaveSub) this.formAutoSaveSub.unsubscribe();
+
     this.candidataService.getCandidatasPorEleccion(eleccion.id!).pipe(first()).subscribe(candidatas => {
       const ordenadas = candidatas.sort((a, b) => (a.numero || 0) - (b.numero || 0));
       this.candidatas.set(ordenadas);
       this.buildCandidatasForm(eleccion);
+
+      // Auto-guardado reactivo instantáneo
+      this.formAutoSaveSub = this.votacionForm.valueChanges.subscribe(() => {
+        this.guardarBorradorLocal();
+      });
+
       this.isVotingLoading.set(false);
     });
   }
 
-  // REGLA: Los sliders inician en 5 (rango 5 a 10)
   buildCandidatasForm(eleccion: Eleccion): void {
     this.evaluacionesArray.clear();
     this.candidatas().forEach(candidata => {
@@ -126,7 +144,8 @@ export class VotacionComponent implements OnInit, OnDestroy {
       const criterios = this.getCriteriosParaCandidata(candidata, eleccion);
 
       criterios.forEach(c => {
-        criteriaGroup[c] = [5, [Validators.required, Validators.min(5), Validators.max(10)]];
+        const nombreClave = this.getNombreCriterio(c);
+        criteriaGroup[nombreClave] = [5, [Validators.required, Validators.min(5), Validators.max(10)]];
       });
 
       this.evaluacionesArray.push(this.fb.group(criteriaGroup));
@@ -150,33 +169,20 @@ export class VotacionComponent implements OnInit, OnDestroy {
     }
   }
 
-  updateSliderValue(index: number, controlName: string, event: Event): void {
-    const val = +(event.target as HTMLInputElement).value;
-    const control = this.evaluacionesArray.at(index)?.get(controlName);
-    if (control) {
-      control.setValue(val);
-      this.guardarBorradorLocal();
-    }
-  }
-
-  getEvaluacionValue(index: number, controlName: string): number {
-  const controlVal = this.evaluacionesArray.at(index)?.get(controlName)?.value;
-  if (controlVal !== null && controlVal !== undefined && !isNaN(controlVal)) {
-    return Math.max(5, Math.min(10, Number(controlVal))); // 👈 Clampeado estrictamente entre 5 y 10
-  }
-  return 5;
-}
   calculateTotalScore(idx: number): number {
     const group = this.evaluacionesArray.at(idx) as FormGroup;
     if (!group || !this.candidatas()[idx] || !this.selectedEleccion()) return 0;
 
     const criterios = this.getCriteriosParaCandidata(this.candidatas()[idx], this.selectedEleccion()!);
-    return criterios.reduce((acc, c) => acc + (group.get(c)?.value || 0), 0);
-  }
+    const puntosPorPresentarse = 20;
 
-  calculateTotalScoreByCandidate(candidata: Candidata): number {
-    const idx = this.candidatas().findIndex(c => c.id === candidata.id);
-    return idx >= 0 ? this.calculateTotalScore(idx) : 0;
+    const puntosCriterios = criterios.reduce((total, criterio) => {
+      const nombreClave = this.getNombreCriterio(criterio);
+      const valor = Number(group.get(nombreClave)?.value ?? 5);
+      return total + valor;
+    }, 0);
+
+    return puntosPorPresentarse + puntosCriterios;
   }
 
   getCriteriosParaCandidata(c: Candidata, e: Eleccion): string[] {
@@ -186,48 +192,60 @@ export class VotacionComponent implements OnInit, OnDestroy {
     return e.criteriosFemeninos || e.criterios || ['Elegancia', 'Porte', 'Pasarela'];
   }
 
-  // GESTIÓN DE BORRADORES LOCALES
+  // =========================================================
+  // 💾 MOTOR DE PERSISTENCIA DIRECTO (CERO DEPENDENCIA DE RED)
+  // =========================================================
   private getDraftStorageKey(cat: string): string {
-    const eleccionId = this.selectedEleccion()?.id || 'temp';
-    const userId = this.authService.currentUser()?.uid || 'anon';
-    return `borrador_gala_${eleccionId}_${userId}_${cat}`;
+    const eleccionId = this.selectedEleccion()?.id || 'general';
+    return `borrador_gala_${eleccionId}_${cat}`;
   }
 
   guardarBorradorLocal(): void {
     const cat = this.categoriaSeleccionada();
-    if (!cat) return;
+    const eleccion = this.selectedEleccion();
+    if (!cat || !eleccion?.id) return;
+
     const key = this.getDraftStorageKey(cat);
     localStorage.setItem(key, JSON.stringify(this.evaluacionesArray.value));
   }
 
   private cargarBorradorLocal(cat: string): void {
-  const key = this.getDraftStorageKey(cat);
-  const saved = localStorage.getItem(key);
-  if (saved) {
+    const key = this.getDraftStorageKey(cat);
+    const saved = localStorage.getItem(key);
+    if (!saved) return;
+
     try {
       const valores = JSON.parse(saved);
-      if (Array.isArray(valores) && valores.length === this.evaluacionesArray.length) {
-        // Sanitizamos para que ningún valor quede en 0
-        const sanitizados = valores.map((grupo: any) => {
-          const nuevoGrupo: any = { ...grupo };
-          for (const k in nuevoGrupo) {
+      if (!Array.isArray(valores)) return;
+
+      this.evaluacionesArray.controls.forEach((groupControl) => {
+        const group = groupControl as FormGroup;
+        const candId = group.get('candidataId')?.value;
+        const datosGuardados = valores.find((v: any) => v.candidataId === candId);
+
+        if (datosGuardados) {
+          const patchObj: any = {};
+          for (const k in datosGuardados) {
             if (k !== 'candidataId') {
-              nuevoGrupo[k] = Math.max(5, Math.min(10, Number(nuevoGrupo[k]) || 5));
+              const claveLimpia = this.getNombreCriterio(k);
+              if (group.contains(claveLimpia)) {
+                patchObj[claveLimpia] = Math.max(5, Math.min(10, Number(datosGuardados[k]) || 5));
+              }
             }
           }
-          return nuevoGrupo;
-        });
-        this.evaluacionesArray.patchValue(sanitizados, { emitEvent: false });
-      }
+          group.patchValue(patchObj);
+        }
+      });
     } catch (e) {
       console.error('Error al restaurar borrador local:', e);
     }
   }
-}
 
   private limpiarBorradorLocal(cat: string): void {
-    const key = this.getDraftStorageKey(cat);
-    localStorage.removeItem(key);
+    const eleccionId = this.selectedEleccion()?.id;
+    if (eleccionId) {
+      localStorage.removeItem(this.getDraftStorageKey(cat));
+    }
   }
 
   tandaFirmada(categoria: 'Embajadora' | 'Embajador'): boolean {
@@ -283,10 +301,7 @@ export class VotacionComponent implements OnInit, OnDestroy {
     if (elecciones.includes(eleccionId)) return true;
 
     const tandas = user.tandasVotadas || [];
-    const firmoChicas = tandas.includes(`${eleccionId}_Embajadora`);
-    const firmoChicos = tandas.includes(`${eleccionId}_Embajador`);
-
-    return firmoChicas && firmoChicos;
+    return tandas.includes(`${eleccionId}_Embajadora`) && tandas.includes(`${eleccionId}_Embajador`);
   }
 
   async onSubmit(): Promise<void> {
@@ -294,13 +309,18 @@ export class VotacionComponent implements OnInit, OnDestroy {
     if (!cat || this.isSubmitting()) return;
 
     const nombrePlural = cat === 'Embajador' ? 'Embajadores' : 'Embajadoras';
-    const res = await this.notificationService.showConfirm(`¿Firmar Acta de ${nombrePlural}?`, `Esta acción enviará los puntajes oficiales de esta tanda de forma inalterable.`, 'Confirmar');
+    const res = await this.notificationService.showConfirm(
+      `¿Firmar Acta de ${nombrePlural}?`,
+      `Esta acción enviará los puntajes oficiales de esta tanda de forma inalterable.`,
+      'Confirmar Firma'
+    );
 
     if (res.isConfirmed) {
       this.isSubmitting.set(true);
       try {
         const evaluacionesCompletas = this.evaluacionesArray.value;
         const payloadFiltrado: EvaluacionPayload[] = [];
+        const puntosPorPresentarse = 20;
 
         this.candidatas().forEach((cand, idx) => {
           const esMismo = cat === 'Embajador'
@@ -311,17 +331,18 @@ export class VotacionComponent implements OnInit, OnDestroy {
             const formValue = evaluacionesCompletas[idx];
             const criterios = this.getCriteriosParaCandidata(cand, this.selectedEleccion()!);
             const porCrit: { [key: string]: number } = {};
-            let sumaCandidata = 0;
+            let sumaCriterios = 0;
 
             criterios.forEach((cr: string) => {
-              const valor = formValue[cr] || 5;
-              porCrit[cr] = valor;
-              sumaCandidata += valor;
+              const nombreClave = this.getNombreCriterio(cr);
+              const valor = Number(formValue[nombreClave]) || 5;
+              porCrit[nombreClave] = valor;
+              sumaCriterios += valor;
             });
 
             payloadFiltrado.push({
               candidataId: cand.id!,
-              puntuacion: sumaCandidata,
+              puntuacion: puntosPorPresentarse + sumaCriterios,
               puntuacionPorCriterio: porCrit
             });
           }
@@ -343,37 +364,28 @@ export class VotacionComponent implements OnInit, OnDestroy {
         );
 
         this.limpiarBorradorLocal(cat);
-        this.notificationService.showSuccessToast('Acta firmada y registrada correctamente');
+        this.notificationService.showSuccessToast(`Acta de ${nombrePlural} firmada con éxito`);
 
         this.categoriaSeleccionada.set(null);
         this.isReviewMode.set(false);
         await this.authService.refreshUserProfile();
 
       } catch (e: any) {
-        this.notificationService.showAlertError('Error', e.message);
+        this.notificationService.showAlertError('Error de Cómputo', e.message);
       } finally {
         this.isSubmitting.set(false);
       }
     }
   }
 
-  // Control de fotos
   nextImage(candidata: Candidata): void {
     const total = candidata.fotosURL?.length || 0;
-    if (total > 1) {
-      this.carouselImageIndex.update(i => (i + 1) % total);
-    }
+    if (total > 1) this.carouselImageIndex.update(i => (i + 1) % total);
   }
 
   previousImage(candidata: Candidata): void {
     const total = candidata.fotosURL?.length || 0;
-    if (total > 1) {
-      this.carouselImageIndex.update(i => (i - 1 + total) % total);
-    }
-  }
-
-  setImageIndex(i: number): void {
-    this.carouselImageIndex.set(i);
+    if (total > 1) this.carouselImageIndex.update(i => (i - 1 + total) % total);
   }
 
   iniciarPaseAutomaticoFotos(): void {
@@ -387,11 +399,6 @@ export class VotacionComponent implements OnInit, OnDestroy {
     }, 3500);
   }
 
-  selectImageIndex(idx: number): void {
-    this.carouselImageIndex.set(idx);
-    this.iniciarPaseAutomaticoFotos();
-  }
-
   async cargarVotoFirmado(cat: 'Embajadora' | 'Embajador'): Promise<void> {
     const eleccionId = this.selectedEleccion()?.id;
     const userId = this.authService.currentUser()?.uid;
@@ -403,11 +410,11 @@ export class VotacionComponent implements OnInit, OnDestroy {
         this.candidatas().forEach((cand, idx) => {
           const evaluacion = voto['evaluaciones'].find((ev: any) => ev.candidataId === cand.id);
           if (evaluacion && evaluacion.puntuacionPorCriterio) {
-            const formValues = {
-              candidataId: cand.id,
-              ...evaluacion.puntuacionPorCriterio
-            };
-            this.evaluacionesArray.at(idx)?.patchValue(formValues, { emitEvent: false });
+            const formValues: any = { candidataId: cand.id };
+            for (const k in evaluacion.puntuacionPorCriterio) {
+              formValues[this.getNombreCriterio(k)] = evaluacion.puntuacionPorCriterio[k];
+            }
+            this.evaluacionesArray.at(idx)?.patchValue(formValues);
           }
         });
       }

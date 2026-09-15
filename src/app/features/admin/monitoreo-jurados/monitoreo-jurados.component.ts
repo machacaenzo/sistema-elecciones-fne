@@ -167,4 +167,9 @@ export class MonitoreoJuradosComponent implements OnInit {
   getCriteriosKeys(puntajesObj: any): string[] {
     return puntajesObj ? Object.keys(puntajesObj) : [];
   }
+
+  // 👈 AGREGAR AL FINAL DE LA CLASE EN monitoreo-jurados.component.ts
+  getNombreCriterio(criterio: string): string {
+    return criterio.includes(':') ? criterio.split(':')[0].trim() : criterio.trim();
+  }
 }

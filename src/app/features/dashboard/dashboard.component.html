@@ -24,6 +24,7 @@
            'lg:w-0 lg:border-r-0 lg:overflow-hidden': isSidebarCollapsed()
          }">
 
+
     <!-- CONTENIDO INTERNO DEL SIDEBAR -->
     <div class="flex flex-col h-full w-64 transition-opacity duration-300 overflow-hidden"
          [class.lg:opacity-0]="isSidebarCollapsed()"
@@ -39,7 +40,10 @@
             <h2 class="text-xs font-black tracking-[0.2em] text-[#F3E7C4] uppercase leading-none">Elección Reina</h2>
             <p class="text-[9px] text-[#C5A059] uppercase tracking-widest font-bold mt-1">Gala Estudiantil</p>
           </div>
+
+
         </div>
+
 
         <!-- Botón cerrar en PC -->
         <button type="button"
@@ -55,6 +59,8 @@
                 class="lg:hidden text-neutral-400 hover:text-white transition-colors p-1 cursor-pointer">
           <i class="bi bi-x-lg text-lg"></i>
         </button>
+
+
       </div>
 
       <!-- NAVEGACIÓN PRINCIPAL -->
@@ -109,7 +115,7 @@
           </a>
 
           <!-- ACCESO AL ESCENARIO REAL CON FUEGOS ARTIFICIALES -->
-         
+
         }
 
         <!-- DIVISOR HACIA EL PORTAL PÚBLICO (AL FONDO) -->
@@ -201,3 +207,16 @@
   </div>
 
 </div>
+
+<!-- BOTÓN FLOTANTE (DESAPARECE AL EXPANDIRSE) -->
+@if (!fullscreenService.isFullscreen()) {
+  <button
+    type="button"
+    (click)="fullscreenService.toggle()"
+    title="Activar Pantalla Completa"
+    class="fixed bottom-4 right-4 z-50 px-4 py-2.5 rounded-full bg-[#0A0A0A]/95 border-2 border-[#C5A059]/60 text-[#F3E7C4] text-xs font-bold flex items-center gap-2 shadow-[0_0_25px_rgba(197,160,89,0.4)] backdrop-blur-md hover:scale-105 active:scale-95 transition-all cursor-pointer animate-fadeIn"
+  >
+    <i class="bi bi-arrows-fullscreen text-[#C5A059] text-sm"></i>
+    
+  </button>
+}

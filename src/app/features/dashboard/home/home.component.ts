@@ -27,7 +27,6 @@ export class HomeComponent implements OnInit {
   juradosCount = signal<number>(0);
   totalVotosCount = signal<number>(0);
 
-  // Permisos de usuario (Solo roles vigentes)
   isAdmin = computed(() => this.currentUser()?.rol === 'Administrador');
   isJurado = computed(() => this.currentUser()?.rol === 'Jurado' && !!this.currentUser()?.EsActivo);
 
@@ -36,17 +35,23 @@ export class HomeComponent implements OnInit {
   }
 
   private cargarDatosGala(): void {
-    // 1. Cargar la Elección
+    // 1. Cargar Elecciones ordenadas por fecha más reciente
     this.firestoreService.getCollection<Eleccion>('elecciones').subscribe(elecciones => {
       if (elecciones.length > 0) {
-        const activa = elecciones.find(e => e.estado === 'Activa' || e.estado === 'Publicada') || elecciones[0];
+        const ordenadas = [...elecciones].sort((a, b) => {
+          const fechaA = (a.fechaEvento || a.fechaInicio)?.toMillis() || 0;
+          const fechaB = (b.fechaEvento || b.fechaInicio)?.toMillis() || 0;
+          return fechaB - fechaA;
+        });
+
+        const activa = ordenadas.find(e => e.estado === 'Activa' || e.estado === 'Publicada') || ordenadas[0];
         this.eleccionActiva.set(activa);
 
         if (activa && activa.id) {
           // 2. Cargar Participantes
           this.firestoreService.getCollectionByFilter<Candidata>('candidatas', 'eleccionId', activa.id)
             .subscribe(candidatas => {
-              const chicas = candidatas.filter((c: any) => c.categoria === 'Embajadora' || !c.categoria);
+              const chicas = candidatas.filter((c: any) => (c.categoria || 'Embajadora') === 'Embajadora');
               const chicos = candidatas.filter((c: any) => c.categoria === 'Embajador');
 
               this.embajadorasCount.set(chicas.length);
@@ -59,10 +64,10 @@ export class HomeComponent implements OnInit {
       }
     });
 
-    // 3. Cargar Jurados (Solo si es Admin)
+    // 3. Cargar Jurados Activos (Solo si es Admin)
     if (this.isAdmin()) {
       this.firestoreService.getCollection<User>('users').subscribe(users => {
-        const jurados = users.filter(u => u.rol === 'Jurado');
+        const jurados = users.filter(u => u.rol === 'Jurado' && u.EsActivo);
         this.juradosCount.set(jurados.length);
       });
     }

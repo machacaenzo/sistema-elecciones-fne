@@ -1,4 +1,4 @@
-<header class="mb-12 text-center space-y-2">
+<header class="mb-8 sm:mb-12 text-center space-y-2">
   <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] tracking-tight uppercase drop-shadow-2xl">
     Centro de Votación
   </h1>
@@ -7,57 +7,82 @@
   </p>
 </header>
 
-<div class="max-w-5xl mx-auto space-y-5">
+<div class="max-w-5xl mx-auto space-y-4 sm:space-y-5 px-2 sm:px-0">
   @for (eleccion of todasLasElecciones; track eleccion.id) {
-    <div class="group relative overflow-hidden rounded-[2.5rem] transition-all duration-300 hover:scale-[1.01] shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
-      <div class="backdrop-blur-xl bg-white/[0.03] border border-white/10 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 transition-all">
+    <div class="group relative overflow-hidden rounded-3xl sm:rounded-[2.5rem] transition-all duration-300 hover:scale-[1.005] shadow-[0_10px_30px_rgba(0,0,0,0.8)] border border-white/10 bg-[#0A0A0A]/90 backdrop-blur-2xl p-5 sm:p-7">
 
-        <!-- Datos del Evento -->
-        <div class="flex items-center gap-6">
-          <div class="w-16 h-16 sm:w-18 sm:h-18 rounded-3xl bg-[#0A0A0A] border border-[#C5A059]/50 flex flex-col items-center justify-center shadow-lg shrink-0 p-2">
-            <span class="text-[10px] font-black text-[#C5A059] uppercase">{{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'MMM' }}</span>
-            <span class="text-2xl sm:text-3xl font-black text-white">{{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd' }}</span>
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 relative z-10">
+
+        <!-- ========================================================= -->
+        <!-- LADO IZQUIERDO: FECHA + NOMBRE (RESPONSIVO SIN DESBORDE)  -->
+        <!-- ========================================================= -->
+        <div class="flex items-center gap-4 sm:gap-5 flex-1 min-w-0 w-full lg:w-auto">
+
+          <!-- Badge de Fecha -->
+          <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#050505] border border-[#C5A059]/50 flex flex-col items-center justify-center shadow-lg shrink-0 p-1.5">
+            <span class="text-[9px] sm:text-[10px] font-black text-[#C5A059] uppercase leading-none">
+              {{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'MMM' }}
+            </span>
+            <span class="text-xl sm:text-2xl font-black text-white leading-none mt-1">
+              {{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd' }}
+            </span>
           </div>
-          <div>
-            <h3 class="text-xl sm:text-2xl font-black text-white group-hover:text-[#F3E7C4] transition-colors tracking-tight">{{ eleccion.nombre }}</h3>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="w-2 h-2 rounded-full" [ngClass]="eleccion.estado === 'Activa' ? 'bg-emerald-400 animate-pulse' : 'bg-[#C5A059]'"></span>
-              <span class="text-[10px] font-bold text-[#F3E7C4] uppercase tracking-widest">{{ eleccion.estado }}</span>
+
+          <!-- Título y Estado -->
+          <div class="min-w-0 flex-1 pr-2">
+            <h3 class="text-base sm:text-lg md:text-xl font-extrabold text-white group-hover:text-[#F3E7C4] transition-colors tracking-tight leading-snug break-words">
+              {{ eleccion.nombre }}
+            </h3>
+
+            <div class="flex items-center gap-2 mt-1.5">
+              <span class="w-2 h-2 rounded-full shrink-0"
+                    [ngClass]="eleccion.estado === 'Activa' ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_#10B981]' : (eleccion.estado === 'Finalizada' ? 'bg-amber-400' : 'bg-[#C5A059]')">
+              </span>
+              <span class="text-[10px] font-bold text-[#F3E7C4] uppercase tracking-widest">
+                {{ eleccion.estado }}
+              </span>
             </div>
           </div>
+
         </div>
 
-        <!-- Botonera Condicionada por Asignación de Jurado -->
-        <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+        <!-- ========================================================= -->
+        <!-- LADO DERECHO: BOTONES (BLINDADOS CONTRA SUPERPOSICIÓN)    -->
+        <!-- ========================================================= -->
+        <div class="flex items-center gap-2.5 sm:gap-3 w-full lg:w-auto justify-end shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-white/10">
 
-          <!-- Ver Nómina (Siempre visible para explorar) -->
-          <button (click)="verDetalle.emit(eleccion)"
-                  class="flex-1 md:flex-none px-6 py-3 rounded-2xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all uppercase tracking-wider cursor-pointer">
+          <!-- Ver Nómina (Siempre disponible) -->
+          <button type="button"
+                  (click)="verDetalle.emit(eleccion)"
+                  class="flex-1 lg:flex-none px-4 sm:px-6 py-3 rounded-2xl bg-[#0A0A0A] hover:bg-white/10 border border-[#C5A059]/40 text-[#F3E7C4] text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap cursor-pointer text-center">
             Ver Nómina
           </button>
 
           <!-- 1. Si ESTÁ ASIGNADO y la elección está Activa y no terminó de votar -->
           @if (estaAsignado(eleccion) && !haVotado(eleccion.id!) && eleccion.estado === 'Activa') {
-            <button (click)="ingresarVotar.emit(eleccion)"
-                    class="flex-1 md:flex-none px-8 py-3 rounded-2xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black shadow-[0_0_25px_rgba(197,160,89,0.35)] hover:scale-105 active:scale-95 transition-all uppercase tracking-wider cursor-pointer">
+            <button type="button"
+                    (click)="ingresarVotar.emit(eleccion)"
+                    class="flex-1 lg:flex-none px-6 sm:px-8 py-3 rounded-2xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] text-xs font-black shadow-[0_0_25px_rgba(197,160,89,0.35)] hover:scale-105 active:scale-95 transition-all uppercase tracking-wider whitespace-nowrap cursor-pointer text-center">
               Ingresar a Calificar
             </button>
           }
           <!-- 2. Si ya completó ambas tandas -->
           @else if (estaAsignado(eleccion) && haVotado(eleccion.id!)) {
-            <span class="px-6 py-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-400 text-xs font-bold flex items-center gap-2">
+            <span class="px-5 sm:px-6 py-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2 whitespace-nowrap">
               <i class="bi bi-check-circle-fill"></i> Actas Completadas
             </span>
           }
           <!-- 3. Si NO está asignado a esta mesa -->
           @else if (!estaAsignado(eleccion)) {
-            <span class="px-5 py-2.5 rounded-2xl bg-neutral-900/80 border border-neutral-800 text-neutral-500 text-xs font-semibold flex items-center gap-2">
-              <i class="bi bi-lock-fill"></i> No Asignado a esta Mesa
+            <span class="px-4 sm:px-5 py-3 rounded-2xl bg-neutral-900/80 border border-neutral-800 text-neutral-500 text-xs font-semibold flex items-center justify-center gap-2 whitespace-nowrap">
+              <i class="bi bi-lock-fill"></i> No Asignado
             </span>
           }
 
         </div>
+
       </div>
+
     </div>
   }
 </div>

@@ -27,30 +27,31 @@ export class AuthService {
 
   currentUser: WritableSignal<User | null | undefined> = signal(undefined);
 
-  constructor() {
+ constructor() {
     onAuthStateChanged(this.auth, async (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser && firebaseUser.emailVerified) {
+      // 👈 Solo valida que el usuario exista en Firebase
+      if (firebaseUser) {
         const userProfile = await this.userService.getUserById(firebaseUser.uid);
         this.currentUser.set(userProfile || null);
       } else {
         this.currentUser.set(null);
       }
     });
-  }
+  } 
 
   public getAuth(): Auth {
     return this.auth;
   }
 
   // REGISTRO CON CORREO: Nace como "Pendiente" y "Deshabilitado"
+  // REGISTRO CON CORREO: Nace como "Pendiente" y "Deshabilitado" (Seguridad Institucional)
   async register(data: any): Promise<void> {
     try {
       const { email, password, nombre, apellido } = data;
       const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
       const { user: firebaseUser } = userCredential;
 
-      await sendEmailVerification(firebaseUser);
-
+      // 👈 Guarda el usuario pendiente de aprobación por el Administrador
       const newUser: User = {
         uid: firebaseUser.uid,
         email: firebaseUser.email!,
@@ -63,7 +64,7 @@ export class AuthService {
 
       this.notificationService.showAlertSuccess(
         `¡Registro Exitoso, ${nombre}!`,
-        'Hemos enviado un enlace de verificación a tu correo. El Administrador deberá habilitar tu cuenta para la gala.'
+        'Tu cuenta fue creada. El Administrador deberá habilitarte desde el panel de control.'
       );
 
       await signOut(this.auth);
@@ -94,10 +95,9 @@ export class AuthService {
       const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
       const userProfile = await this.userService.getUserById(userCredential.user.uid);
 
-      if (userProfile && userCredential.user.emailVerified) {
+      // 👈 Valida directo el perfil en Firestore
+      if (userProfile) {
         this.redirectToDashboard(userProfile);
-      } else if (!userCredential.user.emailVerified) {
-        this.router.navigate(['/verify-email']);
       } else {
         await signOut(this.auth);
         this.notificationService.showAlertError('Error de Perfil', 'No se encontró tu perfil de usuario.');

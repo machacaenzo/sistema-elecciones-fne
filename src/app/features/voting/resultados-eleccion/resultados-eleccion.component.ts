@@ -71,23 +71,23 @@ export class ResultadosEleccionComponent implements OnInit {
   });
 
   // 5. Función de ordenamiento (Aseguramos que trate los puntos como números)
-  private ordenarParticipantes(lista: Candidata[], criterios: string[]): Candidata[] {
-    return [...lista].sort((a, b) => {
-      const puntosA = Number(a.puntuacionTotal) || 0;
-      const puntosB = Number(b.puntuacionTotal) || 0;
+  // private ordenarParticipantes(lista: Candidata[], criterios: string[]): Candidata[] {
+  //   return [...lista].sort((a, b) => {
+  //     const puntosA = Number(a.puntuacionTotal) || 0;
+  //     const puntosB = Number(b.puntuacionTotal) || 0;
 
-      if (puntosB !== puntosA) {
-        return puntosB - puntosA;
-      }
+  //     if (puntosB !== puntosA) {
+  //       return puntosB - puntosA;
+  //     }
 
-      for (const criterio of criterios) {
-        const cA = Number(a.puntuacionPorCriterio?.[criterio]) || 0;
-        const cB = Number(b.puntuacionPorCriterio?.[criterio]) || 0;
-        if (cB !== cA) return cB - cA;
-      }
-      return (b.cantidadDeVotos || 0) - (a.cantidadDeVotos || 0);
-    });
-  }
+  //     for (const criterio of criterios) {
+  //       const cA = Number(a.puntuacionPorCriterio?.[criterio]) || 0;
+  //       const cB = Number(b.puntuacionPorCriterio?.[criterio]) || 0;
+  //       if (cB !== cA) return cB - cA;
+  //     }
+  //     return (b.cantidadDeVotos || 0) - (a.cantidadDeVotos || 0);
+  //   });
+  // }
 
   async ngOnInit(): Promise<void> {
     const eleccionId = this.route.snapshot.paramMap.get('id');
@@ -161,4 +161,30 @@ formatNumero(num: number | undefined | null): string {
   const n = num ?? 0;
   return n < 10 ? `0${n}` : `${n}`;
 }
+
+// 1. Helper para obtener el título limpio del criterio
+  getNombreCriterio(criterio: string): string {
+    return criterio.includes(':') ? criterio.split(':')[0].trim() : criterio.trim();
+  }
+
+  // 2. Ordenamiento oficial con desempate por criterios limpios
+  private ordenarParticipantes(lista: Candidata[], criterios: string[]): Candidata[] {
+    return [...lista].sort((a, b) => {
+      const puntosA = Number(a.puntuacionTotal) || 0;
+      const puntosB = Number(b.puntuacionTotal) || 0;
+
+      if (puntosB !== puntosA) {
+        return puntosB - puntosA;
+      }
+
+      // Desempate secuencial por cada criterio
+      for (const criterio of criterios) {
+        const nombreClave = this.getNombreCriterio(criterio); // 👈 Clave limpia
+        const cA = Number(a.puntuacionPorCriterio?.[nombreClave]) || 0;
+        const cB = Number(b.puntuacionPorCriterio?.[nombreClave]) || 0;
+        if (cB !== cA) return cB - cA;
+      }
+      return (b.cantidadDeVotos || 0) - (a.cantidadDeVotos || 0);
+    });
+  }
 }

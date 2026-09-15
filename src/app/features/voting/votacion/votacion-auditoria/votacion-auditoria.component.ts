@@ -41,10 +41,35 @@ export class VotacionAuditoriaComponent {
     return e.criteriosFemeninos || e.criterios || ['Elegancia', 'Porte', 'Pasarela'];
   }
 
-  calculateTotalScore(idx: number): number {
+  /*calculateTotalScore(idx: number): number {
     const group = this.evaluacionesArray.at(idx) as FormGroup;
     if (!group || !this.candidatas[idx] || !this.eleccion) return 0;
     const criterios = this.getCriteriosParaCandidata(this.candidatas[idx], this.eleccion);
     return criterios.reduce((acc, c) => acc + (group.get(c)?.value || 0), 0);
+  }*/
+
+
+
+// 1. Helper para obtener el nombre limpio
+  getNombreCriterio(criterio: string): string {
+    return criterio.includes(':') ? criterio.split(':')[0].trim() : criterio.trim();
   }
+
+  // 2. Suma correcta de puntajes
+  calculateTotalScore(idx: number): number {
+    const group = this.evaluacionesArray.at(idx) as FormGroup;
+    if (!group || !this.candidatas[idx] || !this.eleccion) return 0;
+
+    const criterios = this.getCriteriosParaCandidata(this.candidatas[idx], this.eleccion);
+    const puntosPorPresentarse = 20;
+
+    const puntosCriterios = criterios.reduce((total, criterio) => {
+      const nombreClave = this.getNombreCriterio(criterio); // 👈 Busca por el nombre limpio
+      return total + (Number(group.get(nombreClave)?.value) || 5);
+    }, 0);
+
+    return puntosPorPresentarse + puntosCriterios;
+  }
+
+  
 }

@@ -1,32 +1,26 @@
 <div class="min-h-screen bg-transparent text-white font-sans relative overflow-x-hidden animate-fadeIn">
 
   <!-- ============================================================ -->
-  <!-- LUZ DE ESCENARIO -->
+  <!-- LUZ DE ESCENARIO                                             -->
   <!-- ============================================================ -->
-
   <div
     class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-[#C5A059]/5 rounded-full blur-[150px] pointer-events-none"
   ></div>
 
-
   @if (isLoading()) {
 
     <!-- ========================================================== -->
-    <!-- LOADING -->
+    <!-- LOADING                                                    -->
     <!-- ========================================================== -->
-
     <div class="h-screen flex flex-col items-center justify-center gap-4">
-
       <div
         class="w-12 h-12 border-2 border-[#C5A059]/20 border-t-[#C5A059] rounded-full animate-spin"
       ></div>
-
       <p
         class="text-[#F3E7C4] text-[10px] font-black tracking-[0.4em] uppercase"
       >
         Sincronizando Podio...
       </p>
-
     </div>
 
   } @else {
@@ -39,137 +33,108 @@
       >
 
         <!-- ======================================================== -->
-        <!-- CABECERA -->
+        <!-- CABECERA INSTITUCIONAL LIMPIA                            -->
         <!-- ======================================================== -->
-
         <header
           class="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8 border-b border-white/10 pb-6"
         >
-
-          <div>
-
-            <div
-              class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-[#C5A059]/30 backdrop-blur-xl mb-3"
-            >
-
-              <span
-                class="w-1.5 h-1.5 rounded-full bg-[#C5A059] animate-pulse shadow-[0_0_10px_#C5A059]"
-              ></span>
-
-              <span
-                class="text-[10px] font-black text-[#F3E7C4] uppercase tracking-[0.3em]"
-              >
-                Proclamación Oficial
-              </span>
-
+          <div class="flex items-center gap-4 min-w-0">
+            <!-- Logo Escuela Normal -->
+            <div class="w-14 h-14 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/60 p-1.5 flex items-center justify-center shadow-[0_0_25px_rgba(197,160,89,0.35)] shrink-0">
+              <img src="assets/esc-normal-logo.png" alt="Escuela Normal" class="w-full h-full object-contain">
             </div>
 
-            <h1
-              class="text-2xl md:text-4xl font-black tracking-tighter uppercase drop-shadow-2xl"
-            >
-              {{ eleccion.nombre }}
-            </h1>
-
+            <div class="min-w-0">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-[#C5A059]/30 backdrop-blur-xl mb-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059] animate-pulse"></span>
+                <span class="text-[9px] font-black text-[#F3E7C4] uppercase tracking-[0.25em] truncate">
+                  Escuela Normal Superior "Gendarmería Nacional" • FNE
+                </span>
+              </div>
+              <h1 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tighter uppercase drop-shadow-2xl truncate">
+                {{ eleccion.nombre }}
+              </h1>
+            </div>
           </div>
 
-
           <!-- BOTÓN PANTALLA COMPLETA -->
-
           <button
+            type="button"
             (click)="toggleFullscreen()"
-            class="px-6 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all shadow-xl"
+            class="px-6 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all shadow-xl cursor-pointer shrink-0"
           >
             Pantalla Escenario
           </button>
-
         </header>
-
 
         @if (isAdmin() || eleccion.estado === 'Publicada') {
 
-
           <!-- ====================================================== -->
-          <!-- SELECTOR -->
+          <!-- SELECTOR DE PESTAÑAS                                   -->
           <!-- ====================================================== -->
-
           <div class="flex justify-center mb-10">
-
             <div
               class="flex p-1.5 bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[2rem] shadow-2xl"
             >
-
-              <!-- ================================================= -->
-              <!-- EMBAJADORAS -->
-              <!-- ================================================= -->
-
+              <!-- Pestaña Embajadoras -->
               <button
+                type="button"
                 (click)="tabActiva.set('Embajadora')"
                 [class]="
                   tabActiva() === 'Embajadora'
                     ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-black shadow-lg scale-105'
                     : 'text-white/40 hover:text-white'
                 "
-                class="flex items-center gap-2 px-6 py-2.5 rounded-[1.5rem] transition-all duration-500 group"
+                class="flex items-center gap-2 px-6 py-2.5 rounded-[1.5rem] transition-all duration-500 group cursor-pointer"
               >
-
                 <img
                   src="assets/REYNA.png"
+                  alt="Corona Embajadora"
                   class="w-6 h-6 object-contain transition-transform group-hover:scale-110"
                   [class.brightness-0]="tabActiva() === 'Embajadora'"
                 >
-
                 <span
                   class="text-[9px] font-black uppercase tracking-[0.2em]"
                 >
                   Embajadoras
                 </span>
-
               </button>
 
-
-              <!-- ================================================= -->
-              <!-- EMBAJADORES -->
-              <!-- ================================================= -->
-
+              <!-- Pestaña Embajadores -->
               <button
+                type="button"
                 (click)="tabActiva.set('Embajador')"
                 [class]="
                   tabActiva() === 'Embajador'
                     ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-black shadow-lg scale-105'
                     : 'text-white/40 hover:text-white'
                 "
-                class="flex items-center gap-2 px-6 py-2.5 rounded-[1.5rem] transition-all duration-500 group"
+                class="flex items-center gap-2 px-6 py-2.5 rounded-[1.5rem] transition-all duration-500 group cursor-pointer"
               >
-
                 <img
                   src="assets/REY.png"
+                  alt="Corona Embajador"
                   class="w-6 h-6 object-contain transition-transform group-hover:scale-110"
                   [class.brightness-0]="tabActiva() === 'Embajador'"
                 >
-
                 <span
                   class="text-[9px] font-black uppercase tracking-[0.2em]"
                 >
                   Embajadores
                 </span>
-
               </button>
 
-
-              <!-- ================================================= -->
-              <!-- AUDITORÍA -->
-              <!-- ================================================= -->
-
+              <!-- Pestaña Auditoría -->
               <button
+                type="button"
                 (click)="tabActiva.set('Matriz')"
                 [class]="
                   tabActiva() === 'Matriz'
                     ? 'bg-gradient-to-b from-[#F3E7C4] via-[#C5A059] to-[#8C6D2D] text-black shadow-lg scale-105'
                     : 'text-white/40 hover:text-white'
                 "
-                class="flex items-center gap-2 px-6 py-2.5 rounded-[1.5rem] transition-all duration-500 group"
+                class="flex items-center gap-2 px-6 py-2.5 rounded-[1.5rem] transition-all duration-500 group cursor-pointer"
               >
-
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -177,696 +142,323 @@
                   fill="currentColor"
                   viewBox="0 0 16 16"
                 >
-
                   <path
                     d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"
                   />
-
                 </svg>
-
                 <span
                   class="text-[9px] font-black uppercase tracking-[0.2em]"
                 >
                   Auditoría
                 </span>
-
               </button>
-
             </div>
-
           </div>
 
-
-
           <!-- ====================================================== -->
-          <!-- PODIO -->
+          <!-- PODIO COMPLETO: 6° | 4° | 2° | 1° | 3° | 5° | 7°       -->
           <!-- ====================================================== -->
-
           @if (tabActiva() === 'Embajadora' || tabActiva() === 'Embajador') {
 
-            @let listaPodio =
-              tabActiva() === 'Embajadora'
-                ? podioFemenino()
-                : podioMasculino();
-
-
-            <div class="w-full">
-
-
-              <!-- ================================================== -->
-              <!-- TITULO -->
-              <!-- ================================================== -->
-
-              <div class="text-center mb-8 pb-20">
-
-  <p
-    class="text-[9px] text-[#C5A059] font-black uppercase tracking-[0.5em] mb-2"
-  >
-    Resultado Oficial
-  </p>
-
-</div>
-
-
-
-              <!-- ================================================== -->
-              <!-- PODIO PRINCIPAL -->
-              <!-- ================================================== -->
-
-              <div
-                class="flex items-end justify-center gap-4 md:gap-8 w-full px-2"
-              >
-
-
-                <!-- ================================================= -->
-                <!-- 1RA PRINCESA -->
-                <!-- IZQUIERDA -->
-                <!-- ================================================= -->
-
-                @if (listaPodio[1]; as seg) {
-
-                  <div
-                    class="w-[140px] md:w-[200px] animate-slideUp"
-                    style="animation-delay: 200ms;"
-                  >
-
-                    <div
-                      class="relative backdrop-blur-2xl bg-white/[0.035] border border-white/10 rounded-[1.8rem] p-3 md:p-4 text-center shadow-2xl transition-all duration-300 hover:border-[#C5A059]/40 hover:-translate-y-2"
-                    >
-
-                      <!-- TITULO -->
-
-                      <div
-                        class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-slate-300 text-black text-[7px] md:text-[8px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap"
-                      >
-
-                        {{
-                          tabActiva() === 'Embajadora'
-                            ? getPuestoFemeninoNombre(1)
-                            : getPuestoMasculinoNombre(1)
-                        }}
-
-                      </div>
-
-
-                      <!-- FOTO -->
-
-                      <div
-                        class="w-full h-[190px] md:h-[250px] rounded-[1.3rem] overflow-hidden mb-3 border border-white/10 relative"
-                      >
-
-                        <img
-                          [src]="seg.fotosURL?.[0] || 'assets/user-default.jpg'"
-                          class="w-full h-full object-cover"
-                        >
-
-
-                        <!-- NUMERO -->
-
-                        <div
-                          class="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-black font-black text-[10px] shadow-xl"
-                        >
-                          #{{ formatNumero(seg.numero) }}
-                        </div>
-
-                      </div>
-
-
-                      <!-- NOMBRE -->
-
-                      <h3
-                        class="text-[9px] md:text-[11px] font-black uppercase truncate text-white/90"
-                      >
-                        {{ seg.nombre }} {{ seg.apellido }}
-                      </h3>
-
-
-                      <!-- PUNTOS -->
-
-                      <div
-                        class="mt-1 text-lg md:text-xl font-black text-slate-300"
-                      >
-
-                        {{ seg.puntuacionTotal }}
-
-                        <span class="text-[8px] uppercase">
-                          pts
-                        </span>
-
-                      </div>
-
-                    </div>
-
-
-                    <!-- BASE -->
-
-                    <div
-                      class="h-5 bg-gradient-to-t from-white/[0.05] to-transparent rounded-b-2xl"
-                    ></div>
-
-                  </div>
-
-                }
-
-
-
-                <!-- ================================================= -->
-                <!-- GANADOR/A -->
-                <!-- CENTRO -->
-                <!-- ================================================= -->
-
-                @if (listaPodio[0]; as gan) {
-
-                  <div
-                    class="w-[185px] md:w-[260px] animate-slideUp z-20"
-                    style="animation-delay: 0ms;"
-                  >
-
-                    <div
-                      class="relative backdrop-blur-3xl bg-black/50 border-2 border-[#C5A059] rounded-[2.2rem] p-4 md:p-5 text-center shadow-[0_0_60px_rgba(197,160,89,0.30)]"
-                    >
-
-
-                      <!-- =========================================== -->
-                      <!-- CORONA PERFECTAMENTE CENTRADA -->
-                      <!-- =========================================== -->
-
-                      <div
-                        class="absolute -top-14 md:-top-16 left-1/2 z-50 pointer-events-none"
-                        style="
-                          width: 96px;
-                          height: 96px;
-                          transform: translateX(-50%);
-                        "
-                      >
-
-                        <div
-                          class="w-full h-full flex items-center justify-center"
-                        >
-
-                          @if (tabActiva() === 'Embajadora') {
-
-                            <img
-                              src="assets/REYNA.png"
-                              alt="Corona de Embajadora"
-                              class="w-full h-full object-contain object-center drop-shadow-[0_0_15px_rgba(197,160,89,1)] animate-float"
-                            >
-
-                          } @else {
-
-                            <img
-                              src="assets/REY.png"
-                              alt="Corona de Embajador"
-                              class="w-full h-full object-contain object-center drop-shadow-[0_0_15px_rgba(197,160,89,1)] animate-float"
-                              style="transform: translateX(6px);"
-                            >
-
-                          }
-
-                        </div>
-
-                      </div>
-
-
-
-                      <!-- =========================================== -->
-                      <!-- FOTO DEL GANADOR -->
-                      <!-- =========================================== -->
-
-                      <div
-                        class="w-full h-[245px] md:h-[325px] rounded-[1.7rem] overflow-hidden border-2 border-[#C5A059]/50 mb-4 shadow-2xl relative"
-                      >
-
-                        <img
-                          [src]="gan.fotosURL?.[0] || 'assets/user-default.jpg'"
-                          class="w-full h-full object-cover"
-                        >
-
-                        <div
-                          class="absolute inset-0 bg-gradient-to-t from-[#C5A059]/10 to-transparent pointer-events-none"
-                        ></div>
-
-
-                        <!-- NUMERO -->
-
-                        <div
-                          class="absolute top-3 right-3 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-black font-black text-sm shadow-2xl border border-white/20"
-                        >
-                          #{{ formatNumero(gan.numero) }}
-                        </div>
-
-                      </div>
-
-
-
-                      <!-- =========================================== -->
-                      <!-- NOMBRE -->
-                      <!-- =========================================== -->
-
-                      <h3
-                        class="text-sm md:text-lg font-black uppercase tracking-tight text-white mb-3 leading-tight"
-                      >
-                        {{ gan.nombre }} {{ gan.apellido }}
-                      </h3>
-
-
-
-                      <!-- =========================================== -->
-                      <!-- PUNTAJE -->
-                      <!-- =========================================== -->
-
-                      <div
-                        class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-black font-black text-lg md:text-xl shadow-2xl"
-                      >
-
-                        {{ gan.puntuacionTotal }}
-
-                        <span class="text-[8px] uppercase">
-                          pts
-                        </span>
-
-                      </div>
-
-
-
-                      <!-- =========================================== -->
-                      <!-- TITULO DEL GANADOR -->
-                      <!-- =========================================== -->
-
-                      <p
-                        class="text-[#F3E7C4] text-[8px] md:text-[9px] font-black uppercase tracking-[0.35em] mt-4"
-                      >
-
-                        {{
-                          tabActiva() === 'Embajadora'
-                            ? getPuestoFemeninoNombre(0)
-                            : getPuestoMasculinoNombre(0)
-                        }}
-
-                      </p>
-
-                    </div>
-
-
-                    <!-- BASE CENTRAL -->
-
-                    <div
-                      class="h-8 bg-gradient-to-t from-[#C5A059]/20 to-transparent rounded-b-[2rem]"
-                    ></div>
-
-                  </div>
-
-                }
-
-
-
-                <!-- ================================================= -->
-                <!-- 2DA PRINCESA -->
-                <!-- DERECHA -->
-                <!-- ================================================= -->
-
-                @if (listaPodio[2]; as ter) {
-
-                  <div
-                    class="w-[140px] md:w-[200px] animate-slideUp"
-                    style="animation-delay: 400ms;"
-                  >
-
-                    <div
-                      class="relative backdrop-blur-2xl bg-white/[0.035] border border-white/10 rounded-[1.8rem] p-3 md:p-4 text-center shadow-2xl transition-all duration-300 hover:border-[#C5A059]/40 hover:-translate-y-2"
-                    >
-
-                      <!-- TITULO -->
-
-                      <div
-                        class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-amber-800 text-white text-[7px] md:text-[8px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap"
-                      >
-
-                        {{
-                          tabActiva() === 'Embajadora'
-                            ? getPuestoFemeninoNombre(2)
-                            : getPuestoMasculinoNombre(2)
-                        }}
-
-                      </div>
-
-
-                      <!-- FOTO -->
-
-                      <div
-                        class="w-full h-[190px] md:h-[250px] rounded-[1.3rem] overflow-hidden mb-3 border border-white/10 relative"
-                      >
-
-                        <img
-                          [src]="ter.fotosURL?.[0] || 'assets/user-default.jpg'"
-                          class="w-full h-full object-cover"
-                        >
-
-
-                        <!-- NUMERO -->
-
-                        <div
-                          class="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-black font-black text-[10px] shadow-xl"
-                        >
-                          #{{ formatNumero(ter.numero) }}
-                        </div>
-
-                      </div>
-
-
-                      <!-- NOMBRE -->
-
-                      <h3
-                        class="text-[9px] md:text-[11px] font-black uppercase truncate text-white/90"
-                      >
-                        {{ ter.nombre }} {{ ter.apellido }}
-                      </h3>
-
-
-                      <!-- PUNTOS -->
-
-                      <div
-                        class="mt-1 text-lg md:text-xl font-black text-amber-600"
-                      >
-
-                        {{ ter.puntuacionTotal }}
-
-                        <span class="text-[8px] uppercase">
-                          pts
-                        </span>
-
-                      </div>
-
-                    </div>
-
-
-                    <!-- BASE -->
-
-                    <div
-                      class="h-5 bg-gradient-to-t from-white/[0.05] to-transparent rounded-b-2xl"
-                    ></div>
-
-                  </div>
-
-                }
-
+            @let listaPodio = tabActiva() === 'Embajadora' ? podioFemenino() : podioMasculino();
+
+            <div class="w-full overflow-visible">
+
+              <div class="text-center mb-8 pb-4">
+                <p class="text-[9px] text-[#C5A059] font-black uppercase tracking-[0.5em] mb-2">
+                  Resultado Oficial
+                </p>
+                <h2 class="text-xl md:text-2xl font-black uppercase text-white">
+                  {{ eleccion.nombre }}
+                </h2>
               </div>
 
+              <!-- CONTENEDOR PODIO -->
+              <div class="w-full flex justify-center items-center overflow-visible px-1">
+                <div class="w-full max-w-[1150px] flex items-center justify-center gap-1 md:gap-2 overflow-visible">
 
+                  <!-- LADO IZQUIERDO: 6° | 4° | 2° -->
+                  <div class="flex items-center justify-end gap-1 md:gap-2 flex-1 min-w-0 overflow-visible">
 
-              <!-- ================================================== -->
-              <!-- DEMÁS CATEGORÍAS -->
-              <!-- CENTRADAS -->
-              <!-- ================================================== -->
+                    <!-- 6° PUESTO -->
+                    @if (listaPodio[5]; as puesto6) {
+                      <div class="relative flex-1 min-w-0 max-w-[105px] overflow-visible">
+                        <div class="relative h-[165px] md:h-[190px] bg-black/50 backdrop-blur-xl border border-white/20 rounded-[1.2rem] p-2 text-center overflow-visible">
+                          <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-50 w-max max-w-[110px] px-2 py-1.5 rounded-full bg-black/95 border border-[#C5A059] text-[#F3E7C4] text-[6px] md:text-[7px] font-black uppercase tracking-wide text-center leading-tight shadow-xl">
+                            {{ tabActiva() === 'Embajadora' ? getPuestoFemeninoNombre(5) : getPuestoMasculinoNombre(5) }}
+                          </div>
+                          <div class="w-full h-[100px] md:h-[115px] mt-2 rounded-lg overflow-hidden border border-white/10">
+                            <img [src]="puesto6.fotosURL?.[0] || 'assets/user-default.jpg'" [alt]="puesto6.nombre" class="w-full h-full object-cover">
+                          </div>
+                          <div class="text-[6px] text-[#C5A059] font-black mt-1">
+                            #{{ formatNumero(puesto6.numero) }}
+                          </div>
+                          <h4 class="text-[6px] md:text-[7px] font-black uppercase text-white truncate mt-1">
+                            {{ puesto6.nombre }} {{ puesto6.apellido }}
+                          </h4>
+                          <div class="text-[9px] md:text-[10px] font-black text-[#F3E7C4] mt-1">
+                            {{ puesto6.puntuacionTotal }} <span class="text-[5px]">PTS</span>
+                          </div>
+                        </div>
+                      </div>
+                    }
 
-              @if (listaPodio.length > 3) {
+                    <!-- 4° PUESTO -->
+                    @if (listaPodio[3]; as puesto4) {
+                      <div class="relative flex-1 min-w-0 max-w-[110px] overflow-visible">
+                        <div class="relative h-[180px] md:h-[215px] bg-black/50 backdrop-blur-xl border border-white/20 rounded-[1.4rem] p-2 text-center overflow-visible">
+                          <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-50 w-max max-w-[115px] px-3 py-1.5 rounded-full bg-black/95 border border-[#C5A059] text-[#F3E7C4] text-[7px] md:text-[8px] font-black uppercase tracking-wide text-center leading-tight shadow-xl">
+                            {{ tabActiva() === 'Embajadora' ? getPuestoFemeninoNombre(3) : getPuestoMasculinoNombre(3) }}
+                          </div>
+                          <div class="w-full h-[110px] md:h-[130px] mt-2 rounded-xl overflow-hidden border border-white/10">
+                            <img [src]="puesto4.fotosURL?.[0] || 'assets/user-default.jpg'" [alt]="puesto4.nombre" class="w-full h-full object-cover">
+                          </div>
+                          <div class="text-[6px] text-[#C5A059] font-black mt-1">
+                            #{{ formatNumero(puesto4.numero) }}
+                          </div>
+                          <h4 class="text-[7px] md:text-[8px] font-black uppercase text-white truncate mt-1">
+                            {{ puesto4.nombre }} {{ puesto4.apellido }}
+                          </h4>
+                          <div class="text-[10px] md:text-[11px] font-black text-[#F3E7C4] mt-1">
+                            {{ puesto4.puntuacionTotal }} <span class="text-[5px]">PTS</span>
+                          </div>
+                        </div>
+                      </div>
+                    }
 
-                <div class="mt-12">
-
-
-                  <!-- TITULO -->
-
-                  <div
-                    class="flex items-center gap-4 mb-5"
-                  >
-
-                    <div
-                      class="h-[1px] flex-1 bg-white/10"
-                    ></div>
-
-                    <h3
-                      class="text-[8px] md:text-[9px] font-black text-[#C5A059] tracking-[0.5em] uppercase whitespace-nowrap"
-                    >
-                      Demás categorías
-                    </h3>
-
-                    <div
-                      class="h-[1px] flex-1 bg-white/10"
-                    ></div>
+                    <!-- 2° PUESTO (1RA PRINCESA / 1ER PAJE) -->
+                    @if (listaPodio[1]; as seg) {
+                      <div class="relative flex-1 min-w-0 max-w-[145px] overflow-visible">
+                        <div class="relative h-[205px] md:h-[245px] bg-black/50 backdrop-blur-xl border border-white/20 rounded-[1.7rem] p-2 md:p-3 text-center overflow-visible">
+                          <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-50 w-max px-4 py-1.5 rounded-full bg-slate-300 text-black text-[8px] md:text-[9px] font-black uppercase tracking-wide whitespace-nowrap shadow-xl">
+                            {{ tabActiva() === 'Embajadora' ? getPuestoFemeninoNombre(1) : getPuestoMasculinoNombre(1) }}
+                          </div>
+                          <div class="w-full h-[130px] md:h-[160px] mt-3 rounded-[1.2rem] overflow-hidden border border-white/10 relative">
+                            <img [src]="seg.fotosURL?.[0] || 'assets/user-default.jpg'" [alt]="seg.nombre" class="w-full h-full object-cover">
+                            <div class="absolute top-2 right-2 px-2 py-1 rounded-lg bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-black font-black text-[8px]">
+                              #{{ formatNumero(seg.numero) }}
+                            </div>
+                          </div>
+                          <h3 class="text-[8px] md:text-[10px] font-black uppercase truncate text-white mt-2">
+                            {{ seg.nombre }} {{ seg.apellido }}
+                          </h3>
+                          <div class="text-base md:text-lg font-black text-slate-300 mt-1">
+                            {{ seg.puntuacionTotal }} <span class="text-[7px]">PTS</span>
+                          </div>
+                        </div>
+                      </div>
+                    }
 
                   </div>
 
+                  <!-- CENTRO: GANADOR/A CON CORONA -->
+                  @if (listaPodio[0]; as gan) {
+                    <div class="relative shrink-0 w-[175px] md:w-[230px] z-40 overflow-visible">
+                      <div class="relative overflow-visible bg-black/60 backdrop-blur-3xl border-2 border-[#C5A059] rounded-[2rem] p-3 md:p-4 text-center shadow-[0_0_60px_rgba(197,160,89,0.30)]">
 
-
-                  <!-- ============================================== -->
-                  <!-- TARJETAS CENTRADAS -->
-                  <!-- ============================================== -->
-
-                  <div
-                    class="flex flex-wrap justify-center items-center gap-3 md:gap-4 max-w-5xl mx-auto"
-                  >
-
-                    @for (
-                      c of listaPodio.slice(3);
-                      track c.id;
-                      let i = $index
-                    ) {
-
-                      <div
-                        class="w-[180px] md:w-[195px] backdrop-blur-xl bg-white/[0.025] border border-white/10 p-3 rounded-[1.3rem] flex items-center gap-3 group hover:border-[#C5A059]/40 transition-all shadow-lg"
-                      >
+                        <!-- CORONA -->
+                        <div class="absolute -top-[68px] md:-top-[82px] left-1/2 z-[100] pointer-events-none" style="width: 115px; height: 115px; transform: translateX(-50%);">
+                          @if (tabActiva() === 'Embajadora') {
+                            <img src="assets/REYNA.png" alt="Corona de Embajadora" class="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(197,160,89,1)]">
+                          } @else {
+                            <img src="assets/REY.png" alt="Corona de Embajador" class="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(197,160,89,1)]">
+                          }
+                        </div>
 
                         <!-- FOTO -->
-
-                        <div
-                          class="w-12 h-14 md:w-14 md:h-16 rounded-lg overflow-hidden border border-white/10 shrink-0 relative"
-                        >
-
-                          <img
-                            [src]="c.fotosURL?.[0] || 'assets/user-default.jpg'"
-                            class="w-full h-full object-cover transition-transform group-hover:scale-110"
-                          >
-
-
-                          <!-- NUMERO -->
-
-                          <div
-                            class="absolute top-1 left-1 px-1 py-0.5 rounded bg-gradient-to-r from-[#8C6D2D] to-[#F3E7C4] text-black font-black text-[6px]"
-                          >
-                            #{{ formatNumero(c.numero) }}
+                        <div class="w-full h-[190px] md:h-[275px] rounded-[1.5rem] overflow-hidden border-2 border-[#C5A059]/50 mb-3 shadow-2xl relative">
+                          <img [src]="gan.fotosURL?.[0] || 'assets/user-default.jpg'" [alt]="gan.nombre" class="w-full h-full object-cover">
+                          <div class="absolute inset-0 bg-gradient-to-t from-[#C5A059]/10 to-transparent pointer-events-none"></div>
+                          <div class="absolute top-2 right-2 px-2.5 py-1 rounded-xl bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-black font-black text-[9px]">
+                            #{{ formatNumero(gan.numero) }}
                           </div>
-
                         </div>
 
+                        <!-- NOMBRE -->
+                        <h3 class="text-[10px] md:text-sm font-black uppercase text-white mb-2 leading-tight">
+                          {{ gan.nombre }} {{ gan.apellido }}
+                        </h3>
 
-
-                        <!-- INFORMACION -->
-
-                        <div class="min-w-0 text-left">
-
-                          <p
-                            class="text-[6px] font-black text-[#C5A059] uppercase tracking-widest mb-1 truncate"
-                          >
-
-                            {{
-                              tabActiva() === 'Embajadora'
-                                ? getPuestoFemeninoNombre(i + 3)
-                                : getPuestoMasculinoNombre(i + 3)
-                            }}
-
-                          </p>
-
-
-                          <h4
-                            class="text-[9px] font-bold uppercase truncate text-white"
-                          >
-                            {{ c.nombre }} {{ c.apellido }}
-                          </h4>
-
-
-                          <p
-                            class="text-xs font-black text-[#F3E7C4]"
-                          >
-                            {{ c.puntuacionTotal }} pts
-                          </p>
-
+                        <!-- PUNTAJE -->
+                        <div class="inline-flex items-center gap-1 px-5 py-1.5 rounded-full bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-black font-black text-base md:text-lg">
+                          {{ gan.puntuacionTotal }} <span class="text-[7px] uppercase">PTS</span>
                         </div>
+
+                        <!-- PUESTO -->
+                        <p class="text-[#F3E7C4] text-[7px] md:text-[8px] font-black uppercase tracking-[0.3em] mt-2">
+                          {{ tabActiva() === 'Embajadora' ? getPuestoFemeninoNombre(0) : getPuestoMasculinoNombre(0) }}
+                        </p>
 
                       </div>
+                    </div>
+                  }
 
+                  <!-- LADO DERECHO: 3° | 5° | 7° -->
+                  <div class="flex items-center justify-start gap-1 md:gap-2 flex-1 min-w-0 overflow-visible">
+
+                    <!-- 3° PUESTO (2DA PRINCESA / 2DO PAJE) -->
+                    @if (listaPodio[2]; as puesto3) {
+                      <div class="relative flex-1 min-w-0 max-w-[145px] overflow-visible">
+                        <div class="relative h-[205px] md:h-[245px] bg-black/50 backdrop-blur-xl border border-white/20 rounded-[1.7rem] p-2 md:p-3 text-center overflow-visible">
+                          <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-50 w-max px-4 py-1.5 rounded-full bg-amber-800 border border-amber-500/40 text-white text-[8px] md:text-[9px] font-black uppercase tracking-wide whitespace-nowrap shadow-xl">
+                            {{ tabActiva() === 'Embajadora' ? getPuestoFemeninoNombre(2) : getPuestoMasculinoNombre(2) }}
+                          </div>
+                          <div class="w-full h-[130px] md:h-[160px] mt-3 rounded-[1.2rem] overflow-hidden border border-white/10 relative">
+                            <img [src]="puesto3.fotosURL?.[0] || 'assets/user-default.jpg'" [alt]="puesto3.nombre" class="w-full h-full object-cover">
+                            <div class="absolute top-2 right-2 px-2 py-1 rounded-lg bg-gradient-to-r from-[#8C6D2D] via-[#F3E7C4] to-[#8C6D2D] text-black font-black text-[8px]">
+                              #{{ formatNumero(puesto3.numero) }}
+                            </div>
+                          </div>
+                          <h3 class="text-[8px] md:text-[10px] font-black uppercase truncate text-white mt-2">
+                            {{ puesto3.nombre }} {{ puesto3.apellido }}
+                          </h3>
+                          <div class="text-base md:text-lg font-black text-amber-500 mt-1">
+                            {{ puesto3.puntuacionTotal }} <span class="text-[7px]">PTS</span>
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                    <!-- 5° PUESTO -->
+                    @if (listaPodio[4]; as puesto5) {
+                      <div class="relative flex-1 min-w-0 max-w-[110px] overflow-visible">
+                        <div class="relative h-[180px] md:h-[215px] bg-black/50 backdrop-blur-xl border border-white/20 rounded-[1.4rem] p-2 text-center overflow-visible">
+                          <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-50 w-max max-w-[115px] px-3 py-1.5 rounded-full bg-black/95 border border-[#C5A059] text-[#F3E7C4] text-[7px] md:text-[8px] font-black uppercase tracking-wide text-center leading-tight shadow-xl">
+                            {{ tabActiva() === 'Embajadora' ? getPuestoFemeninoNombre(4) : getPuestoMasculinoNombre(4) }}
+                          </div>
+                          <div class="w-full h-[110px] md:h-[130px] mt-2 rounded-xl overflow-hidden border border-white/10">
+                            <img [src]="puesto5.fotosURL?.[0] || 'assets/user-default.jpg'" [alt]="puesto5.nombre" class="w-full h-full object-cover">
+                          </div>
+                          <div class="text-[6px] text-[#C5A059] font-black mt-1">
+                            #{{ formatNumero(puesto5.numero) }}
+                          </div>
+                          <h4 class="text-[7px] md:text-[8px] font-black uppercase text-white truncate mt-1">
+                            {{ puesto5.nombre }} {{ puesto5.apellido }}
+                          </h4>
+                          <div class="text-[9px] md:text-[10px] font-black text-[#F3E7C4] mt-1">
+                            {{ puesto5.puntuacionTotal }} <span class="text-[5px]">PTS</span>
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                    <!-- 7° PUESTO -->
+                    @if (listaPodio[6]; as puesto7) {
+                      <div class="relative flex-1 min-w-0 max-w-[100px] overflow-visible">
+                        <div class="relative h-[165px] md:h-[190px] bg-black/50 backdrop-blur-xl border border-white/20 rounded-[1.2rem] p-2 text-center overflow-visible">
+                          <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-50 w-max max-w-[105px] px-2 py-1.5 rounded-full bg-black/95 border border-[#C5A059] text-[#F3E7C4] text-[6px] md:text-[7px] font-black uppercase tracking-wide text-center leading-tight shadow-xl">
+                            {{ tabActiva() === 'Embajadora' ? getPuestoFemeninoNombre(6) : getPuestoMasculinoNombre(6) }}
+                          </div>
+                          <div class="w-full h-[100px] md:h-[115px] mt-2 rounded-lg overflow-hidden border border-white/10">
+                            <img [src]="puesto7.fotosURL?.[0] || 'assets/user-default.jpg'" [alt]="puesto7.nombre" class="w-full h-full object-cover">
+                          </div>
+                          <div class="text-[6px] text-[#C5A059] font-black mt-1">
+                            #{{ formatNumero(puesto7.numero) }}
+                          </div>
+                          <h4 class="text-[6px] md:text-[7px] font-black uppercase text-white truncate mt-1">
+                            {{ puesto7.nombre }} {{ puesto7.apellido }}
+                          </h4>
+                          <div class="text-[8px] md:text-[9px] font-black text-[#F3E7C4] mt-1">
+                            {{ puesto7.puntuacionTotal }} <span class="text-[5px]">PTS</span>
+                          </div>
+                        </div>
+                      </div>
                     }
 
                   </div>
 
                 </div>
-
-              }
+              </div>
 
             </div>
 
           }
 
-
-
           <!-- ====================================================== -->
-          <!-- AUDITORÍA -->
+          <!-- AUDITORÍA TÉCNICA (MATRIZ COMPACTA CON CLAVES LIMPIAS) -->
           <!-- ====================================================== -->
-
           @if (tabActiva() === 'Matriz') {
+            <div class="space-y-12 animate-fadeIn pb-20">
 
-            <div
-              class="space-y-12 animate-fadeIn pb-20"
-            >
-
-              @for (
-                grupo of matrizData();
-                track grupo.titulo
-              ) {
-
+              @for (grupo of matrizData(); track grupo.titulo) {
                 <div class="space-y-5">
 
-
-                  <!-- TITULO GRUPO -->
-
-                  <h3
-                    class="text-[10px] font-black text-[#C5A059] tracking-[0.6em] uppercase flex items-center gap-5"
-                  >
-
-                    <div
-                      class="h-[1px] flex-1 bg-white/10"
-                    ></div>
-
+                  <!-- TÍTULO DEL GRUPO -->
+                  <h3 class="text-[10px] font-black text-[#C5A059] tracking-[0.6em] uppercase flex items-center gap-5">
+                    <div class="h-[1px] flex-1 bg-white/10"></div>
                     {{ grupo.titulo }}
-
-                    <div
-                      class="h-[1px] flex-1 bg-white/10"
-                    ></div>
-
+                    <div class="h-[1px] flex-1 bg-white/10"></div>
                   </h3>
 
-
-
-                  <!-- TABLA -->
-
-                  <div
-                    class="rounded-3xl bg-black/40 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-2xl"
-                  >
-
-                    <div
-                      class="overflow-x-auto custom-scrollbar"
-                    >
-
-                      <table
-                        class="w-full text-left text-[10px]"
-                      >
-
+                  <!-- TABLA DE AUDITORÍA -->
+                  <div class="rounded-3xl bg-black/40 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-2xl">
+                    <div class="overflow-x-auto custom-scrollbar">
+                      <table class="w-full text-left text-[10px]">
                         <thead>
+                          <tr class="bg-white/5 border-b border-white/5 text-[#F3E7C4] font-black uppercase tracking-widest">
+                            <th class="py-5 px-6">Ranking</th>
+                            <th class="py-5 px-6">Participante</th>
 
-                          <tr
-                            class="bg-white/5 border-b border-white/5 text-[#F3E7C4] font-black uppercase tracking-widest"
-                          >
-
-                            <th class="py-5 px-8">
-                              Ranking
-                            </th>
-
-                            <th class="py-5 px-8">
-                              Participante
-                            </th>
-
-
-                            @for (
-                              crit of grupo.criterios;
-                              track crit
-                            ) {
-
-                              <th
-                                class="py-5 px-2 text-center opacity-60 font-medium"
-                              >
-                                {{ crit }}
+                            <!-- 👈 TÍTULO CORTO DEL CRITERIO (SIN DESBORDES) -->
+                            @for (crit of grupo.criterios; track crit) {
+                              <th class="py-5 px-3 text-center opacity-70 font-bold uppercase tracking-wider">
+                                {{ getNombreCriterio(crit) }}
                               </th>
-
                             }
 
-
-                            <th
-                              class="py-5 px-8 text-right"
-                            >
-                              Total Final
+                            <!-- COLUMNA BASE DE PRESENTACIÓN (+20 PTS POR JURADO) -->
+                            <th class="py-5 px-3 text-center text-[#C5A059] font-black uppercase tracking-wider">
+                              Base (+20)
                             </th>
 
+                            <!-- TOTAL FINAL -->
+                            <th class="py-5 px-8 text-right font-black uppercase tracking-wider">
+                              Total Final
+                            </th>
                           </tr>
-
                         </thead>
 
-
-
-                        <tbody
-                          class="divide-y divide-white/5 text-white/80"
-                        >
-
-                          @for (
-                            c of grupo.candidatas;
-                            track c.id;
-                            let i = $index
-                          ) {
-
-                            <tr
-                              class="hover:bg-white/[0.04] transition-colors group"
-                            >
-
-                              <td
-                                class="py-4 px-8 font-black text-[#C5A059]"
-                              >
+                        <tbody class="divide-y divide-white/5 text-white/80">
+                          @for (c of grupo.candidatas; track c.id; let i = $index) {
+                            <tr class="hover:bg-white/[0.04] transition-colors group">
+                              <td class="py-4 px-6 font-black text-[#C5A059]">
                                 {{ i + 1 }}°
                               </td>
 
-
-                              <td
-                                class="py-4 px-8 font-bold uppercase tracking-tight"
-                              >
-
-                                <span
-                                  class="mr-2 text-neutral-500"
-                                >
+                              <td class="py-4 px-6 font-bold uppercase tracking-tight">
+                                <span class="mr-2 text-neutral-500">
                                   #{{ formatNumero(c.numero) }}
                                 </span>
-
                                 {{ c.nombre }} {{ c.apellido }}
-
                               </td>
 
-
-                              @for (
-                                crit of grupo.criterios;
-                                track crit
-                              ) {
-
-                                <td
-                                  class="py-4 px-2 text-center text-white/40 group-hover:text-white transition-all"
-                                >
-                                  {{
-                                    c.puntuacionPorCriterio?.[crit] || 0
-                                  }}
+                              <!-- 👈 LECTURA DE NOTAS POR CLAVE LIMPIA DE FIREBASE -->
+                              @for (crit of grupo.criterios; track crit) {
+                                <td class="py-4 px-3 text-center text-white/60 group-hover:text-white transition-all font-semibold">
+                                  {{ c.puntuacionPorCriterio?.[getNombreCriterio(crit)] || 0 }}
                                 </td>
-
                               }
 
-
-                              <td
-                                class="py-4 px-8 text-right font-black text-lg text-[#F3E7C4]"
-                              >
-                                {{ c.puntuacionTotal }} pts
+                              <!-- Puntaje base acumulado (+20 x cantidad de votos) -->
+                              <td class="py-4 px-3 text-center text-[#C5A059] font-bold tabular-nums">
+                                +{{ (c.cantidadDeVotos || 0) * 20 }} pts
                               </td>
 
+                              <!-- Total acumulado en base de datos -->
+                              <td class="py-4 px-8 text-right font-black text-lg text-[#F3E7C4] tabular-nums">
+                                {{ c.puntuacionTotal }} pts
+                              </td>
                             </tr>
-
                           }
-
                         </tbody>
-
                       </table>
-
                     </div>
-
                   </div>
 
                 </div>
-
               }
 
             </div>
-
           }
 
         }

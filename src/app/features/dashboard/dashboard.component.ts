@@ -3,6 +3,7 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { Eleccion } from '../../core/models/eleccion.model';
+import { FullscreenService } from '../../core/services/fullscreen.service.ts.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,6 +15,7 @@ import { Eleccion } from '../../core/models/eleccion.model';
 export class DashboardComponent {
   authService = inject(AuthService);
 
+  fullscreenService = inject(FullscreenService);
   currentUser = this.authService.currentUser;
 
   // En celulares: Drawer abierto o cerrado

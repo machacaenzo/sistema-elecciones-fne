@@ -25,12 +25,9 @@ export class VotacionMesaComponent {
   @Output() volverATandas = new EventEmitter<void>();
   @Output() cerrarMesa = new EventEmitter<void>();
   @Output() candidatoSeleccionado = new EventEmitter<Candidata>();
-  @Output() sliderActualizado = new EventEmitter<{ index: number; controlName: string; event: Event }>();
   @Output() irARevisar = new EventEmitter<void>();
 
   isHeaderMinimized = signal(false);
-
-  // Mensaje flotante de confirmación rápida para personas mayores
   mensajeGuardado = signal<string | null>(null);
   private mensajeTimeout: any = null;
 
@@ -38,6 +35,16 @@ export class VotacionMesaComponent {
 
   toggleHeaderMinimize(): void {
     this.isHeaderMinimized.update(val => !val);
+  }
+
+  getNombreCriterio(criterio: string): string {
+    if (!criterio) return '';
+    return criterio.includes(':') ? criterio.split(':')[0].trim() : criterio.trim();
+  }
+
+  getDescripcionCriterio(criterio: string): string | null {
+    if (!criterio || !criterio.includes(':')) return null;
+    return criterio.split(':')[1].trim();
   }
 
   esUltimoCandidato(): boolean {
@@ -56,7 +63,6 @@ export class VotacionMesaComponent {
     return idx <= 0;
   }
 
-  // Muestra el aviso verde de confirmación rápida
   lanzarAvisoGuardado(nombre: string, pts: number): void {
     if (this.mensajeTimeout) clearTimeout(this.mensajeTimeout);
     this.mensajeGuardado.set(`✓ Puntaje de #${this.formatNumero(this.candidatas[this.currentStep]?.numero)} ${nombre} guardado (${pts} pts)`);
@@ -71,8 +77,6 @@ export class VotacionMesaComponent {
 
     const actual = this.candidatas[this.currentStep];
     const pts = this.calculateTotalScore(this.currentStep);
-
-    // Disparamos la confirmación visual para que el jurado sepa que se guardó
     this.lanzarAvisoGuardado(actual.nombre, pts);
 
     const idx = filtrados.findIndex(c => c.id === actual?.id);
@@ -97,10 +101,14 @@ export class VotacionMesaComponent {
     }
   }
 
+  // Modificación directa y suave al control reactivo
   setScoreDirect(index: number, controlName: string, value: number): void {
     if (this.tandaFirmada) return;
-    const fakeEvent = { target: { value: value.toString() } } as unknown as Event;
-    this.sliderActualizado.emit({ index, controlName, event: fakeEvent });
+    const claveLimpia = this.getNombreCriterio(controlName);
+    const control = this.evaluacionesArray.at(index)?.get(claveLimpia);
+    if (control) {
+      control.setValue(value);
+    }
   }
 
   scrollCarousel(direction: 'left' | 'right'): void {
@@ -128,12 +136,22 @@ export class VotacionMesaComponent {
   calculateTotalScore(idx: number): number {
     const group = this.evaluacionesArray.at(idx) as FormGroup;
     if (!group || !this.candidatas[idx] || !this.eleccion) return 0;
+
     const criterios = this.getCriteriosParaCandidata(this.candidatas[idx], this.eleccion);
-    return criterios.reduce((acc, c) => acc + (Number(group.get(c)?.value) || 5), 0);
+    const puntosPorPresentarse = 20;
+
+    const puntosCriterios = criterios.reduce((total, criterio) => {
+      const nombreClave = this.getNombreCriterio(criterio);
+      const valor = Number(group.get(nombreClave)?.value ?? 5);
+      return total + Math.max(5, Math.min(10, valor));
+    }, 0);
+
+    return puntosPorPresentarse + puntosCriterios;
   }
 
   getEvaluacionValue(index: number, controlName: string): number {
-    const val = this.evaluacionesArray.at(index)?.get(controlName)?.value;
+    const claveLimpia = this.getNombreCriterio(controlName);
+    const val = this.evaluacionesArray.at(index)?.get(claveLimpia)?.value;
     return val !== null && val !== undefined && !isNaN(val) ? Number(val) : 5;
   }
 }

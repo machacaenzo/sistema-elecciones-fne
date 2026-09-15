@@ -22,7 +22,6 @@
 
         <!-- PANTALLA A: SELECCIONAR TANDA -->
         @if (!categoriaSeleccionada()) {
-          <!-- Barra superior de Pantalla A con botón de cerrar -->
           <div class="w-full px-6 sm:px-10 py-4 border-b border-white/10 bg-black/40 flex items-center justify-between shrink-0">
             <div class="flex items-center gap-3">
               <img src="assets/logo-fne.png" class="w-8 h-8 sm:w-9 sm:h-9 object-contain" alt="FNE">
@@ -42,7 +41,7 @@
           </app-votacion-tanda>
         }
 
-        <!-- PANTALLA B: MESA DE CALIFICACIÓN (TIENE SU PROPIO BOTÓN DE CERRAR INTEGRADO) -->
+        <!-- PANTALLA B: MESA DE CALIFICACIÓN -->
         @else if (!isReviewMode()) {
           <app-votacion-mesa
             [candidatas]="candidatas()"
@@ -56,14 +55,12 @@
             (volverATandas)="categoriaSeleccionada.set(null)"
             (cerrarMesa)="closeVotingMode()"
             (candidatoSeleccionado)="selectCandidate($event)"
-            (sliderActualizado)="updateSliderValue($event.index, $event.controlName, $event.event)"
             (irARevisar)="enterReviewMode()">
           </app-votacion-mesa>
         }
 
         <!-- PANTALLA C: AUDITORÍA Y FIRMA -->
         @else {
-          <!-- Barra superior de Pantalla C con botón de cerrar -->
           <div class="w-full px-6 sm:px-10 py-4 border-b border-white/10 bg-black/40 flex items-center justify-between shrink-0">
             <div class="flex items-center gap-3">
               <img src="assets/logo-fne.png" class="w-8 h-8 sm:w-9 sm:h-9 object-contain" alt="FNE">

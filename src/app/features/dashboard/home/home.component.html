@@ -1,21 +1,29 @@
 <div class="space-y-6 text-neutral-100 font-sans pb-10">
 
-  <!-- CABECERA INSTITUCIONAL CON TÍTULO DORADO -->
+  <!-- ========================================================= -->
+  <!-- CABECERA INSTITUCIONAL CON ESCUDO DE LA ESCUELA NORMAL    -->
+  <!-- ========================================================= -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
-    <div>
-      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0A0A0A] border border-[#C5A059]/40 text-xs font-bold text-[#F3E7C4] mb-2 shadow-sm">
-        <i class="bi bi-stars text-[#C5A059]"></i>
-        <span>SISTEMA OFICIAL DE ELECCIÓN Y ESCRUTINIO</span>
+    <div class="flex items-center gap-3.5">
+      <!-- Escudo Escuela Normal -->
+      <div class="w-12 h-12 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/60 flex items-center justify-center p-1 shadow-[0_0_20px_rgba(197,160,89,0.3)] flex-shrink-0">
+        <img src="assets/esc-normal-logo.png" alt="Escuela Normal" class="w-full h-full object-contain">
       </div>
-      <h1 class="text-2xl sm:text-3xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] drop-shadow-[0_2px_15px_rgba(197,160,89,0.25)]">
-        Bienvenido/a, {{ currentUser()?.nombre }} {{ currentUser()?.apellido }}
-      </h1>
-      <p class="text-xs sm:text-sm text-neutral-300 mt-0.5">
-        Panel General &bull; Rol: <span class="text-[#F3E7C4] font-bold">{{ currentUser()?.rol }}</span>
-      </p>
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#0A0A0A] border border-[#C5A059]/40 text-[10px] font-black tracking-widest text-[#F3E7C4] mb-1">
+          <i class="bi bi-stars text-[#C5A059]"></i>
+          <span>ESCUELA NORMAL SUPERIOR "GENDARMERÍA NACIONAL"</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#FFF3D1] via-[#F3E7C4] to-[#C5A059] drop-shadow-[0_2px_15px_rgba(197,160,89,0.25)]">
+          Bienvenido/a, {{ currentUser()?.nombre }} {{ currentUser()?.apellido }}
+        </h1>
+        <p class="text-xs text-neutral-400 mt-0.5">
+          Panel de Control &bull; Rol: <span class="text-[#F3E7C4] font-bold">{{ currentUser()?.rol === 'Administrador' ? 'ADMINISTRADOR' : 'JURADO OFICIAL' }}</span>
+        </p>
+      </div>
     </div>
 
-    <!-- Badge del Evento Activo -->
+    <!-- Badge del Evento en Curso -->
     @if (eleccionActiva(); as eleccion) {
       <div class="px-5 py-3 rounded-2xl backdrop-blur-xl bg-[#050505]/80 border border-[#C5A059]/40 shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center gap-3.5">
         <div class="w-10 h-10 rounded-xl bg-[#0A0A0A] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-lg shadow-sm flex-shrink-0">
@@ -32,16 +40,15 @@
   <!-- LÍNEA DIVISORIA DORADA -->
   <div class="h-[1px] w-full bg-gradient-to-r from-transparent via-[#C5A059]/50 to-transparent"></div>
 
-  <!-- GRILLA DE MÉTRICAS EN VIVO -->
+  <!-- ========================================================= -->
+  <!-- GRILLA DE MÉTRICAS EN VIVO CON CORONAS REALES             -->
+  <!-- ========================================================= -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 
-    <!-- 1. EMBAJADORAS -->
+    <!-- 1. EMBAJADORAS (CON CORONA REYNA.PNG) -->
     <div class="p-5 rounded-3xl backdrop-blur-2xl bg-[#050505]/80 hover:bg-[#0A0A0A] border border-[#C5A059]/30 hover:border-[#C5A059]/70 shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center gap-4 transition-all duration-300">
-      <div class="w-12 h-12 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/50 flex items-center justify-center shadow-[0_0_15px_rgba(197,160,89,0.2)] flex-shrink-0">
-        <svg class="w-6 h-6 fill-[#C5A059]" viewBox="0 0 16 16">
-          <path d="M11.5 8a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 1 .5-.5z"/>
-          <path d="M2.52 3.515A.5.5 0 0 1 3 3h10a.5.5 0 0 1 .48.642L12.05 9H3.95L2.52 3.515zM8 0a1.5 1.5 0 0 1 1.415 1H10.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H5.5a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h1.085A1.5 1.5 0 0 1 8 0"/>
-        </svg>
+      <div class="w-12 h-12 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/50 flex items-center justify-center p-2 shadow-[0_0_15px_rgba(197,160,89,0.2)] flex-shrink-0">
+        <img src="assets/REYNA.png" alt="Corona Reina" class="w-full h-full object-contain">
       </div>
       <div>
         <p class="text-2xl font-black text-white">{{ embajadorasCount() }}</p>
@@ -49,10 +56,10 @@
       </div>
     </div>
 
-    <!-- 2. EMBAJADORES -->
+    <!-- 2. EMBAJADORES (CON CORONA REY.PNG) -->
     <div class="p-5 rounded-3xl backdrop-blur-2xl bg-[#050505]/80 hover:bg-[#0A0A0A] border border-[#C5A059]/30 hover:border-[#C5A059]/70 shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center gap-4 transition-all duration-300">
-      <div class="w-12 h-12 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/50 flex items-center justify-center text-[#F3E7C4] text-xl shadow-[0_0_15px_rgba(197,160,89,0.2)] flex-shrink-0">
-        <i class="bi bi-person-badge-fill text-[#C5A059]"></i>
+      <div class="w-12 h-12 rounded-2xl bg-[#0A0A0A] border border-[#C5A059]/50 flex items-center justify-center p-2 shadow-[0_0_15px_rgba(197,160,89,0.2)] flex-shrink-0">
+        <img src="assets/REY.png" alt="Corona Rey" class="w-full h-full object-contain">
       </div>
       <div>
         <p class="text-2xl font-black text-white">{{ embajadoresCount() }}</p>
@@ -97,10 +104,12 @@
 
   </div>
 
-  <!-- ACCESOS RÁPIDOS Y RESUMEN -->
+  <!-- ========================================================= -->
+  <!-- ACCESOS RÁPIDOS Y RESUMEN                                 -->
+  <!-- ========================================================= -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <!-- COLUMNA IZQUIERDA: ACCESOS RÁPIDOS -->
+    <!-- COLUMNA IZQUIERDA: ACCESOS RÁPIDOS (2 DE 3 COLS) -->
     <div class="lg:col-span-2 space-y-4">
       <div class="flex items-center gap-2.5">
         <i class="bi bi-grid-fill text-[#C5A059] text-base"></i>
@@ -109,7 +118,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-        <!-- Noches de Elección (Admin) -->
+        <!-- Noches de Elección (Solo Admin) -->
         @if (isAdmin()) {
           <a routerLink="/dashboard/admin/elections"
              class="group p-5 sm:p-6 rounded-3xl backdrop-blur-2xl bg-[#050505]/80 hover:bg-[#0A0A0A] border border-[#C5A059]/30 hover:border-[#C5A059]/70 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
@@ -141,9 +150,9 @@
           </a>
         }
 
-        <!-- Pantalla de Proclamación / Escenario -->
-        @if (eleccionActiva()?.id) {
-          <a [routerLink]="['/dashboard/resultados', eleccionActiva()?.id]"
+        <!-- PANTALLA DE PROCLAMACIÓN / ESCENARIO (SOLO VISIBLE CUANDO LA GALA ESTÁ PUBLICADA) -->
+        @if (eleccionActiva()?.estado === 'Publicada') {
+          <a [routerLink]="['/escenario', eleccionActiva()?.id]"
              class="group p-5 sm:p-6 rounded-3xl backdrop-blur-2xl bg-[#050505]/80 hover:bg-[#0A0A0A] border border-[#C5A059]/40 hover:border-[#C5A059]/80 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.8)] sm:col-span-2">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -151,9 +160,9 @@
                   <i class="bi bi-award-fill text-[#C5A059]"></i>
                 </div>
                 <h3 class="text-base font-bold text-white group-hover:text-[#F3E7C4] transition-colors">
-                  Pantalla de Proclamación / Escenario
+                  Pantalla Gigante de Coronación
                 </h3>
-                <p class="text-xs text-neutral-400 mt-1">Conectar al proyector para revelar ganadores y coronar a la Embajadora.</p>
+                <p class="text-xs text-neutral-400 mt-1">Proyectar el podio oficial con fuegos artificiales y coronas en vivo.</p>
               </div>
 
               <span class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/70 group-hover:scale-105 transition-all flex-shrink-0">
@@ -163,7 +172,7 @@
           </a>
         }
 
-        <!-- Planilla de Votación (Solo Jurados Oficiales Habilitados) -->
+        <!-- Planilla de Votación (Solo Jurados Habilitados) -->
         @if (isJurado()) {
           <a routerLink="/dashboard/votacion"
              class="group p-5 sm:p-6 rounded-3xl backdrop-blur-2xl bg-[#050505]/80 hover:bg-[#0A0A0A] border border-[#C5A059]/40 hover:border-[#C5A059]/80 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.8)] sm:col-span-2">
@@ -173,9 +182,9 @@
                   <i class="bi bi-pencil-square text-[#C5A059]"></i>
                 </div>
                 <h3 class="text-base font-bold text-white group-hover:text-[#F3E7C4] transition-colors">
-                  Abrir Planilla de Jurado
+                  Abrir Planilla de Calificación
                 </h3>
-                <p class="text-xs text-neutral-400 mt-1">Calificación en vivo para Embajadoras y Embajadores.</p>
+                <p class="text-xs text-neutral-400 mt-1">Ingresar a calificar en vivo a Embajadoras y Embajadores.</p>
               </div>
 
               <span class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-b from-[#FFF3D1] via-[#C5A059] to-[#8C6D2D] text-[#0A0D14] font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(197,160,89,0.35)] border border-[#FFF3D1]/70 group-hover:scale-105 transition-all flex-shrink-0">
@@ -206,7 +215,7 @@
             <p class="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">Fecha del Evento</p>
             <p class="text-xs sm:text-sm font-semibold text-[#F3E7C4] mt-0.5">
               <i class="bi bi-calendar3 mr-1.5 text-[#C5A059]"></i>
-              {{ (eleccion.fechaEvento || eleccion.fechaInicio)?.toDate() | date:'dd/MM/yyyy' }}
+              {{ (eleccion.fechaEvento || eleccion.fechaInicio).toDate() | date:'dd/MM/yyyy' }}
             </p>
           </div>
 

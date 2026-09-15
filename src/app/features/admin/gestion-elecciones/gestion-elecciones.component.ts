@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Timestamp } from '@angular/fire/firestore';
+import { getDocs, Timestamp } from '@angular/fire/firestore';
 
 import { EleccionService } from './eleccion.service';
 import { NotificacionService } from '../../../core/services/notificacion.service';
@@ -15,7 +15,8 @@ import { PdfExportService } from '../../../core/services/pdf-export.service';
 import { CandidataService } from './candidata.service';
 import { Candidata } from '../../../core/models/candidata.model';
 import { first } from 'rxjs';
-
+import { collection,  query, where } from '@angular/fire/firestore';
+import { FirestoreService } from '../../../core/services/firestore.service';
 
 @Component({
   selector: 'app-gestion-elecciones',
@@ -33,6 +34,7 @@ import { first } from 'rxjs';
 export class GestionEleccionesComponent implements OnInit {
   private eleccionService = inject(EleccionService);
   private notificationService = inject(NotificacionService);
+  private firestoreService = inject(FirestoreService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
@@ -381,5 +383,104 @@ openEscenario(eleccion: Eleccion): void {
     this.router.navigate(['/escenario', eleccion.id]);
   }
 }
+
+verAuditoria(eleccion: Eleccion): void {
+  if (!eleccion?.id) {
+    return;
+  }
+
+  this.router.navigate(['/dashboard/resultados', eleccion.id]);
+}
+
+ // Método para redirigir directamente al escrutinio / podio
+  verResultados(eleccion: Eleccion): void {
+    if (eleccion.id) {
+      this.router.navigate(['/dashboard/resultados', eleccion.id]);
+    }
+  }
+
+  // 📄 Descargar Planilla de Calificación para Jurados (Para imprimir)
+  descargarPlanillaJurados(eleccion: Eleccion): void {
+    if (!eleccion.id) return;
+    this.candidataService.getCandidatasPorEleccion(eleccion.id).pipe(first()).subscribe({
+      next: async (candidatas: Candidata[]) => {
+        if (!candidatas || candidatas.length === 0) {
+          this.notificationService.showAlertWarning('Sin Datos', 'No hay participantes cargados para armar la planilla.');
+          return;
+        }
+        await this.pdfExportService.exportarPlanillaJurado(eleccion, candidatas);
+        this.notificationService.showSuccessToast('Planilla de Jurados descargada');
+      },
+      error: () => this.notificationService.showAlertError('Error', 'No se pudieron cargar los participantes.')
+    });
+  }
+
+  // 🎤 Descargar Guion Oficial para el Locutor
+  descargarGuionLocutor(eleccion: Eleccion): void {
+    if (!eleccion.id) return;
+    this.candidataService.getCandidatasPorEleccion(eleccion.id).pipe(first()).subscribe({
+      next: async (candidatas: Candidata[]) => {
+        if (!candidatas || candidatas.length === 0) {
+          this.notificationService.showAlertWarning('Sin Datos', 'No hay participantes cargados para armar el guion.');
+          return;
+        }
+        await this.pdfExportService.exportarGuionLocutor(eleccion, candidatas);
+        this.notificationService.showSuccessToast('Guion del Locutor descargado');
+      },
+      error: () => this.notificationService.showAlertError('Error', 'No se pudieron cargar los participantes.')
+    });
+  }
+
+  // 📥 Exportar TODA la base de datos de la elección a un solo archivo JSON
+  // 📥 Exportar base de datos liviana (Sin fotos Base64, solo puntajes y votos)
+  // async exportarAuditoriaJSON(eleccion: Eleccion): Promise<void> {
+  //   if (!eleccion.id) return;
+
+  //   try {
+  //     this.notificationService.showSuccessToast('Generando reporte liviano...');
+
+  //     // 1. Obtener todas las candidatas SIN las fotos Base64 pesadas
+  //     const candsSnap = await getDocs(query(collection(this.firestoreService['firestore'], 'candidatas'), where('eleccionId', '==', eleccion.id)));
+  //     const candidatas = candsSnap.docs.map(d => {
+  //       const data = d.data() as any;
+  //       const { fotosURL, ...datosSinFotos } = data; // 👈 Quita las fotos pesadas
+  //       return { id: d.id, ...datosSinFotos };
+  //     });
+
+  //     // 2. Obtener todas las actas firmadas por los jurados
+  //     const votosSnap = await getDocs(query(collection(this.firestoreService['firestore'], 'votos_jurados'), where('eleccionId', '==', eleccion.id)));
+  //     const votos = votosSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  //     // 3. Estructurar el paquete liviano
+  //     const dataCompleta = {
+  //       fechaExportacion: new Date().toISOString(),
+  //       eleccion: {
+  //         id: eleccion.id,
+  //         nombre: eleccion.nombre,
+  //         estado: eleccion.estado,
+  //         criteriosFemeninos: eleccion.criteriosFemeninos,
+  //         criteriosMasculinos: eleccion.criteriosMasculinos,
+  //         puestosFemeninos: eleccion.puestosFemeninos,
+  //         puestosMasculinos: eleccion.puestosMasculinos
+  //       },
+  //       resumenCandidatas: candidatas,
+  //       actasFirmadasJurados: votos
+  //     };
+
+  //     // 4. Descargar archivo liviano (Ocupa menos de 20 KB)
+  //     const blob = new Blob([JSON.stringify(dataCompleta, null, 2)], { type: 'application/json' });
+  //     const url = window.URL.createObjectURL(blob);
+  //     const a = document.createElement('a');
+  //     a.href = url;
+  //     a.download = `auditoria_gala_${eleccion.nombre.replace(/[^a-zA-Z0-9]/g, '_')}.json`;
+  //     a.click();
+  //     window.URL.revokeObjectURL(url);
+
+  //     this.notificationService.showAlertSuccess('Reporte Listo', 'Se descargó el archivo liviano.');
+  //   } catch (e: any) {
+  //     console.error('Error al exportar:', e);
+  //     this.notificationService.showAlertError('Error', 'No se pudo exportar la base de datos.');
+  //   }
+  // }
 }
 
